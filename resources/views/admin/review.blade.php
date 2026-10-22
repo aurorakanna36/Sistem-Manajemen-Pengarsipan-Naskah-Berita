@@ -47,8 +47,8 @@
         <div>
             <div class="sidebar-brand">[ADMIN CAKRAWALA]</div>
             <nav class="sidebar-menu">
-                <a href="#">Dashboard Admin</a>
                 <a href="{{ route('admin.review') }}" class="active">Review Naskah</a>
+                <a href="{{ route('admin.users.index') }}">Manajemen User</a>
                 <a href="{{ route('home') }}" target="_blank">Lihat Portal</a>
             </nav>
         </div>

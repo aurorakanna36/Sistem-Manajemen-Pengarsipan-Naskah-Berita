@@ -38,8 +38,11 @@ Route::middleware(['auth'])->prefix('kontributor')->name('kontributor.')->group(
     Route::post('/naskah', [KontributorDashboardController::class, 'storeNaskah'])->name('naskah.store');
 });
 
-// 5. Area Admin (Wireframe Dashboard Review Naskah)
+// 5. Area Admin (Dashboard Review Naskah & Manajemen User)
 Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/review-naskah', [AdminReviewController::class, 'index'])->name('review');
     Route::post('/review-naskah/{id}/decide', [AdminReviewController::class, 'decide'])->name('decide');
+
+    Route::get('/users', [\App\Http\Controllers\Admin\AdminUserController::class, 'index'])->name('users.index');
+    Route::post('/users/{id}/verify', [\App\Http\Controllers\Admin\AdminUserController::class, 'verify'])->name('users.verify');
 });

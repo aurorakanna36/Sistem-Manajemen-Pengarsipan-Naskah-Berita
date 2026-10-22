@@ -11,61 +11,57 @@ use Illuminate\Support\Facades\Hash;
 class AuthController extends Controller
 {
     /**
-     * Tampilkan halaman login split-screen sesuai wireframe.
+     * Tampilkan halaman login split-screen.
      */
-    public function showLoginForm(Request $request)
+    public function showLoginForm()
     {
-        // default role pilihan jika diarahkan dari homepage
-        $selectedRole = $request->query('role', 'kontributor');
-        return view('auth.login', compact('selectedRole'));
+        return view('auth.login');
     }
 
     /**
-     * Proses autentikasi pengguna.
+     * Proses autentikasi pengguna secara otomatis berdasarkan email dan password.
      */
     public function login(Request $request)
     {
         $credentials = $request->validate([
             'email' => ['required', 'email'],
             'password' => ['required'],
-            'role' => ['required', 'in:kontributor,admin'],
         ]);
 
-        if (Auth::attempt(['email' => $credentials['email'], 'password' => $credentials['password']])) {
+        if (Auth::attempt($credentials)) {
             $request->session()->regenerate();
             $user = Auth::user();
 
-            // Validasi kesesuaian peran
-            if ($user->role !== $credentials['role']) {
-                Auth::logout();
-                return back()->withErrors([
-                    'role' => "Akun ini terdaftar sebagai {$user->role}, bukan {$credentials['role']}.",
-                ])->withInput($request->only('email', 'role'));
-            }
-
-            // Jika admin
+            // Jika peran adalah Admin
             if ($user->role === 'admin') {
                 return redirect()->intended(route('admin.review'));
             }
 
-            // Jika kontributor masih pending
-            if ($user->status_verifikasi === 'pending') {
-                return redirect()->route('kontributor.pending');
+            // Jika peran adalah Kontributor
+            if ($user->role === 'kontributor') {
+                if ($user->status_verifikasi === 'pending') {
+                    Auth::logout();
+                    return back()->withErrors([
+                        'email' => 'Akun kontributor Anda sedang menunggu verifikasi oleh redaksi sebelum dapat masuk.',
+                    ])->withInput($request->only('email'));
+                }
+
+                if ($user->status_verifikasi === 'rejected') {
+                    Auth::logout();
+                    return back()->withErrors([
+                        'email' => 'Pendaftaran akun kontributor Anda ditolak oleh redaksi.',
+                    ])->withInput($request->only('email'));
+                }
+
+                return redirect()->intended(route('kontributor.dashboard'));
             }
 
-            if ($user->status_verifikasi === 'rejected') {
-                Auth::logout();
-                return back()->withErrors([
-                    'email' => 'Pendaftaran kontributor Anda ditolak oleh redaksi.',
-                ]);
-            }
-
-            return redirect()->intended(route('kontributor.dashboard'));
+            return redirect()->intended('/');
         }
 
         return back()->withErrors([
             'email' => 'Kombinasi email atau kata sandi tidak cocok.',
-        ])->withInput($request->only('email', 'role'));
+        ])->withInput($request->only('email'));
     }
 
     /**

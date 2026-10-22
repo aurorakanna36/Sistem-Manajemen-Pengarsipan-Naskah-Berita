@@ -251,14 +251,6 @@
                         <input type="password" id="password" name="password" class="form-control" placeholder="Kata sandi" required>
                     </div>
 
-                    <div class="form-group">
-                        <label for="role">Masuk sebagai</label>
-                        <select id="role" name="role" class="form-control" required>
-                            <option value="kontributor" {{ (old('role', $selectedRole) == 'kontributor') ? 'selected' : '' }}>Kontributor</option>
-                            <option value="admin" {{ (old('role', $selectedRole) == 'admin') ? 'selected' : '' }}>Admin</option>
-                        </select>
-                    </div>
-
                     <button type="submit" class="btn-submit">Masuk</button>
 
                     <div class="form-footer">

@@ -19,13 +19,10 @@ return new class extends Migration
             $table->longText('isi_naskah')->nullable();
             $table->string('berkas_naskah')->nullable();
             
-            // Relasi polimorfik ke User atau Guest
             $table->morphs('author');
 
-            // 3 Tahapan Utama
             $table->enum('tahap', ['pengarsipan', 'verifikasi', 'selesai'])->default('pengarsipan');
 
-            // Keputusan Redaksi
             $table->enum('keputusan', ['menunggu', 'diterima', 'revisi', 'ditolak'])->default('menunggu');
             $table->boolean('is_published')->default(false);
             $table->text('alasan_penolakan')->nullable();
