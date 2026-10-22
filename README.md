@@ -4,7 +4,7 @@ Repositori ini memuat aplikasi backend dan antarmuka web sistem pengarsipan nask
 
 ---
 
-## 👥 Akun Uji Coba (Default Seeder)
+## Akun Uji Coba (Default Seeder)
 
 Setelah menjalankan `php artisan migrate --seed`, akun berikut siap langsung digunakan untuk login:
 
@@ -17,7 +17,7 @@ Setelah menjalankan `php artisan migrate --seed`, akun berikut siap langsung dig
 
 ---
 
-## 🚀 Panduan Setup Cepat untuk Anggota Tim (Windows)
+##  Panduan Setup Cepat untuk Anggota Tim (Windows)
 
 ### Cara Otomatis (Sangat Direkomendasikan):
 1. Pastikan **Laragon** (atau XAMPP) sudah aktif dengan layanan **MySQL Running**.
@@ -35,7 +35,7 @@ Setelah menjalankan `php artisan migrate --seed`, akun berikut siap langsung dig
 
 ---
 
-## 📁 Struktur Halaman Blade (Untuk Rekan Frontend):
+## Struktur Halaman Blade :
 - `resources/views/home.blade.php`: Portal utama Harian Cakrawala & daftar berita terbit.
 - `resources/views/auth/login.blade.php`: Halaman login split-screen (Pilihan: Kontributor / Admin / Guest).
 - `resources/views/auth/register-kontributor.blade.php`: Formulir pendaftaran kontributor & upload berkas.
