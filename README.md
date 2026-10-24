@@ -1,103 +1,145 @@
-# Sistem Manajemen Pengarsipan Naskah Berita (Harian Cakrawala)
+# Sistem Manajemen Pengarsipan Naskah (Harian Cakrawala)
 
-Repositori ini memuat aplikasi backend dan antarmuka web sistem pengarsipan naskah berita untuk Harian Cakrawala berbasis Laravel dan MySQL.
+Repositori ini menggunakan arsitektur Monorepo yang memisahkan aplikasi menjadi dua bagian utama:
+1. **Backend**: REST API berbasis Laravel 12 & MySQL.
+2. **Frontend**: Single Page Application (SPA) berbasis Vue 3, Vite, dan Vue Router.
 
 ---
 
-### 1. Clone Repositori
+## 1. Struktur Direktori Proyek
 
-Buka terminal (Git Bash, Command Prompt, atau PowerShell), lalu jalankan perintah:
-
-```bash
-git clone <URL_REPOSITORI_GITHUB>
-cd backend
+```text
+project_magang_monitoring_media/
+├── backend/
+│   ├── app/
+│   │   ├── Http/Controllers/Api/   # REST API Controllers (JSON response)
+│   │   └── Models/                 # User, Naskah, Guest, Notifikasi
+│   ├── database/migrations/        # Migrasi tabel MySQL & Sanctum
+│   ├── routes/api.php              # Rute REST API
+│   ├── config/cors.php             # Konfigurasi CORS localhost:5173
+│   └── .env
+│
+├── frontend/
+│   ├── src/
+│   │   ├── api/                    # Axios instance & helper endpoints
+│   │   ├── router/                 # Vue Router & auth navigation guards
+│   │   ├── views/                  # Halaman aplikasi (.vue components)
+│   │   │   ├── HomeView.vue                    (Portal Berita Publik)
+│   │   │   ├── auth/
+│   │   │   │   ├── LoginView.vue               (Login Admin & Kontributor)
+│   │   │   │   ├── RegisterKontributorView.vue (Pendaftaran & Upload Berkas)
+│   │   │   │   └── PendingNoticeView.vue       (Menunggu Verifikasi Redaksi)
+│   │   │   ├── guest/
+│   │   │   │   └── KirimNaskahView.vue         (Kirim Naskah Publik)
+│   │   │   ├── kontributor/
+│   │   │   │   └── DashboardKontributorView.vue(Dashboard & Pengiriman Naskah)
+│   │   │   └── admin/
+│   │   │       ├── ReviewNaskahView.vue        (Review, Revisi, & Terbit Naskah)
+│   │   │       └── UserManagementView.vue      (Verifikasi Kontributor)
+│   │   ├── App.vue
+│   │   └── main.js
+│   ├── package.json
+│   └── vite.config.js
+│
+├── DOCUMENT/                       # Berkas proposal dan dokumentasi magang
+└── README.md
 ```
 
 ---
 
-### 2. Konfigurasi dan Instalasi Dependensi
+## 2. Persyaratan Sistem
 
-#### Opsi A: Cara Otomatis (Pengguna Windows - Disarankan)
-
-1. Buka aplikasi Laragon atau XAMPP, lalu pastikan layanan MySQL sudah aktif (**Start**).
-2. Buat database baru bernama `db_pengarsipan_naskah` (melalui HeidiSQL, phpMyAdmin, atau terminal MySQL).
-3. Klik dua kali pada file `setup.bat` di dalam folder proyek. File ini akan otomatis menyalin file konfigurasi `.env`, mengunduh package PHP dan Node.js, men-generate `APP_KEY`, menghubungkan storage, dan mem-build aset.
-4. Lanjutkan ke langkah 3 (Migrasi Basis Data).
-
-#### Opsi B: Cara Manual (Terminal)
-
-Jika ingin menjalankan perintah satu per satu:
-
-1. Salin file konfigurasi environment:
-    ```bash
-    cp .env.example .env
-    ```
-2. Pastikan pengaturan database di file `.env` sudah sesuai:
-    ```env
-    DB_CONNECTION=mysql
-    DB_HOST=127.0.0.1
-    DB_PORT=3306
-    DB_DATABASE=db_pengarsipan_naskah
-    DB_USERNAME=root
-    DB_PASSWORD=
-    ```
-3. Unduh dependensi backend (PHP):
-    ```bash
-    composer install
-    ```
-4. Buat Application Key Laravel:
-    ```bash
-    php artisan key:generate
-    ```
-5. Unduh dependensi frontend dan kompilasi aset:
-    ```bash
-    npm install
-    npm run build
-    ```
-6. Hubungkan folder berkas publik:
-    ```bash
-    php artisan storage:link
-    ```
+- PHP >= 8.2 dengan ekstensi `pdo_mysql`, `mbstring`, `openssl`, `tokenizer`, `xml`, `ctype`, `json`.
+- Composer >= 2.0
+- Node.js >= 18.0 & npm >= 9.0
+- MySQL Server (via Laragon, XAMPP, atau instalasi mandiri MySQL).
 
 ---
 
-### 3. Migrasi Basis Data dan Seeder Akun Uji Coba
+## 3. Langkah Menjalankan Aplikasi
 
-Pastikan database `db_pengarsipan_naskah` sudah dibuat di MySQL, lalu jalankan:
+### A. Menjalankan Backend (Laravel API)
 
-```bash
-php artisan migrate --seed
-```
+1. Buka terminal pertama, arahkan ke folder `backend`:
+   ```bash
+   cd backend
+   ```
+2. Pastikan file `.env` sudah sesuai dengan pengaturan database MySQL Anda:
+   ```env
+   DB_CONNECTION=mysql
+   DB_HOST=127.0.0.1
+   DB_PORT=3306
+   DB_DATABASE=db_pengarsipan_naskah
+   DB_USERNAME=root
+   DB_PASSWORD=
+   ```
+3. Pasang dependensi dan jalankan migrasi data (bila belum):
+   ```bash
+   composer install
+   php artisan migrate --seed
+   ```
+4. Jalankan development server backend:
+   ```bash
+   php artisan serve
+   ```
+   API akan berjalan pada: `http://localhost:8000`
+
+### B. Menjalankan Frontend (Vue 3 + Vite)
+
+1. Buka terminal kedua, arahkan ke folder `frontend`:
+   ```bash
+   cd frontend
+   ```
+2. Pasang dependensi Node.js (hanya pada pertama kali):
+   ```bash
+   npm install
+   ```
+3. Jalankan development server frontend:
+   ```bash
+   npm run dev
+   ```
+   Aplikasi web dapat diakses melalui browser pada: `http://localhost:5173`
 
 ---
 
-### 4. Menjalankan Server Aplikasi
+## 4. Akun Uji Coba Default
 
-Jalankan perintah server Laravel:
+Berikut akun yang terdaftar dari seeder database:
 
-```bash
-php artisan serve
-```
-
-Aplikasi siap diakses melalui peramban web pada alamat:
-`http://127.0.0.1:8000`
-ato
-
-```bash
-npm run dev
-```
+| Peran (Role) | Email | Kata Sandi | Status Verifikasi | Hak Akses |
+| :--- | :--- | :--- | :--- | :--- |
+| **Admin Redaksi** | `admin@cakrawala.com` | `password123` | verified | Review naskah masuk, verifikasi akun kontributor |
+| **Kontributor Aktif** | `kontributor@cakrawala.com` | `password123` | verified | Dashboard naskah, kirim naskah baru, pantau riwayat |
+| **Calon Kontributor** | `calon@cakrawala.com` | `password123` | pending | Halaman status peninjauan akun |
+| **Guest / Tamu** | *(Tanpa Akun)* | - | - | Portal berita publik & kirim naskah via form tamu |
 
 ---
 
-## Akun Uji Coba Default (Seeder)
+## 5. Panduan Kolaborasi Tim
 
-Setelah proses `php artisan migrate --seed` test account:
+### Untuk Arya (Backend Developer)
+- Semua pekerjaan backend berada di direktori `backend/`.
+- Ketika menambah endpoint baru:
+  1. Daftarkan rute di `backend/routes/api.php`.
+  2. Tambahkan logika controller di `backend/app/Http/Controllers/Api/`.
+  3. Kembalikan data dalam format JSON standar `{ status, message, data }`.
+  4. Jalankan tes otomatis dengan perintah: `php artisan test --filter=ApiTest`.
 
-| Peran (Role)          | Email                       | Kata Sandi    | Status Akun | Hak Akses Utama                                              |
-| :-------------------- | :-------------------------- | :------------ | :---------- | :----------------------------------------------------------- |
-| **Admin Redaksi**     | `admin@cakrawala.com`       | `password123` | Verified    | Review naskah masuk, terima dan terbitkan, atau tolak naskah |
-| **Kontributor Aktif** | `kontributor@cakrawala.com` | `password123` | Verified    | Dashboard naskah, kirim naskah, pantau status naskah         |
-| **Calon Kontributor** | `calon@cakrawala.com`       | `password123` | Pending     | Halaman pemberitahuan akun sedang diverifikasi               |
-| **Guest / Tamu**      | _(Tanpa Akun)_              | -             | -           | Melihat portal berita dan mengirim naskah via jalur tamu     |
+### Untuk Rysta (Frontend Developer)
+- Semua pekerjaan antarmuka berada di direktori `frontend/`.
+- Memodifikasi tampilan halaman:
+  1. Halaman web tersimpan di `frontend/src/views/`.
+  2. Setiap file `.vue` memiliki tiga bagian: `<template>` (HTML), `<script setup>` (logika JavaScript), dan `<style scoped>` (CSS).
+- Memanggil API backend:
+  Gunakan helper yang telah tersedia di `frontend/src/api/index.js`:
+  ```javascript
+  import api from '@/api/index.js'
 
----
+  // Contoh memanggil berita publik:
+  const res = await api.public.getBerita()
+
+  // Contoh mengirim naskah kontributor:
+  const res = await api.kontributor.storeNaskah(formData)
+  ```
+- Token autentikasi otomatis disisipkan ke header oleh interceptor Axios di `frontend/src/api/axios.js`.
+- Rute halaman dan proteksi login dikelola di `frontend/src/router/index.js`.
