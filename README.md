@@ -76,7 +76,7 @@ project_magang_monitoring_media/
 3. Pasang dependensi dan jalankan migrasi data (bila belum):
    ```bash
    composer install
-   php artisan migrate --seed
+   php artisan migrate:fresh --seed
    ```
 4. Jalankan development server backend:
    ```bash
