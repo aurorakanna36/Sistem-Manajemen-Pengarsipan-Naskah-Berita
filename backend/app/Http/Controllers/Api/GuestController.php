@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Guest;
 use App\Models\Naskah;
+use App\Models\RiwayatStatus;
 use Illuminate\Http\Request;
 
 class GuestController extends Controller
@@ -12,58 +13,68 @@ class GuestController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'name' => ['nullable', 'string', 'max:255'],
-            'nama_pengirim' => ['nullable', 'string', 'max:255'],
-            'email' => ['nullable', 'email', 'max:255'],
-            'email_pengirim' => ['nullable', 'email', 'max:255'],
+            'nama' => ['nullable', 'string', 'max:50'],
+            'nama_pengirim' => ['nullable', 'string', 'max:50'],
+            'name' => ['nullable', 'string', 'max:50'],
+            'email' => ['nullable', 'email', 'max:50'],
+            'email_pengirim' => ['nullable', 'email', 'max:50'],
+            'nomot_Whatsapp' => ['nullable', 'string', 'max:20'],
+            'nomor_whatsapp' => ['nullable', 'string', 'max:20'],
             'phone_number' => ['nullable', 'string', 'max:20'],
             'phone_pengirim' => ['nullable', 'string', 'max:20'],
-            'instansi' => ['nullable', 'string', 'max:255'],
-            'judul' => ['required', 'string', 'max:255'],
-            'kategori' => ['nullable', 'string'],
-            'abstrak' => ['nullable', 'string'],
-            'isi_naskah' => ['nullable', 'string'],
-            'isi' => ['nullable', 'string'],
-            'berkas_naskah' => ['nullable', 'file', 'mimes:pdf,doc,docx', 'max:10240'],
+            'instansi' => ['nullable', 'string', 'max:50'],
+            'sosial_media' => ['nullable', 'string', 'max:50'],
+            'judul' => ['required', 'string'],
+            'kategori' => ['nullable', 'string', 'max:30'],
             'file' => ['nullable', 'file', 'mimes:pdf,doc,docx', 'max:10240'],
+            'berkas_naskah' => ['nullable', 'file', 'mimes:pdf,doc,docx', 'max:10240'],
         ]);
 
-        $name = $validated['nama_pengirim'] ?? $validated['name'] ?? 'Tamu';
-        $email = $validated['email_pengirim'] ?? $validated['email'] ?? 'tamu@cakrawala.com';
-        $phone = $validated['phone_pengirim'] ?? $validated['phone_number'] ?? null;
-        $isiText = $validated['isi_naskah'] ?? $validated['isi'] ?? null;
-        $kategori = !empty($validated['kategori']) ? $validated['kategori'] : 'Umum';
+        $nama = $validated['nama'] ?? $validated['nama_pengirim'] ?? $validated['name'] ?? 'Tamu';
+        $email = $validated['email'] ?? $validated['email_pengirim'] ?? 'tamu@cakrawala.com';
+        $whatsapp = $validated['nomot_Whatsapp'] ?? $validated['nomor_whatsapp'] ?? $validated['phone_pengirim'] ?? $validated['phone_number'] ?? null;
+        $kategori = !empty($validated['kategori']) ? $validated['kategori'] : 'Berita';
 
         $guest = Guest::create([
-            'name' => $name,
+            'nama' => $nama,
             'email' => $email,
-            'phone_number' => $phone,
+            'nomot_Whatsapp' => $whatsapp,
             'instansi' => $validated['instansi'] ?? null,
+            'sosial_media' => $validated['sosial_media'] ?? null,
         ]);
 
-        $berkasPath = null;
-        if ($request->hasFile('berkas_naskah')) {
-            $berkasPath = $request->file('berkas_naskah')->store('naskah_files', 'public');
-        } elseif ($request->hasFile('file')) {
-            $berkasPath = $request->file('file')->store('naskah_files', 'public');
+        $filePath = null;
+        if ($request->hasFile('file')) {
+            $filePath = $request->file('file')->store('naskah_files', 'public');
+        } elseif ($request->hasFile('berkas_naskah')) {
+            $filePath = $request->file('berkas_naskah')->store('naskah_files', 'public');
         }
 
-        Naskah::create([
+        $naskah = Naskah::create([
+            'id_guest' => $guest->id,
+            'nama_guest' => $guest->nama,
             'judul' => $validated['judul'],
             'kategori' => $kategori,
-            'abstrak' => $validated['abstrak'] ?? null,
-            'isi_naskah' => $isiText,
-            'berkas_naskah' => $berkasPath,
-            'author_type' => Guest::class,
-            'author_id' => $guest->id,
-            'tahap' => 'pengarsipan',
-            'keputusan' => 'menunggu',
-            'is_published' => false,
+            'file_path' => $filePath,
+            'status_naskah' => 'perlu_direview',
+            'waktu_kirim' => now(),
+        ]);
+
+        RiwayatStatus::create([
+            'id_naskah' => $naskah->id,
+            'status' => 'perlu_direview',
+            'catatan' => 'Naskah tamu berhasil dikirim.',
+            'waktu_status' => now(),
         ]);
 
         return response()->json([
             'status' => 'success',
-            'message' => 'Naskah berhasil dikirim. Perkembangan verifikasi akan diinformasikan melalui email Anda.',
+            'message' => 'Naskah berhasil dikirim. Perkembangan verifikasi akan diinformasikan melalui kontak Anda.',
+            'data' => [
+                'id' => $naskah->id,
+                'judul' => $naskah->judul,
+                'status_naskah' => $naskah->status_naskah,
+            ],
         ], 201);
     }
 }

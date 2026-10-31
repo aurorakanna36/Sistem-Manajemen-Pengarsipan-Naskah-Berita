@@ -149,8 +149,11 @@ async function handleSubmit() {
     error.value = ''
     try {
         const payload = new FormData()
+        payload.append('nama', form.value.nama_pengirim)
         payload.append('nama_pengirim', form.value.nama_pengirim)
+        payload.append('email', form.value.email_pengirim)
         payload.append('email_pengirim', form.value.email_pengirim)
+        payload.append('nomot_Whatsapp', form.value.phone_pengirim)
         payload.append('phone_pengirim', form.value.phone_pengirim)
         payload.append('judul', form.value.judul)
         payload.append('isi', form.value.isi)

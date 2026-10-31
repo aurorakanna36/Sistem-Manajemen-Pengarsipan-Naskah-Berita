@@ -9,18 +9,18 @@ class Guest extends Model
 {
     use HasFactory;
 
+    protected $table = 'guest';
+
     protected $fillable = [
-        'name',
+        'nama',
         'email',
-        'phone_number',
+        'nomot_Whatsapp',
         'instansi',
+        'sosial_media',
     ];
 
-    /**
-     * Relasi ke naskah yang dikirim oleh tamu (Guest).
-     */
-    public function naskahs()
+    public function naskah()
     {
-        return $this->morphMany(Naskah::class, 'author');
+        return $this->hasMany(Naskah::class, 'id_guest');
     }
 }

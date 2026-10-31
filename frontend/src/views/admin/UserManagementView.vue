@@ -24,7 +24,7 @@
                 <div class="user-info">
                     <div class="user-avatar">A</div>
                     <div class="user-detail">
-                        <div class="user-name">{{ user?.name || 'Admin' }}</div>
+                        <div class="user-name">{{ user?.nama_lengkap || user?.name || 'Admin' }}</div>
                         <div class="user-role">Administrator</div>
                     </div>
                 </div>
@@ -87,15 +87,15 @@
                         <tr v-for="u in filteredUsers" :key="u.id">
                             <td>
                                 <div class="user-cell">
-                                    <div class="user-avatar-sm">{{ u.name?.charAt(0)?.toUpperCase() }}</div>
+                                    <div class="user-avatar-sm">{{ (u.nama_lengkap || u.name)?.charAt(0)?.toUpperCase() }}</div>
                                     <div>
-                                        <div class="user-full-name">{{ u.name }}</div>
+                                        <div class="user-full-name">{{ u.nama_lengkap || u.name }}</div>
                                         <div class="user-email">{{ u.email }}</div>
                                     </div>
                                 </div>
                             </td>
                             <td>{{ u.instansi || '-' }}</td>
-                            <td>{{ u.phone_number || '-' }}</td>
+                            <td>{{ u.nomor_whatsapp || u.phone_number || '-' }}</td>
                             <td class="col-date">{{ formatDate(u.created_at) }}</td>
                             <td>
                                 <span class="badge" :class="'badge-' + u.status_verifikasi">
@@ -103,7 +103,7 @@
                                 </span>
                             </td>
                             <td>
-                                <a v-if="u.surat_administrasi" :href="fileUrl(u.surat_administrasi)" target="_blank" class="btn-file">
+                                <a v-if="u.file_path || u.surat_administrasi" :href="fileUrl(u.file_path || u.surat_administrasi)" target="_blank" class="btn-file">
                                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
                                     Lihat
                                 </a>
@@ -153,9 +153,9 @@
                         {{ (verifyModal.action === 'verified' || verifyModal.action === 'approved') ? 'Verifikasi' : 'Tolak' }} Akun
                     </div>
                     <div class="user-preview">
-                        <div class="user-avatar-md">{{ verifyModal.user?.name?.charAt(0)?.toUpperCase() }}</div>
+                        <div class="user-avatar-md">{{ (verifyModal.user?.nama_lengkap || verifyModal.user?.name)?.charAt(0)?.toUpperCase() }}</div>
                         <div>
-                            <div class="user-full-name">{{ verifyModal.user?.name }}</div>
+                            <div class="user-full-name">{{ verifyModal.user?.nama_lengkap || verifyModal.user?.name }}</div>
                             <div class="user-email">{{ verifyModal.user?.email }}</div>
                             <div class="user-instansi">{{ verifyModal.user?.instansi || 'Instansi tidak diisi' }}</div>
                         </div>

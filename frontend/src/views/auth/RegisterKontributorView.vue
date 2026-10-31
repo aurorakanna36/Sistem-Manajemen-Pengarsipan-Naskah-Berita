@@ -19,12 +19,12 @@
                 <form @submit.prevent="handleRegister" class="register-form">
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="name">Nama Lengkap</label>
-                            <input id="name" v-model="form.name" type="text" placeholder="Nama lengkap Anda" required />
+                            <label for="nama_lengkap">Nama Lengkap</label>
+                            <input id="nama_lengkap" v-model="form.nama_lengkap" type="text" placeholder="Nama lengkap Anda" required />
                         </div>
                         <div class="form-group">
-                            <label for="phone_number">Nomor HP</label>
-                            <input id="phone_number" v-model="form.phone_number" type="text" placeholder="08xx-xxxx-xxxx" required />
+                            <label for="nomor_whatsapp">Nomor WhatsApp</label>
+                            <input id="nomor_whatsapp" v-model="form.nomor_whatsapp" type="text" placeholder="08xx-xxxx-xxxx" required />
                         </div>
                     </div>
 
@@ -72,9 +72,9 @@ import api from '../../api/index.js'
 const router = useRouter()
 
 const form = ref({
-    name: '',
+    nama_lengkap: '',
     email: '',
-    phone_number: '',
+    nomor_whatsapp: '',
     instansi: '',
     password: '',
     password_confirmation: '',
@@ -92,11 +92,18 @@ async function handleRegister() {
     errorMessage.value = ''
 
     const formData = new FormData()
-    Object.entries(form.value).forEach(([key, value]) => {
-        if (value) formData.append(key, value)
-    })
+    formData.append('nama_lengkap', form.value.nama_lengkap)
+    formData.append('name', form.value.nama_lengkap)
+    formData.append('email', form.value.email)
+    formData.append('nomor_whatsapp', form.value.nomor_whatsapp)
+    formData.append('phone_number', form.value.nomor_whatsapp)
+    if (form.value.instansi) formData.append('instansi', form.value.instansi)
+    formData.append('password', form.value.password)
+    formData.append('password_confirmation', form.value.password_confirmation)
+
     if (suratFile.value) {
         formData.append('surat_administrasi', suratFile.value)
+        formData.append('file', suratFile.value)
     }
 
     try {

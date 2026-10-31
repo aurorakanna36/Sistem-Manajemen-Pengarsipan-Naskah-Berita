@@ -2,35 +2,62 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Database\Factories\UserFactory;
-use Illuminate\Database\Eloquent\Attributes\Fillable;
-use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 
-#[Fillable(['name', 'email', 'password', 'role', 'status_verifikasi', 'phone_number', 'surat_administrasi', 'instansi'])]
-#[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
 {
-    /** @use HasFactory<UserFactory> */
     use HasApiTokens, HasFactory, Notifiable;
 
-    /**
-     * Relasi ke naskah yang ditulis oleh user (Kontributor).
-     */
-    public function naskahs()
+    protected $fillable = [
+        'nama_lengkap',
+        'email',
+        'password',
+        'role',
+        'status_verifikasi',
+        'nomor_whatsapp',
+        'instansi',
+        'file_path',
+    ];
+
+    protected $hidden = [
+        'password',
+        'remember_token',
+    ];
+
+    public function kontributor()
     {
-        return $this->morphMany(Naskah::class, 'author');
+        return $this->hasOne(Kontributor::class, 'user_id');
     }
 
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
+    public function admin()
+    {
+        return $this->hasOne(Admin::class, 'user_id');
+    }
+
+    public function naskah()
+    {
+        return $this->hasMany(Naskah::class, 'id_kontributor');
+    }
+
+    public function riwayatStatus()
+    {
+        return $this->hasMany(RiwayatStatus::class, 'id_kontributor');
+    }
+
+    public function reviews()
+    {
+        return $this->hasMany(Review::class, 'id_admin');
+    }
+
+    public function publikasis()
+    {
+        return $this->hasMany(Publikasi::class, 'id_admin');
+    }
+
     protected function casts(): array
     {
         return [

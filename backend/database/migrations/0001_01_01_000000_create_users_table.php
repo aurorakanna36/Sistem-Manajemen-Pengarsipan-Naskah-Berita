@@ -5,25 +5,19 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('users', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
-            $table->string('email')->unique();
+            $table->string('nama_lengkap', 50);
+            $table->string('email', 50)->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
-
-            // Tambahan kolom untuk proyek naskah:
+            $table->string('nomor_whatsapp', 20)->nullable();
+            $table->string('instansi', 50)->nullable();
+            $table->string('file_path', 255)->nullable();
             $table->enum('role', ['admin', 'kontributor'])->default('kontributor');
             $table->enum('status_verifikasi', ['pending', 'verified', 'rejected'])->default('pending');
-            $table->string('phone_number')->nullable();
-            $table->string('instansi')->nullable();
-            $table->string('surat_administrasi')->nullable(); 
-
             $table->rememberToken();
             $table->timestamps();
         });
@@ -44,9 +38,6 @@ return new class extends Migration {
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('users');

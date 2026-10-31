@@ -9,33 +9,46 @@ class Naskah extends Model
 {
     use HasFactory;
 
+    protected $table = 'naskah';
+
     protected $fillable = [
+        'id_kontributor',
+        'id_guest',
+        'nama_kontributor',
+        'nama_guest',
         'judul',
+        'file_path',
         'kategori',
-        'abstrak',
-        'isi_naskah',
-        'berkas_naskah',
-        'author_type',
-        'author_id',
-        'tahap',
-        'keputusan',
-        'is_published',
-        'alasan_penolakan',
+        'status_naskah',
+        'waktu_kirim',
     ];
 
-    /**
-     * Relasi polimorfik ke penulis (User atau Guest).
-     */
-    public function author()
+    protected $casts = [
+        'waktu_kirim' => 'datetime',
+    ];
+
+    public function kontributor()
     {
-        return $this->morphTo();
+        return $this->belongsTo(User::class, 'id_kontributor');
     }
 
-    /**
-     * Relasi ke notifikasi terkait naskah ini.
-     */
-    public function notifikasis()
+    public function guest()
     {
-        return $this->hasMany(Notifikasi::class);
+        return $this->belongsTo(Guest::class, 'id_guest');
+    }
+
+    public function reviews()
+    {
+        return $this->hasMany(Review::class, 'id_naskah');
+    }
+
+    public function publikasi()
+    {
+        return $this->hasOne(Publikasi::class, 'id_naskah');
+    }
+
+    public function riwayatStatus()
+    {
+        return $this->hasMany(RiwayatStatus::class, 'id_naskah');
     }
 }

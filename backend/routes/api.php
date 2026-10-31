@@ -29,10 +29,25 @@ Route::middleware('auth:sanctum')->group(function () {
     });
 
     Route::prefix('admin')->group(function () {
-        Route::get('/naskahs', [AdminReviewController::class, 'index']);
-        Route::post('/naskahs/{id}/decide', [AdminReviewController::class, 'decide']);
+        // Dashboard
+        Route::get('/dashboard', [AdminReviewController::class, 'dashboard']);
 
+        // Naskah
+        Route::get('/naskahs', [AdminReviewController::class, 'index']);
+        Route::get('/naskahs/{id}', [AdminReviewController::class, 'show']);
+        Route::post('/naskahs/{id}/decide', [AdminReviewController::class, 'decide']);
+        Route::post('/naskahs/{id}/publish', [AdminReviewController::class, 'publish']);
+
+        // Kontributor (users)
         Route::get('/users', [AdminUserController::class, 'index']);
         Route::post('/users/{id}/verify', [AdminUserController::class, 'verify']);
+        Route::delete('/users/{id}', [AdminUserController::class, 'destroy']);
+        Route::get('/kontributor/{id}', [AdminUserController::class, 'showKontributor']);
+
+        // Admin account management
+        Route::get('/admins', [AdminUserController::class, 'listAdmins']);
+        Route::post('/admins', [AdminUserController::class, 'storeAdmin']);
+        Route::put('/admins/{id}', [AdminUserController::class, 'updateAdmin']);
+        Route::delete('/admins/{id}', [AdminUserController::class, 'destroyAdmin']);
     });
 });

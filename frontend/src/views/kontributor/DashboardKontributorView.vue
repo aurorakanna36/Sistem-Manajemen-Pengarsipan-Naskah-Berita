@@ -24,7 +24,7 @@
                 <div class="user-info">
                     <div class="user-avatar">{{ userInitial }}</div>
                     <div class="user-detail">
-                        <div class="user-name">{{ user?.name }}</div>
+                        <div class="user-name">{{ user?.nama_lengkap || user?.name }}</div>
                         <div class="user-role">Kontributor</div>
                     </div>
                 </div>
@@ -39,7 +39,7 @@
             <header class="page-header">
                 <div>
                     <h1>Dashboard Kontributor</h1>
-                    <p>Selamat datang kembali, <strong>{{ user?.name }}</strong></p>
+                    <p>Selamat datang kembali, <strong>{{ user?.nama_lengkap || user?.name }}</strong></p>
                 </div>
                 <button class="btn-primary" @click="showModal = true">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
@@ -118,7 +118,7 @@
                     <tbody>
                         <tr v-for="naskah in naskahs" :key="naskah.id">
                             <td class="col-judul">{{ naskah.judul }}</td>
-                            <td class="col-date">{{ formatDate(naskah.created_at) }}</td>
+                            <td class="col-date">{{ formatDate(naskah.waktu_kirim || naskah.created_at) }}</td>
                             <td>
                                 <span class="badge" :class="'badge-' + naskah.status">
                                     {{ labelStatus(naskah.status) }}
@@ -182,7 +182,7 @@ const router = useRouter()
 const userRaw = localStorage.getItem('user_info')
 const user = userRaw ? JSON.parse(userRaw) : null
 
-const userInitial = computed(() => user?.name?.charAt(0)?.toUpperCase() || 'K')
+const userInitial = computed(() => (user?.nama_lengkap || user?.name)?.charAt(0)?.toUpperCase() || 'K')
 
 const naskahs = ref([])
 const stats = ref({ total: 0, draft: 0, disetujui: 0, revisi: 0 })
@@ -222,7 +222,10 @@ async function handleKirimNaskah() {
         const payload = new FormData()
         payload.append('judul', naskahForm.value.judul)
         payload.append('isi', naskahForm.value.isi)
-        if (naskahFile.value) payload.append('file', naskahFile.value)
+        if (naskahFile.value) {
+            payload.append('file', naskahFile.value)
+            payload.append('berkas_naskah', naskahFile.value)
+        }
         const res = await api.kontributor.storeNaskah(payload)
         naskahs.value.unshift(res.data.naskah)
         stats.value.total++
@@ -251,7 +254,18 @@ function formatDate(dateStr) {
 }
 
 function labelStatus(status) {
-    const map = { pending: 'Menunggu Review', approved: 'Disetujui', rejected: 'Ditolak', revision: 'Perlu Revisi', published: 'Terbit' }
+    const map = {
+        pending: 'Menunggu Review',
+        approved: 'Disetujui',
+        rejected: 'Ditolak',
+        revision: 'Perlu Revisi',
+        published: 'Terbit',
+        perlu_direview: 'Menunggu Review',
+        diterima: 'Disetujui',
+        ditolak: 'Ditolak',
+        direvisi: 'Perlu Revisi',
+        diterbitkan: 'Terbit',
+    }
     return map[status] || status
 }
 </script>

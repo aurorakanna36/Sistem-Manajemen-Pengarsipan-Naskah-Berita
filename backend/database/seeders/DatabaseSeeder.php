@@ -1,10 +1,14 @@
 <?php
 
-
 namespace Database\Seeders;
 
+use App\Models\Admin;
 use App\Models\Guest;
+use App\Models\Kontributor;
 use App\Models\Naskah;
+use App\Models\Publikasi;
+use App\Models\Review;
+use App\Models\RiwayatStatus;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
@@ -13,98 +17,163 @@ class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
-        // 1. Akun Admin Redaksi
         $admin = User::create([
-            'name' => 'Admin Redaksi Cakrawala',
+            'nama_lengkap' => 'Admin Redaksi Cakrawala',
             'email' => 'admin@cakrawala.com',
             'password' => Hash::make('password123'),
             'role' => 'admin',
             'status_verifikasi' => 'verified',
-            'phone_number' => '081234567890',
+            'nomor_whatsapp' => '081234567890',
             'instansi' => 'Harian Cakrawala',
         ]);
 
-        // 2. Akun Kontributor Aktif (Terverifikasi)
+        Admin::create([
+            'user_id' => $admin->id,
+            'email' => $admin->email,
+        ]);
+
         $kontributor = User::create([
-            'name' => 'Kontributor Utama',
+            'nama_lengkap' => 'Kontributor Utama',
             'email' => 'kontributor@cakrawala.com',
             'password' => Hash::make('password123'),
             'role' => 'kontributor',
             'status_verifikasi' => 'verified',
-            'phone_number' => '089876543210',
+            'nomor_whatsapp' => '089876543210',
             'instansi' => 'Universitas Surabaya',
         ]);
 
-        // 3. Akun Calon Kontributor (Masih Pending)
-        User::create([
-            'name' => 'Calon Kontributor Baru',
+        Kontributor::create([
+            'user_id' => $kontributor->id,
+            'email' => $kontributor->email,
+        ]);
+
+        $calon = User::create([
+            'nama_lengkap' => 'Calon Kontributor Baru',
             'email' => 'calon@cakrawala.com',
             'password' => Hash::make('password123'),
             'role' => 'kontributor',
             'status_verifikasi' => 'pending',
-            'phone_number' => '081122334455',
+            'nomor_whatsapp' => '081122334455',
             'instansi' => 'Komunitas Penulis',
         ]);
 
-        // 4. Guest Contoh
-        $guest = Guest::create([
-            'name' => 'Budi Penulis Tamu',
-            'email' => 'budi.guest@gmail.com',
-            'phone_number' => '085711223344',
-            'instansi' => 'Umum',
+        Kontributor::create([
+            'user_id' => $calon->id,
+            'email' => $calon->email,
         ]);
 
-        // 5. Naskah Contoh Milik Kontributor (Status Terbit)
-        Naskah::create([
+        $guest = Guest::create([
+            'nama' => 'Budi Penulis Tamu',
+            'email' => 'budi.guest@gmail.com',
+            'nomot_Whatsapp' => '085711223344',
+            'instansi' => 'Umum',
+            'sosial_media' => '@budipenulis',
+        ]);
+
+        $naskah1 = Naskah::create([
+            'id_kontributor' => $kontributor->id,
+            'nama_kontributor' => $kontributor->nama_lengkap,
             'judul' => 'Inovasi Teknologi Terkini di Era Digital 2026',
             'kategori' => 'Teknologi',
-            'abstrak' => 'Ulasan mengenai percepatan kecerdasan buatan dalam transformasi media dan penerbitan pers.',
-            'isi_naskah' => 'Perkembangan kecerdasan buatan kini memberikan dampak nyata pada dunia publikasi dan efisiensi redaksi...',
-            'author_type' => User::class,
-            'author_id' => $kontributor->id,
-            'tahap' => 'selesai',
-            'keputusan' => 'diterima',
-            'is_published' => true,
+            'status_naskah' => 'diterbitkan',
+            'waktu_kirim' => now()->subDays(3),
         ]);
 
-        // 6. Naskah Contoh Milik Kontributor (Status Dalam Verifikasi / Review)
-        Naskah::create([
+        Review::create([
+            'id_admin' => $admin->id,
+            'id_naskah' => $naskah1->id,
+            'keputusan' => 'diterima',
+            'catatan' => 'Naskah sangat baik dan layak diterbitkan.',
+            'waktu_review' => now()->subDays(2),
+        ]);
+
+        Publikasi::create([
+            'id_admin' => $admin->id,
+            'id_naskah' => $naskah1->id,
+            'url_berita' => 'https://cakrawala.com/berita/inovasi-teknologi-2026',
+            'waktu_terbit' => now()->subDays(1),
+        ]);
+
+        RiwayatStatus::create([
+            'id_kontributor' => $kontributor->id,
+            'id_naskah' => $naskah1->id,
+            'status' => 'perlu_direview',
+            'catatan' => 'Naskah berhasil diajukan.',
+            'waktu_status' => now()->subDays(3),
+        ]);
+
+        RiwayatStatus::create([
+            'id_kontributor' => $kontributor->id,
+            'id_naskah' => $naskah1->id,
+            'status' => 'diterima',
+            'catatan' => 'Naskah disetujui untuk terbit.',
+            'waktu_status' => now()->subDays(2),
+        ]);
+
+        RiwayatStatus::create([
+            'id_kontributor' => $kontributor->id,
+            'id_naskah' => $naskah1->id,
+            'status' => 'diterbitkan',
+            'catatan' => 'Naskah telah terbit di portal berita.',
+            'waktu_status' => now()->subDays(1),
+        ]);
+
+        $naskah2 = Naskah::create([
+            'id_kontributor' => $kontributor->id,
+            'nama_kontributor' => $kontributor->nama_lengkap,
             'judul' => 'Strategi Pertumbuhan Ekonomi Kreatif Jawa Timur',
             'kategori' => 'Ekonomi',
-            'abstrak' => 'Analisis komprehensif terhadap sektor UMKM dan ekonomi kreatif lokal pasca pandemi.',
-            'isi_naskah' => 'Sektor ekonomi kreatif terus mencatatkan pertumbuhan positif di berbagai daerah...',
-            'author_type' => User::class,
-            'author_id' => $kontributor->id,
-            'tahap' => 'verifikasi',
-            'keputusan' => 'menunggu',
-            'is_published' => false,
+            'status_naskah' => 'perlu_direview',
+            'waktu_kirim' => now()->subDay(),
         ]);
 
-        // 7. Naskah Contoh Milik Kontributor (Status Ditolak)
-        Naskah::create([
+        RiwayatStatus::create([
+            'id_kontributor' => $kontributor->id,
+            'id_naskah' => $naskah2->id,
+            'status' => 'perlu_direview',
+            'catatan' => 'Naskah baru diajukan, menunggu review admin.',
+            'waktu_status' => now()->subDay(),
+        ]);
+
+        $naskah3 = Naskah::create([
+            'id_kontributor' => $kontributor->id,
+            'nama_kontributor' => $kontributor->nama_lengkap,
             'judul' => 'Kajian Kebudayaan Tradisional Nusantara',
             'kategori' => 'Pendidikan',
-            'abstrak' => 'Studi literatur tentang pelestarian seni tradisional di era global.',
-            'isi_naskah' => 'Melestarikan warisan leluhur menjadi tanggung jawab bersama...',
-            'author_type' => User::class,
-            'author_id' => $kontributor->id,
-            'tahap' => 'selesai',
-            'keputusan' => 'ditolak',
-            'is_published' => false,
-            'alasan_penolakan' => 'Topik naskah belum memenuhi kriteria aktualitas berita minggu ini, mohon perbarui data sumber.',
+            'status_naskah' => 'ditolak',
+            'waktu_kirim' => now()->subDays(4),
         ]);
 
-        // 8. Naskah Contoh dari Guest (Status Pengarsipan Baru Masuk)
-        Naskah::create([
-            'judul' => 'Suara Warga: Pentingnya Penghijauan Jalur pedestrian',
+        Review::create([
+            'id_admin' => $admin->id,
+            'id_naskah' => $naskah3->id,
+            'keputusan' => 'ditolak',
+            'catatan' => 'Topik naskah belum memenuhi kriteria aktualitas berita minggu ini.',
+            'waktu_review' => now()->subDays(3),
+        ]);
+
+        RiwayatStatus::create([
+            'id_kontributor' => $kontributor->id,
+            'id_naskah' => $naskah3->id,
+            'status' => 'ditolak',
+            'catatan' => 'Topik naskah belum memenuhi kriteria aktualitas berita minggu ini.',
+            'waktu_status' => now()->subDays(3),
+        ]);
+
+        $naskah4 = Naskah::create([
+            'id_guest' => $guest->id,
+            'nama_guest' => $guest->nama,
+            'judul' => 'Suara Warga: Pentingnya Penghijauan Jalur Pedestrian',
             'kategori' => 'Opini',
-            'abstrak' => 'Pandangan masyarakat terhadap kenyamanan tata ruang kota.',
-            'isi_naskah' => 'Sebagai pengguna jalan kaki setiap hari, pohon peneduh sangat krusial...',
-            'author_type' => Guest::class,
-            'author_id' => $guest->id,
-            'tahap' => 'pengarsipan',
-            'keputusan' => 'menunggu',
-            'is_published' => false,
+            'status_naskah' => 'perlu_direview',
+            'waktu_kirim' => now(),
+        ]);
+
+        RiwayatStatus::create([
+            'id_naskah' => $naskah4->id,
+            'status' => 'perlu_direview',
+            'catatan' => 'Naskah tamu masuk ke sistem.',
+            'waktu_status' => now(),
         ]);
     }
 }

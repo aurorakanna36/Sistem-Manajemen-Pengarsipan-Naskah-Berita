@@ -6,8 +6,13 @@ import RegisterKontributorView from '../views/auth/RegisterKontributorView.vue'
 import PendingNoticeView from '../views/auth/PendingNoticeView.vue'
 import KirimNaskahView from '../views/guest/KirimNaskahView.vue'
 import DashboardKontributorView from '../views/kontributor/DashboardKontributorView.vue'
+
+import AdminDashboardView from '../views/admin/AdminDashboardView.vue'
+import KelolaKontributorView from '../views/admin/KelolaKontributorView.vue'
+import DetailKontributorView from '../views/admin/DetailKontributorView.vue'
 import ReviewNaskahView from '../views/admin/ReviewNaskahView.vue'
-import UserManagementView from '../views/admin/UserManagementView.vue'
+import DetailReviewNaskahView from '../views/admin/DetailReviewNaskahView.vue'
+import KelolaNaskahView from '../views/admin/KelolaNaskahView.vue'
 
 const routes = [
     {
@@ -44,15 +49,47 @@ const routes = [
         meta: { requiresAuth: true, role: 'kontributor' },
     },
     {
+        path: '/admin',
+        redirect: '/admin/dashboard',
+    },
+    {
+        path: '/admin/dashboard',
+        name: 'admin.dashboard',
+        component: AdminDashboardView,
+        meta: { requiresAuth: true, role: 'admin' },
+    },
+    {
+        path: '/admin/kontributor',
+        name: 'admin.kontributor',
+        component: KelolaKontributorView,
+        meta: { requiresAuth: true, role: 'admin' },
+    },
+    {
+        path: '/admin/users',
+        redirect: '/admin/kontributor',
+    },
+    {
+        path: '/admin/kontributor/:id',
+        name: 'admin.kontributor.detail',
+        component: DetailKontributorView,
+        meta: { requiresAuth: true, role: 'admin' },
+    },
+    {
         path: '/admin/review-naskah',
         name: 'admin.review',
         component: ReviewNaskahView,
         meta: { requiresAuth: true, role: 'admin' },
     },
     {
-        path: '/admin/users',
-        name: 'admin.users',
-        component: UserManagementView,
+        path: '/admin/review-naskah/:id',
+        name: 'admin.review.detail',
+        component: DetailReviewNaskahView,
+        meta: { requiresAuth: true, role: 'admin' },
+    },
+    {
+        path: '/admin/kelola-naskah',
+        name: 'admin.kelola.naskah',
+        component: KelolaNaskahView,
         meta: { requiresAuth: true, role: 'admin' },
     },
 ]
@@ -72,13 +109,13 @@ router.beforeEach((to, from, next) => {
     }
 
     if (to.meta.role && user?.role !== to.meta.role) {
-        if (user?.role === 'admin') return next({ name: 'admin.review' })
+        if (user?.role === 'admin') return next({ name: 'admin.dashboard' })
         if (user?.role === 'kontributor') return next({ name: 'kontributor.dashboard' })
         return next({ name: 'home' })
     }
 
     if (to.meta.guestOnly && token) {
-        if (user?.role === 'admin') return next({ name: 'admin.review' })
+        if (user?.role === 'admin') return next({ name: 'admin.dashboard' })
         if (user?.role === 'kontributor') return next({ name: 'kontributor.dashboard' })
     }
 

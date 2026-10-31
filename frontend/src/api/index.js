@@ -28,12 +28,20 @@ const api = {
     },
 
     admin: {
-        getNaskahs: () => http.get('/admin/naskahs'),
+        getDashboard: () => http.get('/admin/dashboard'),
+        getNaskahs: (params) => http.get('/admin/naskahs', { params }),
+        getNaskahDetail: (id) => http.get(`/admin/naskahs/${id}`),
         decideNaskah: (id, data) => http.post(`/admin/naskahs/${id}/decide`, data),
-        getUsers: () => http.get('/admin/users'),
+        publishNaskah: (id, data) => http.post(`/admin/naskahs/${id}/publish`, data),
+        getUsers: (params) => http.get('/admin/users', { params }),
         verifyUser: (id, data) => http.post(`/admin/users/${id}/verify`, data),
+        deleteUser: (id) => http.delete(`/admin/users/${id}`),
+        getKontributorDetail: (id) => http.get(`/admin/kontributor/${id}`),
+        getAdmins: () => http.get('/admin/admins'),
+        createAdmin: (data) => http.post('/admin/admins', data),
+        updateAdmin: (id, data) => http.put(`/admin/admins/${id}`, data),
+        deleteAdmin: (id) => http.delete(`/admin/admins/${id}`),
     },
 }
 
 export default api
-
