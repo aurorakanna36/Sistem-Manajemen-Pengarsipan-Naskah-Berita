@@ -12,15 +12,21 @@
             <div v-else class="review-grid">
                 <div class="naskah-main-panel">
                     <div class="naskah-header-image">
-                        <span>Gambar sampul</span>
+                        <img v-if="naskah.gambar_sampul" :src="naskah.gambar_sampul" :alt="naskah.judul" class="sampul-img" />
+                        <span v-else>Gambar sampul</span>
                     </div>
 
                     <div class="naskah-content-area">
-                        <div class="badges-row">
+                        <div class="badges-row" style="flex-wrap: wrap;">
                             <span class="status-badge" :class="statusClass(naskah.status_naskah || naskah.status)">
                                 {{ statusLabel(naskah.status_naskah || naskah.status) }}
                             </span>
-                            <span class="category-badge">{{ naskah.kategori || 'Umum' }}</span>
+                            <template v-if="naskah.kategoris && naskah.kategoris.length">
+                                <span v-for="kat in naskah.kategoris" :key="kat.id" class="category-badge">
+                                    {{ kat.nama_kategori }}
+                                </span>
+                            </template>
+                            <span v-else class="category-badge">{{ naskah.kategori || 'Umum' }}</span>
                         </div>
 
                         <h1 class="naskah-title">{{ naskah.judul }}</h1>
@@ -36,7 +42,8 @@
 
                         <div class="content-section">
                             <h2 class="section-label">Isi naskah</h2>
-                            <div class="article-paragraphs">
+                            <div v-if="isHtmlContent" class="article-paragraphs rich-html-body" v-html="naskah.isi || naskah.isi_naskah"></div>
+                            <div v-else class="article-paragraphs">
                                 <p v-for="(p, i) in articleParagraphs" :key="i">
                                     {{ p }}
                                 </p>
@@ -77,7 +84,7 @@
                             {{ authorStatsText }}
                         </p>
 
-                        <router-link 
+                        <router-link
                             v-if="authorId"
                             :to="`/admin/kontributor/${authorId}`"
                             class="link-profile-author"
@@ -95,39 +102,39 @@
                             </div>
 
                             <div class="radio-options-list">
-                                <label 
+                                <label
                                     class="radio-card-label"
                                     :class="{ selected: selectedDecision === 'approved' }"
                                 >
-                                    <input 
-                                        type="radio" 
-                                        value="approved" 
+                                    <input
+                                        type="radio"
+                                        value="approved"
                                         v-model="selectedDecision"
                                         name="decision"
                                     />
                                     <span>Terima dan terbitkan</span>
                                 </label>
 
-                                <label 
+                                <label
                                     class="radio-card-label"
                                     :class="{ selected: selectedDecision === 'revision' }"
                                 >
-                                    <input 
-                                        type="radio" 
-                                        value="revision" 
+                                    <input
+                                        type="radio"
+                                        value="revision"
                                         v-model="selectedDecision"
                                         name="decision"
                                     />
                                     <span>Minta revisi</span>
                                 </label>
 
-                                <label 
+                                <label
                                     class="radio-card-label"
                                     :class="{ selected: selectedDecision === 'rejected' }"
                                 >
-                                    <input 
-                                        type="radio" 
-                                        value="rejected" 
+                                    <input
+                                        type="radio"
+                                        value="rejected"
                                         v-model="selectedDecision"
                                         name="decision"
                                     />
@@ -137,9 +144,9 @@
 
                             <div class="form-field-group">
                                 <label class="field-label">Catatan atau alasan</label>
-                                <textarea 
+                                <textarea
                                     v-model="decisionNote"
-                                    rows="4" 
+                                    rows="4"
                                     placeholder="Wajib diisi jika naskah ditolak atau perlu direvisi"
                                     class="note-textarea"
                                 ></textarea>
@@ -147,16 +154,16 @@
 
                             <div v-if="selectedDecision === 'approved'" class="form-field-group">
                                 <label class="field-label">URL Publikasi Berita (Opsional)</label>
-                                <input 
-                                    v-model="urlBerita" 
-                                    type="url" 
+                                <input
+                                    v-model="urlBerita"
+                                    type="url"
                                     placeholder="https://cakrawala.com/berita/..."
                                     class="note-input"
                                 />
                             </div>
 
-                            <button 
-                                type="submit" 
+                            <button
+                                type="submit"
                                 class="btn-save-decision"
                                 :disabled="savingDecision"
                             >
@@ -213,6 +220,11 @@ const fileName = computed(() => {
     if (!naskah.value?.file_path) return 'berkas_naskah.pdf'
     const parts = naskah.value.file_path.split('/')
     return parts[parts.length - 1]
+})
+
+const isHtmlContent = computed(() => {
+    const text = naskah.value?.isi || naskah.value?.isi_naskah || ''
+    return /<[a-z][\s\S]*>/i.test(text)
 })
 
 const articleParagraphs = computed(() => {
@@ -304,6 +316,8 @@ onMounted(() => {
 </script>
 
 <style scoped>
+@import '@/assets/admin-theme.css';
+
 .detail-review-page {
     display: flex;
     flex-direction: column;
@@ -346,6 +360,7 @@ onMounted(() => {
 
 .naskah-header-image {
     height: 300px;
+    background-color: #DDE5EC;
     background-color: var(--adm-border-soft);
     display: flex;
     align-items: center;
@@ -353,6 +368,30 @@ onMounted(() => {
     color: var(--adm-text-muted);
     font-size: 1rem;
     font-weight: 500;
+    overflow: hidden;
+}
+
+.sampul-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.rich-html-body :deep(img) {
+    max-width: 100%;
+    height: auto;
+    border-radius: 10px;
+    margin: 0.75rem 0;
+}
+
+.rich-html-body :deep(figure) {
+    margin: 1rem 0;
+}
+
+.rich-html-body :deep(figcaption) {
+    font-size: 0.85rem;
+    color: var(--adm-text-muted);
+    margin-top: 0.35rem;
 }
 
 .naskah-content-area {
@@ -376,6 +415,8 @@ onMounted(() => {
 }
 
 .badge-info {
+    background-color: #E0EDFB;
+    color: #1E40AF;
     background-color: var(--adm-info-bg);
     color: var(--adm-info-text);
 }
@@ -396,6 +437,7 @@ onMounted(() => {
 }
 
 .category-badge {
+    background-color: #F1F5F9;
     background-color: var(--adm-bg-page);
     color: var(--adm-text-muted);
     padding: 0.35rem 0.85rem;
@@ -433,6 +475,7 @@ onMounted(() => {
 
 .section-body {
     font-size: 0.95rem;
+    color: #475569;
     color: var(--adm-text-muted);
     line-height: 1.7;
     margin: 0;
@@ -443,6 +486,7 @@ onMounted(() => {
     flex-direction: column;
     gap: 1rem;
     font-size: 0.95rem;
+    color: #334155;
     color: var(--adm-text-main);
     line-height: 1.75;
 }
@@ -451,6 +495,7 @@ onMounted(() => {
     display: flex;
     align-items: center;
     justify-content: space-between;
+    background: #F1F5F9;
     background: var(--adm-bg-page);
     border-radius: 10px;
     padding: 1rem 1.25rem;
@@ -520,6 +565,7 @@ onMounted(() => {
     width: 44px;
     height: 44px;
     border-radius: 50%;
+    background-color: #BCC8D4;
     background-color: var(--adm-border-dark);
     color: #ffffff;
     display: flex;
@@ -607,6 +653,7 @@ onMounted(() => {
 
 .radio-card-label.selected {
     border-color: var(--adm-teal);
+    background: #F0FDF4;
     background: var(--adm-teal-light);
 }
 
@@ -692,4 +739,3 @@ onMounted(() => {
     }
 }
 </style>
-

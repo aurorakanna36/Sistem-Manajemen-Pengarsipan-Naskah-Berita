@@ -221,6 +221,8 @@ onMounted(() => {
 </script>
 
 <style scoped>
+@import '@/assets/admin-theme.css';
+
 .kelola-naskah-page {
     display: flex;
     flex-direction: column;
@@ -325,6 +327,7 @@ onMounted(() => {
 
 .card-thumb-area {
     height: 160px;
+    background-color: #DDE5EC;
     background-color: var(--adm-border-soft);
     display: flex;
     align-items: center;
@@ -356,6 +359,8 @@ onMounted(() => {
 }
 
 .badge-info {
+    background-color: #E0EDFB;
+    color: #1E40AF;
     background-color: var(--adm-info-bg);
     color: var(--adm-info-text);
 }

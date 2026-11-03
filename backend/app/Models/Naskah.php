@@ -17,6 +17,10 @@ class Naskah extends Model
         'nama_kontributor',
         'nama_guest',
         'judul',
+        'kata_kunci',
+        'abstrak',
+        'isi',
+        'gambar_sampul',
         'file_path',
         'kategori',
         'status_naskah',
@@ -50,5 +54,11 @@ class Naskah extends Model
     public function riwayatStatus()
     {
         return $this->hasMany(RiwayatStatus::class, 'id_naskah');
+    }
+
+    public function kategoris()
+    {
+        return $this->belongsToMany(Kategori::class, 'naskah_kategori', 'id_naskah', 'id_kategori')
+            ->withTimestamps();
     }
 }

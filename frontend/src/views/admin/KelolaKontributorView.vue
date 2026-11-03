@@ -517,6 +517,7 @@ onMounted(() => {
     width: 44px;
     height: 44px;
     border-radius: 50%;
+    background-color: #BCC8D4;
     background-color: var(--adm-border-dark);
     color: #ffffff;
     display: flex;
@@ -584,6 +585,7 @@ onMounted(() => {
     padding: 0.5rem;
     background: transparent;
     color: var(--adm-danger-text);
+    border: 1px solid #FCA5A5;
     border: 1px solid var(--adm-danger-border);
     border-radius: 8px;
     font-size: 0.85rem;
@@ -678,6 +680,7 @@ onMounted(() => {
     width: 36px;
     height: 36px;
     border-radius: 50%;
+    background-color: #BCC8D4;
     background-color: var(--adm-border-dark);
     color: #ffffff;
     display: flex;

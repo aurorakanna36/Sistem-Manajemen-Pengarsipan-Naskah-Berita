@@ -55,46 +55,46 @@
                 <div class="charts-row">
                     <div class="chart-panel">
                         <h2 class="chart-header">Persentase naskah</h2>
-                        
+
                         <div class="donut-wrap">
                             <svg class="donut-svg" viewBox="0 0 160 160">
-                                <circle 
-                                    cx="80" 
-                                    cy="80" 
-                                    r="58" 
-                                    fill="transparent" 
-                                    stroke="var(--adm-border)" 
+                                <circle
+                                    cx="80"
+                                    cy="80"
+                                    r="58"
+                                    fill="transparent"
+                                    stroke="var(--adm-border)"
                                     stroke-width="18"
                                 />
-                                <circle 
+                                <circle
                                     v-if="diterimaStroke.length > 0"
-                                    cx="80" 
-                                    cy="80" 
-                                    r="58" 
-                                    fill="transparent" 
-                                    stroke="#0F6B63" 
+                                    cx="80"
+                                    cy="80"
+                                    r="58"
+                                    fill="transparent"
+                                    stroke="#0F6B63"
                                     stroke-width="18"
                                     :stroke-dasharray="diterimaStroke"
                                     :stroke-dashoffset="diterimaOffset"
                                 />
-                                <circle 
+                                <circle
                                     v-if="ditolakStroke.length > 0"
-                                    cx="80" 
-                                    cy="80" 
-                                    r="58" 
-                                    fill="transparent" 
-                                    stroke="#EF4444" 
+                                    cx="80"
+                                    cy="80"
+                                    r="58"
+                                    fill="transparent"
+                                    stroke="#EF4444"
                                     stroke-width="18"
                                     :stroke-dasharray="ditolakStroke"
                                     :stroke-dashoffset="ditolakOffset"
                                 />
-                                <circle 
+                                <circle
                                     v-if="direvisiStroke.length > 0"
-                                    cx="80" 
-                                    cy="80" 
-                                    r="58" 
-                                    fill="transparent" 
-                                    stroke="#F59E0B" 
+                                    cx="80"
+                                    cy="80"
+                                    r="58"
+                                    fill="transparent"
+                                    stroke="#F59E0B"
                                     stroke-width="18"
                                     :stroke-dasharray="direvisiStroke"
                                     :stroke-dashoffset="direvisiOffset"
@@ -127,17 +127,17 @@
 
                     <div class="chart-panel">
                         <h2 class="chart-header">Naskah dikirim per bulan</h2>
-                        
+
                         <div class="barchart-container">
-                            <div 
-                                v-for="(col, idx) in monthlyData" 
-                                :key="idx" 
+                            <div
+                                v-for="(col, idx) in monthlyData"
+                                :key="idx"
                                 class="bar-column"
                             >
                                 <span class="bar-val">{{ col.count }}</span>
                                 <div class="bar-track">
-                                    <div 
-                                        class="bar-fill" 
+                                    <div
+                                        class="bar-fill"
                                         :style="{ height: barHeight(col.count) }"
                                     ></div>
                                 </div>
@@ -154,14 +154,15 @@
                         Kontributor belum mengirimkan naskah.
                     </div>
                     <div v-else class="naskah-cards-grid">
-                        <router-link 
-                            v-for="item in kontributorNaskahs" 
+                        <router-link
+                            v-for="item in kontributorNaskahs"
                             :key="item.id"
                             :to="`/admin/review-naskah/${item.id}`"
                             class="naskah-card-link"
                         >
                             <div class="naskah-thumbnail">
-                                <span>Gambar sampul</span>
+                                <img v-if="item.gambar_sampul" :src="item.gambar_sampul" :alt="item.judul" style="width:100%;height:100%;object-fit:cover;" />
+                                <span v-else>Gambar sampul</span>
                             </div>
                             <div class="naskah-card-content">
                                 <div class="badge-date-row">
@@ -292,6 +293,7 @@ function statusClass(status) {
     if (status === 'revision' || status === 'direvisi') {
         return 'badge-warning'
     }
+    return 'badge-pending'
     if (status === 'pending' || status === 'menunggu') {
         return 'badge-warning'
     }
@@ -318,15 +320,15 @@ async function fetchKontributorDetail() {
             const users = usersRes.data.users || usersRes.data.data || []
             const found = users.find(u => String(u.id) === String(id))
             kontributor.value = found || null
-            
+
             const allNaskahs = naskahsRes.data.naskahs || naskahsRes.data.data || []
             const userNaskahs = allNaskahs.filter(n => String(n.id_kontributor || n.author?.id) === String(id))
             kontributorNaskahs.value = userNaskahs
-            
+
             const accDiterima = userNaskahs.filter(n => n.status_naskah === 'diterima' || n.status === 'approved' || n.status_naskah === 'diterbitkan').length
             const accDitolak = userNaskahs.filter(n => n.status_naskah === 'ditolak' || n.status === 'rejected').length
             const accDirevisi = userNaskahs.filter(n => n.status_naskah === 'direvisi' || n.status === 'revision').length
-            
+
             stats.value = {
                 total_dikirim: userNaskahs.length,
                 diterima: accDiterima,
@@ -345,6 +347,8 @@ onMounted(() => {
 </script>
 
 <style scoped>
+@import '@/assets/admin-theme.css';
+
 .detail-kontributor-page {
     display: flex;
     flex-direction: column;
@@ -389,6 +393,7 @@ onMounted(() => {
     width: 64px;
     height: 64px;
     border-radius: 50%;
+    background-color: #BCC8D4;
     background-color: var(--adm-border-dark);
     color: #ffffff;
     display: flex;
@@ -454,6 +459,8 @@ onMounted(() => {
 }
 
 .num-diterima { color: var(--adm-teal); }
+.num-ditolak { color: #DC2626; }
+.num-direvisi { color: #D97706; }
 .num-ditolak { color: var(--adm-danger-text); }
 .num-direvisi { color: var(--adm-warning-text); }
 
@@ -634,6 +641,7 @@ onMounted(() => {
 
 .naskah-thumbnail {
     height: 160px;
+    background-color: #DDE5EC;
     background-color: var(--adm-border-soft);
     display: flex;
     align-items: center;
@@ -728,4 +736,3 @@ onMounted(() => {
     }
 }
 </style>
-

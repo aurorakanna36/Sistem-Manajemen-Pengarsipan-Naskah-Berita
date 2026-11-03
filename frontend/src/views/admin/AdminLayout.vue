@@ -113,6 +113,7 @@ async function handleLogout() {
 .nav-item {
     display: block;
     padding: 0.75rem 1rem;
+    color: #ffffff;
     color: var(--adm-border-soft);
     text-decoration: none;
     font-size: 0.95rem;
@@ -138,12 +139,15 @@ async function handleLogout() {
 }
 
 .nav-logout {
+    margin-top: 1rem;
+    color: #fca5a5;
     margin-top: 1.5rem;
     color: var(--adm-border-soft);
 }
 
 .nav-logout:hover {
     background-color: rgba(239, 68, 68, 0.15);
+    color: #ffffff;
     color: #fca5a5;
 }
 
@@ -155,6 +159,9 @@ async function handleLogout() {
 }
 
 .admin-topbar {
+    height: 64px;
+    background: var(--adm-bg-card);
+    border-bottom: 1px solid var(--adm-border);
     height: 72px;
     background: transparent;
     display: flex;
@@ -172,6 +179,7 @@ async function handleLogout() {
 .user-avatar {
     width: 38px;
     height: 38px;
+    background-color: var(--adm-teal);
     background-color: var(--adm-navy);
     color: #ffffff;
     border-radius: 50%;
@@ -183,6 +191,7 @@ async function handleLogout() {
 }
 
 .user-name {
+    font-weight: 600;
     font-weight: 700;
     font-size: 0.95rem;
     color: var(--adm-text-main);

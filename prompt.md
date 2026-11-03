@@ -66,7 +66,7 @@ balaman yang sudah ditambahkan ada kelola user beberap fitur yang sudah ada tapi
               -> 4. jumlah naskah yang direvisi
               card 5. presentase naskah yang didalamnya ada lingkaran seperti diagram yang warnanya sesuai dengan 3 status naskha milik kotnributor yaitu diterima, ditoalk dan direvisi.
 
-				card ke 5 . menunjukan informasi naskah  yang dikirim perbulan berupa grafik batang dengan perhitungan naskah yagn dipost setiap bulannya . 
+				- [ ] card ke 5 . menunjukan informasi naskah  yang dikirim perbulan berupa grafik batang dengan perhitungan naskah yagn dipost setiap bulannya . 
 			  card ke 6 (bersifat mapping atua lopping ) : kumpulan card naskah yang dibaut oleh kontributor.
 
 **Halaman Revisi Naskah** :
@@ -79,3 +79,43 @@ balaman yang sudah ditambahkan ada kelola user beberap fitur yang sudah ada tapi
         ( source / refrensi :images\Desain Sistem Pengelolaan Naskah_ADMIN/Kelola Kontributor png dan Dashboard Addmin)
         
     saat ini buatkan impelemantion plannya reciew beberapa halaman yang sudah say a buat selbeumnya bandingkan dengan request saya diatas mana yang perlu ditamabhakan dan diupdate. perlu dingat diatas adalah akses halaman atau fitur untuk role admin. 
+
+
+prompt [[3]] update halaman kontributor
+
+saya sudah menambahkan folder images/Desain Sistem Pengolahan Naskah_CONTRIBUTOR. yang berisi kumpulan gambar frameware dari halaman yang bisa diakses oleh kontributor.
+
+halaman yang sudah ada pada sistem sebelumnya seperti dahsboard yang berii:
+4 card: total naskah, sedang ditinjau, disetujui. terbit, dan perlu direview dan tabel  dari naskah tyang dimiliki oleh kontributor.
+
+saya ingin merubah halaman dashboard diantaranya.
+
+mengupdate 4 card yang sduah ada menjadi 5 card yaitu 
+dikirim ( naskah yang sduah dikirim  (degnan status apapun)),  dalam recview, direvisi Diterima, dan ditolak.
+
+kemudian ada card aktiftas terbaru dimana menampilkan naskah yang baru dibuat oleh kontributor degnan statusnay dan nanti dapat diklik fieldn judul naskah atau satu fieldnya mengarah ke detail naskah tersebut.
+
+disampignnya ada card  presentase naskah yang menunjukan  donat chart  menampilkan total naskah dengan 3 indikator yang sebagai inputan chart emnggunakan3 status yaitu Diterima, Ditolak, Dalam proses. 
+
+halaman kirim naskah (sebleumnay sduah ada) taoi masih berupa pop up tidak halaman sendiri sehingga saya ingin membuat halamn terpisah.
+
+isinay seperti form yang ada field judul naskah, kategori, kata kunci, abstrak , isi naskah, dan gambar sampul.
+
+ada bebrapa yang perlu dreivisi dari gambar refrensi frameware nya images/Desain Sistem Pengolahan Naskah_CONTRIBUTOR/kirim naskah.png.
+
+pada pilih kategori jiak apda frame ware berupa select option sehingga hanya bsia memilih satu kategori. saya ingin mengubahnya seperti kumpulan radio button yang bisa dipilih lebih dari satu kategori.
+
+TAPI REVISI DIATAS JUGA MENGUBAH STURKUTUR ERD YANG SUDAH ADA. mengapa? 
+
+kategori saat ini berupa column enum yang ada pada tabel naskab. karena bisa pilih lebih dari 1 kategori harus dipisah atau dibuatkan tabel sendiri agar tabel naskah bisa memilih lebih dari satu kartegori dengan mebuat relasi belongs to many satu naskah puny abanyak kateogri (tolong perhatikan bagian ERD atau DATABASE INI !!) 
+
+pada textfield isi naskah saya ingin membuat bebrapa fitur.  Bold, icon list numbering, list tanpa numbering, kutipan, link (menyisipkan link ), coretan di tengah tulisan, text color, garis mendatar, karakter khusus, dan yang terpenting  pembuatan HEADING 1 ukuran besar,, heading 2 mengengah dan seterunsya, redo dan undo, dan yang terkahir, perlebar dan persempit inden. 
+
+refrensi fitur diatas ada pada images/Desain Sistem Pengolahan Naskah_CONTRIBUTOR/fitur isi.png naskah dan  images/Desain Sistem Pengolahan Naskah_CONTRIBUTOR/fitur heading.png
+
+
+hapus bagian berkas naskah dan sisakan input atau pilih berkas untuk gambar sampul dan pastikan ada preiew atau nantinya masuk kedalam isi naskah untuk gambarnya. Oh yaa di folder refrensi desain  images/Desain Sistem Pengolahan Naskah_CONTRIBUTOR/popup review image.png sudah sday tambahkan sebagai refrensi. yang diambiol cukup  bagian unggah berkas nanto ada satu button di tengah upload file yang berasla dari  penyimpanan internal. kemudian  disebelah kriinya sam apersih seperti menginputkan text alt, judul, keternagna gambar, deskirpsi, dan url berkas. ketika disisipkan kme dalam pos akan masuk ke bagian isi berita. 
+
+contoh isi naskah setelah gambar disisipkabn??  images/Desain Sistem Pengolahan Naskah_CONTRIBUTOR/popup review image.png.
+
+saat ini buatkan implementation plan nya untuk saya review dan revisi jika ada yang perlu diupdate.

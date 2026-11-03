@@ -151,6 +151,8 @@ onMounted(() => {
 </script>
 
 <style scoped>
+@import '@/assets/admin-theme.css';
+
 .review-page {
     display: flex;
     flex-direction: column;
@@ -227,6 +229,7 @@ onMounted(() => {
 
 .card-thumb-area {
     height: 160px;
+    background-color: #DDE5EC;
     background-color: var(--adm-border-soft);
     display: flex;
     align-items: center;
@@ -251,6 +254,8 @@ onMounted(() => {
 }
 
 .status-badge-blue {
+    background-color: #E0EDFB;
+    color: #1E40AF;
     background-color: var(--adm-info-bg);
     color: var(--adm-info-text);
     padding: 0.25rem 0.75rem;

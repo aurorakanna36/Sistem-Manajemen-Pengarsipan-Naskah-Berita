@@ -118,7 +118,7 @@ class AdminUserController extends Controller
     {
         $user = User::where('role', 'kontributor')->findOrFail($id);
 
-        $naskahs = Naskah::where('id_kontributor', $id)->latest('waktu_kirim')->get();
+        $naskahs = Naskah::with('kategoris')->where('id_kontributor', $id)->latest('waktu_kirim')->get();
 
         $stats = [
             'total_dikirim' => $naskahs->count(),
@@ -142,7 +142,12 @@ class AdminUserController extends Controller
         $naskahList = $naskahs->map(fn($n) => [
             'id'            => $n->id,
             'judul'         => $n->judul,
-            'kategori'      => $n->kategori,
+            'kata_kunci'    => $n->kata_kunci,
+            'abstrak'       => $n->abstrak,
+            'isi'           => $n->isi,
+            'gambar_sampul' => $n->gambar_sampul ? asset('storage/' . $n->gambar_sampul) : null,
+            'kategori'      => $n->kategoris->isNotEmpty() ? $n->kategoris->pluck('nama_kategori')->implode(', ') : $n->kategori,
+            'kategoris'     => $n->kategoris->map(fn($k) => ['id' => $k->id, 'nama_kategori' => $k->nama_kategori, 'slug' => $k->slug])->values(),
             'status_naskah' => $n->status_naskah,
             'waktu_kirim'   => $n->waktu_kirim ? $n->waktu_kirim->toDateTimeString() : null,
             'file_path'     => $n->file_path ? asset('storage/' . $n->file_path) : null,

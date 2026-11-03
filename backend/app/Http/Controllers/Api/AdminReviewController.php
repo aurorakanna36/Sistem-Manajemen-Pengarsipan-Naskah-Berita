@@ -23,7 +23,7 @@ class AdminReviewController extends Controller
         $totalKontributor  = User::where('role', 'kontributor')->count();
         $perluDireview     = Naskah::where('status_naskah', 'perlu_direview')->count();
 
-        $naskahMenunggu = Naskah::where('status_naskah', 'perlu_direview')
+        $naskahMenunggu = Naskah::with('kategoris')->where('status_naskah', 'perlu_direview')
             ->latest('waktu_kirim')
             ->limit(5)
             ->get()
@@ -32,7 +32,8 @@ class AdminReviewController extends Controller
                 'judul'            => $n->judul,
                 'nama_kontributor' => $n->nama_kontributor ?? $n->nama_guest ?? 'Anonim',
                 'waktu_kirim'      => $n->waktu_kirim ? $n->waktu_kirim->toDateTimeString() : null,
-                'kategori'         => $n->kategori,
+                'kategori'         => $n->kategoris->isNotEmpty() ? $n->kategoris->pluck('nama_kategori')->implode(', ') : $n->kategori,
+                'kategoris'        => $n->kategoris->map(fn($k) => ['id' => $k->id, 'nama_kategori' => $k->nama_kategori, 'slug' => $k->slug])->values(),
             ]);
 
         $kontributorMenunggu = User::where('role', 'kontributor')
@@ -64,7 +65,7 @@ class AdminReviewController extends Controller
      */
     public function show($id)
     {
-        $n = Naskah::with(['kontributor', 'guest', 'reviews.admin', 'publikasi', 'riwayatStatus'])
+        $n = Naskah::with(['kategoris', 'kontributor', 'guest', 'reviews.admin', 'publikasi', 'riwayatStatus'])
             ->findOrFail($id);
 
         $statusMap = [
@@ -97,7 +98,12 @@ class AdminReviewController extends Controller
             'naskah' => [
                 'id'                  => $n->id,
                 'judul'               => $n->judul,
-                'kategori'            => $n->kategori,
+                'kata_kunci'          => $n->kata_kunci,
+                'abstrak'             => $n->abstrak,
+                'isi'                 => $n->isi,
+                'gambar_sampul'       => $n->gambar_sampul ? asset('storage/' . $n->gambar_sampul) : null,
+                'kategori'            => $n->kategoris->isNotEmpty() ? $n->kategoris->pluck('nama_kategori')->implode(', ') : $n->kategori,
+                'kategoris'           => $n->kategoris->map(fn($k) => ['id' => $k->id, 'nama_kategori' => $k->nama_kategori, 'slug' => $k->slug])->values(),
                 'file_path'           => $n->file_path ? asset('storage/' . $n->file_path) : null,
                 'status_naskah'       => $n->status_naskah,
                 'status'              => $statusMap[$n->status_naskah] ?? 'pending',
@@ -147,7 +153,7 @@ class AdminReviewController extends Controller
 
     public function index()
     {
-        $naskahs = Naskah::with(['kontributor', 'guest', 'reviews.admin', 'publikasi', 'riwayatStatus'])
+        $naskahs = Naskah::with(['kategoris', 'kontributor', 'guest', 'reviews.admin', 'publikasi', 'riwayatStatus'])
             ->latest('waktu_kirim')
             ->get()
             ->map(function ($n) {
@@ -175,7 +181,12 @@ class AdminReviewController extends Controller
                 return [
                     'id' => $n->id,
                     'judul' => $n->judul,
-                    'kategori' => $n->kategori,
+                    'kata_kunci' => $n->kata_kunci,
+                    'abstrak' => $n->abstrak,
+                    'isi' => $n->isi,
+                    'gambar_sampul' => $n->gambar_sampul ? asset('storage/' . $n->gambar_sampul) : null,
+                    'kategori' => $n->kategoris->isNotEmpty() ? $n->kategoris->pluck('nama_kategori')->implode(', ') : $n->kategori,
+                    'kategoris' => $n->kategoris->map(fn($k) => ['id' => $k->id, 'nama_kategori' => $k->nama_kategori, 'slug' => $k->slug])->values(),
                     'file_path' => $n->file_path ? asset('storage/' . $n->file_path) : null,
                     'status_naskah' => $n->status_naskah,
                     'status' => $statusMap[$n->status_naskah] ?? 'pending',
@@ -250,7 +261,8 @@ class AdminReviewController extends Controller
                 'id_kontributor' => $naskah->id_kontributor,
                 'id_naskah' => $naskah->id,
                 'status' => 'diterima',
-                'catatan' => $catatan ?? 'Naskah disetujui oleh redaksi.',
+                'catatan' => $catatan ?? 'Selamat, naskahmu sudah diterbitkan dan tampil di homepage.',
+                'is_read' => false,
                 'waktu_status' => now(),
             ]);
 
@@ -273,7 +285,8 @@ class AdminReviewController extends Controller
                 'id_kontributor' => $naskah->id_kontributor,
                 'id_naskah' => $naskah->id,
                 'status' => 'diterbitkan',
-                'catatan' => 'Naskah diterbitkan ke publik.',
+                'catatan' => 'Selamat, naskahmu sudah diterbitkan dan tampil di homepage.',
+                'is_read' => false,
                 'waktu_status' => now(),
             ]);
 
@@ -294,6 +307,7 @@ class AdminReviewController extends Controller
                 'id_naskah' => $naskah->id,
                 'status' => 'direvisi',
                 'catatan' => $catatan ?? 'Naskah memerlukan revisi.',
+                'is_read' => false,
                 'waktu_status' => now(),
             ]);
 
@@ -314,6 +328,7 @@ class AdminReviewController extends Controller
                 'id_naskah' => $naskah->id,
                 'status' => 'ditolak',
                 'catatan' => $catatan ?? 'Naskah ditolak oleh redaksi.',
+                'is_read' => false,
                 'waktu_status' => now(),
             ]);
 
@@ -353,6 +368,7 @@ class AdminReviewController extends Controller
             'id_naskah' => $naskah->id,
             'status' => 'diterbitkan',
             'catatan' => 'Naskah resmi diterbitkan: ' . ($request->input('url_berita') ?? 'Portal Berita'),
+            'is_read' => false,
             'waktu_status' => now(),
         ]);
 

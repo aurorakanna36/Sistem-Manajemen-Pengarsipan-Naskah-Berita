@@ -16,11 +16,13 @@ class RiwayatStatus extends Model
         'id_naskah',
         'status',
         'catatan',
+        'is_read',
         'waktu_status',
     ];
 
     protected $casts = [
         'waktu_status' => 'datetime',
+        'is_read' => 'boolean',
     ];
 
     public function kontributor()

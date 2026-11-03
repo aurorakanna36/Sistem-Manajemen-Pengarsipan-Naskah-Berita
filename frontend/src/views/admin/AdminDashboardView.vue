@@ -308,6 +308,7 @@ onMounted(() => {
     width: 40px;
     height: 40px;
     border-radius: 50%;
+    background-color: var(--adm-navy-muted);
     background-color: var(--adm-border-dark);
     color: #ffffff;
     display: flex;
