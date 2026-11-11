@@ -54,7 +54,7 @@ async function handleLogout() {
 <style scoped>
 .pending-page {
     min-height: 100vh;
-    background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 100%);
+    background: linear-gradient(135deg, #0f2a22 0%, #1e5f51 100%);
     display: flex;
     align-items: center;
     justify-content: center;

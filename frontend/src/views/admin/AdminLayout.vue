@@ -1,8 +1,23 @@
+
 <template>
     <div class="admin-layout">
 
-        <aside :class="['admin-sidebar', { collapsed: isSidebarCollapsed }]">
+        <!-- Overlay mobile -->
+        <button
+            v-if="isMobileSidebarOpen"
+            class="sidebar-overlay"
+            aria-label="Tutup menu"
+            @click="closeMobileSidebar"
+        ></button>
 
+        <!-- SIDEBAR -->
+        <aside
+            :class="[
+                'admin-sidebar',
+                { collapsed: isSidebarCollapsed },
+                { 'mobile-open': isMobileSidebarOpen }
+            ]"
+        >
             <div class="sidebar-brand">
 
                 <div v-if="!isSidebarCollapsed" class="brand-info">
@@ -10,15 +25,35 @@
                     <span class="brand-sub">Admin</span>
                 </div>
 
-                <button class="toggle-sidebar" @click="toggleSidebar"
-                    :title="isSidebarCollapsed ? 'Tampilkan Sidebar' : 'Sembunyikan Sidebar'">
-                    <svg v-if="isSidebarCollapsed" width="21" height="21" viewBox="0 0 24 24" fill="none"
-                        stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                <button
+                    class="toggle-sidebar"
+                    @click="toggleSidebar"
+                    :title="isSidebarCollapsed ? 'Tampilkan Sidebar' : 'Sembunyikan Sidebar'"
+                >
+                    <svg
+                        v-if="isSidebarCollapsed"
+                        width="21"
+                        height="21"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                    >
                         <path d="M4 6h16M4 12h16M4 18h16" />
                     </svg>
 
-                    <svg v-else width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <svg
+                        v-else
+                        width="21"
+                        height="21"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                    >
                         <path d="m15 18-6-6 6-6" />
                     </svg>
                 </button>
@@ -27,14 +62,26 @@
 
             <nav class="sidebar-nav">
 
-                <router-link to="/admin/dashboard" class="nav-item" active-class="active" title="Dashboard">
+                <router-link
+                    to="/admin/dashboard"
+                    class="nav-item"
+                    active-class="active"
+                    title="Dashboard"
+                    @click="closeMobileSidebar"
+                >
                     <svg viewBox="0 0 24 24" class="menu-icon">
                         <path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1h-6v-7h-4v7H4a1 1 0 0 1-1-1z" />
                     </svg>
                     <span v-if="!isSidebarCollapsed">Dashboard</span>
                 </router-link>
 
-                <router-link to="/admin/kontributor" class="nav-item" active-class="active" title="Kelola Kontributor">
+                <router-link
+                    to="/admin/kontributor"
+                    class="nav-item"
+                    active-class="active"
+                    title="Kelola Kontributor"
+                    @click="closeMobileSidebar"
+                >
                     <svg viewBox="0 0 24 24" class="menu-icon">
                         <path d="M16 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
                         <circle cx="10" cy="7" r="4" />
@@ -43,7 +90,13 @@
                     <span v-if="!isSidebarCollapsed">Kelola Kontributor</span>
                 </router-link>
 
-                <router-link to="/admin/review-naskah" class="nav-item" active-class="active" title="Review Naskah">
+                <router-link
+                    to="/admin/review-naskah"
+                    class="nav-item"
+                    active-class="active"
+                    title="Review Naskah"
+                    @click="closeMobileSidebar"
+                >
                     <svg viewBox="0 0 24 24" class="menu-icon">
                         <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
                         <path d="M14 2v6h6M8 13h8M8 17h8" />
@@ -51,7 +104,13 @@
                     <span v-if="!isSidebarCollapsed">Review Naskah</span>
                 </router-link>
 
-                <router-link to="/admin/kelola-naskah" class="nav-item" active-class="active" title="Kelola Naskah">
+                <router-link
+                    to="/admin/kelola-naskah"
+                    class="nav-item"
+                    active-class="active"
+                    title="Kelola Naskah"
+                    @click="closeMobileSidebar"
+                >
                     <svg viewBox="0 0 24 24" class="menu-icon">
                         <path d="M12 20h9" />
                         <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L8 18l-4 1 1-4z" />
@@ -59,34 +118,53 @@
                     <span v-if="!isSidebarCollapsed">Kelola Naskah</span>
                 </router-link>
 
-                <button class="nav-item nav-logout" @click="handleLogout" title="Keluar">
-
+                <button
+                    class="nav-item nav-logout"
+                    @click="handleLogout"
+                    title="Keluar"
+                >
                     <svg viewBox="0 0 24 24" class="menu-icon">
                         <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
                         <path d="m16 17 5-5-5-5" />
                         <path d="M21 12H9" />
                     </svg>
-
                     <span v-if="!isSidebarCollapsed">Keluar</span>
                 </button>
 
             </nav>
         </aside>
 
-
+        <!-- MAIN CONTENT -->
         <div class="admin-main-wrap">
+
             <header class="admin-topbar">
+
+                <div class="topbar-left">
+                    <!-- Hamburger mobile -->
+                    <button
+                        class="mobile-menu-button"
+                        @click="openMobileSidebar"
+                        aria-label="Buka menu"
+                    >
+                        <svg viewBox="0 0 24 24">
+                            <path d="M4 6h16M4 12h16M4 18h16" />
+                        </svg>
+                    </button>
+                </div>
+
                 <div class="topbar-user">
                     <div class="user-avatar">
                         {{ userInitial }}
                     </div>
                     <span class="user-name">{{ userName }}</span>
                 </div>
+
             </header>
 
             <main class="admin-content">
                 <slot />
             </main>
+
         </div>
     </div>
 </template>
@@ -97,49 +175,78 @@ import { useRouter } from 'vue-router'
 import api from '@/api/index.js'
 
 const router = useRouter()
+
 const userRaw = localStorage.getItem('user_info')
 const user = userRaw ? JSON.parse(userRaw) : null
 
-const userName = computed(() => user?.nama_lengkap || user?.name || 'Admin')
-const userInitial = computed(() => userName.value.charAt(0).toUpperCase() || 'A')
+const userName = computed(
+    () => user?.nama_lengkap || user?.name || 'Admin'
+)
+
+const userInitial = computed(
+    () => userName.value.charAt(0).toUpperCase() || 'A'
+)
 
 const isSidebarCollapsed = ref(false)
-
-async function handleLogout() {
-    try {
-        await api.auth.logout()
-    } catch { }
-    localStorage.removeItem('auth_token')
-    localStorage.removeItem('user_info')
-    router.push({ name: 'login' })
-}
+const isMobileSidebarOpen = ref(false)
 
 function toggleSidebar() {
+    if (window.innerWidth <= 900) {
+        closeMobileSidebar()
+        return
+    }
+
     isSidebarCollapsed.value = !isSidebarCollapsed.value
+}
+
+function openMobileSidebar() {
+    isMobileSidebarOpen.value = true
+}
+
+function closeMobileSidebar() {
+    isMobileSidebarOpen.value = false
+}
+
+async function handleLogout() {
+    closeMobileSidebar()
+
+    try {
+        await api.auth.logout()
+    } catch {}
+
+    localStorage.removeItem('auth_token')
+    localStorage.removeItem('user_info')
+
+    router.push({ name: 'login' })
 }
 </script>
 
 <style scoped>
+/* MAIN LAYOUT */
 .admin-layout {
     display: flex;
     min-height: 100vh;
     background-color: var(--adm-bg-page);
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont,
+        'Segoe UI', Roboto, sans-serif;
     color: var(--adm-text-main);
 }
 
+/* SIDEBAR */
 .admin-sidebar {
     width: 260px;
     flex: 0 0 260px;
-    min-height: 100vh;
+    height: 100vh;
+    position: sticky;
+    top: 0;
     background: var(--adm-green);
     display: flex;
     flex-direction: column;
-    position: sticky;
-    top: 0;
-    overflow: hidden;
+    overflow-y: auto;
+    overflow-x: hidden;
     transition: width 0.3s ease, flex-basis 0.3s ease;
     box-sizing: border-box;
+    z-index: 100;
 }
 
 .admin-sidebar.collapsed {
@@ -167,7 +274,6 @@ function toggleSidebar() {
     font-size: 19px;
     font-weight: 700;
     margin: 0;
-    letter-spacing: -0.3px;
 }
 
 .brand-sub {
@@ -189,7 +295,6 @@ function toggleSidebar() {
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    transition: background 0.2s ease;
 }
 
 .toggle-sidebar:hover {
@@ -211,12 +316,10 @@ function toggleSidebar() {
     align-items: center;
     gap: 13px;
     box-sizing: border-box;
-
     color: #d5e6df;
     background: transparent;
     border: none;
     border-radius: 9px;
-
     font-family: inherit;
     font-size: 14px;
     font-weight: 500;
@@ -224,7 +327,6 @@ function toggleSidebar() {
     text-align: left;
     white-space: nowrap;
     cursor: pointer;
-
     transition: background 0.2s ease, color 0.2s ease;
 }
 
@@ -252,7 +354,6 @@ function toggleSidebar() {
 
 .nav-logout {
     margin-top: 22px;
-    color: #d5e6df;
 }
 
 .nav-logout:hover {
@@ -275,10 +376,7 @@ function toggleSidebar() {
     gap: 0;
 }
 
-.admin-sidebar.collapsed .nav-logout {
-    margin-top: 22px;
-}
-
+/* MAIN WRAPPER */
 .admin-main-wrap {
     flex: 1;
     min-width: 0;
@@ -286,29 +384,58 @@ function toggleSidebar() {
     flex-direction: column;
 }
 
+/* TOPBAR */
 .admin-topbar {
-    height: 64px;
+    min-height: 72px;
     background: var(--adm-bg-card);
     border-bottom: 1px solid var(--adm-border);
-    height: 72px;
     display: flex;
     align-items: center;
-    justify-content: flex-end;
+    justify-content: space-between;
     padding: 0 2.5rem;
+    box-sizing: border-box;
+}
+
+.topbar-left {
+    display: flex;
+    align-items: center;
+}
+
+.mobile-menu-button {
+    display: none;
+    width: 42px;
+    height: 42px;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    border-radius: 9px;
+    background: transparent;
+    color: var(--adm-text-main);
+    cursor: pointer;
+}
+
+.mobile-menu-button svg {
+    width: 24px;
+    height: 24px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
 }
 
 .topbar-user {
     display: flex;
     align-items: center;
     gap: 0.75rem;
+    min-width: 0;
 }
 
 .user-avatar {
     width: 38px;
     height: 38px;
-    background-color: var(--adm-teal);
+    flex-shrink: 0;
     background-color: var(--adm-green);
-    color: #ffffff;
+    color: #fff;
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -318,26 +445,89 @@ function toggleSidebar() {
 }
 
 .user-name {
-    font-weight: 600;
     font-weight: 700;
     font-size: 0.95rem;
     color: var(--adm-text-main);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
+/* CONTENT */
 .admin-content {
     flex: 1;
-    padding: 0 2.5rem 3rem;
+    min-width: 0;
+    padding: 1.75rem 2.5rem 3rem;
+    box-sizing: border-box;
 }
 
+/* OVERLAY */
+.sidebar-overlay {
+    display: none;
+}
+
+/* TABLET & MOBILE */
 @media (max-width: 900px) {
-    .admin-layout {
-        flex-direction: column;
+    .admin-sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        width: min(280px, 85vw);
+        height: 100dvh;
+        flex-basis: auto;
+        transform: translateX(-100%);
+        transition: transform 0.3s ease;
+        z-index: 1001;
+        box-shadow: 5px 0 25px rgba(0, 0, 0, 0.15);
     }
 
-    .admin-sidebar {
+    .admin-sidebar.collapsed {
+        width: min(280px, 85vw);
+        flex-basis: auto;
+    }
+
+    .admin-sidebar.mobile-open {
+        transform: translateX(0);
+    }
+
+    .admin-sidebar.collapsed .sidebar-brand {
+        padding: 25px 20px;
+        justify-content: space-between;
+    }
+
+    .admin-sidebar.collapsed .sidebar-nav {
+        padding: 12px;
+    }
+
+    .admin-sidebar.collapsed .nav-item {
+        justify-content: flex-start;
+        padding: 0 14px;
+        gap: 13px;
+    }
+
+    .admin-sidebar.collapsed .brand-info {
+        display: block;
+    }
+
+    .admin-sidebar.collapsed .nav-item span {
+        display: inline;
+    }
+
+    .mobile-menu-button {
+        display: flex;
+    }
+
+    .sidebar-overlay {
+        display: block;
+        position: fixed;
+        inset: 0;
         width: 100%;
-        min-height: auto;
-        position: static;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.45);
+        border: none;
+        z-index: 1000;
+        cursor: pointer;
     }
 
     .admin-topbar {
@@ -345,7 +535,41 @@ function toggleSidebar() {
     }
 
     .admin-content {
-        padding: 0 1.5rem 2rem;
+        padding: 1.5rem 1.5rem 2rem;
+    }
+}
+
+/* SMALL MOBILE */
+@media (max-width: 600px) {
+    .admin-topbar {
+        min-height: 62px;
+        padding: 0 1rem;
+    }
+
+    .admin-content {
+        padding: 1.15rem 1rem 1.5rem;
+    }
+
+    .user-name {
+        font-size: 0.85rem;
+        max-width: 130px;
+    }
+
+    .user-avatar {
+        width: 34px;
+        height: 34px;
+    }
+}
+
+/* VERY SMALL MOBILE */
+@media (max-width: 380px) {
+    .admin-content {
+        padding-left: 0.75rem;
+        padding-right: 0.75rem;
+    }
+
+    .user-name {
+        max-width: 100px;
     }
 }
 </style>

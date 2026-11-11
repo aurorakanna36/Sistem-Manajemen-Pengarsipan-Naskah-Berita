@@ -1,16 +1,25 @@
 <template>
     <div class="ktr-layout">
-        <aside :class="['ktr-sidebar', { collapsed: isSidebarCollapsed }]">
+        <button v-if="isMobileSidebarOpen" type="button" class="sidebar-overlay" aria-label="Tutup menu"
+            @click="closeMobileSidebar"></button>
+
+        <aside :class="[
+            'ktr-sidebar',
+            {
+                collapsed: isSidebarCollapsed,
+                'mobile-open': isMobileSidebarOpen
+            }
+        ]">
             <div class="sidebar-brand">
-                <div v-if="!isSidebarCollapsed" class="brand-info">
+                <div v-if="!isSidebarCollapsed || isMobileSidebarOpen" class="brand-info">
                     <h2 class="brand-title">Harian Cakrawala</h2>
                     <span class="brand-sub">Kontributor</span>
                 </div>
 
                 <button type="button" class="toggle-sidebar" @click="toggleSidebar"
-                    :title="isSidebarCollapsed ? 'Buka sidebar' : 'Tutup sidebar'">
-                    <svg v-if="isSidebarCollapsed" viewBox="0 0 24 24" width="21" height="21" fill="none"
-                        stroke="currentColor" stroke-width="2">
+                    :title="isMobileSidebarOpen ? 'Tutup menu' : 'Toggle sidebar'">
+                    <svg v-if="isSidebarCollapsed && !isMobileSidebarOpen" viewBox="0 0 24 24" width="21" height="21"
+                        fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M4 6h16M4 12h16M4 18h16" />
                     </svg>
 
@@ -21,60 +30,65 @@
                 </button>
             </div>
 
-
             <nav class="sidebar-nav">
-
-
                 <!-- Dashboard -->
                 <router-link to="/kontributor/dashboard" class="nav-item"
-                    :class="{ active: isRouteActive('/kontributor/dashboard') }" title="Dashboard">
+                    :class="{ active: isRouteActive('/kontributor/dashboard') }" title="Dashboard"
+                    @click="closeMobileSidebar">
                     <svg viewBox="0 0 24 24" class="menu-icon">
                         <path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1h-6v-7h-4v7H4a1 1 0 0 1-1-1z" />
                     </svg>
-                    <span v-if="!isSidebarCollapsed">Dashboard</span>
+                    <span v-if="!isSidebarCollapsed || isMobileSidebarOpen">
+                        Dashboard
+                    </span>
                 </router-link>
 
-                <!-- Kirim Naskah -->
                 <router-link to="/kontributor/kirim-naskah" class="nav-item"
-                    :class="{ active: isRouteActive('/kontributor/kirim-naskah') }" title="Kirim Naskah">
+                    :class="{ active: isRouteActive('/kontributor/kirim-naskah') }" title="Kirim Naskah"
+                    @click="closeMobileSidebar">
                     <svg viewBox="0 0 24 24" class="menu-icon">
                         <path d="M12 20h9" />
                         <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L8 18l-4 1 1-4z" />
                     </svg>
-                    <span v-if="!isSidebarCollapsed">Kirim Naskah</span>
+                    <span v-if="!isSidebarCollapsed || isMobileSidebarOpen">
+                        Kirim Naskah
+                    </span>
                 </router-link>
 
-                <!-- Naskah Saya -->
-                <router-link to="/kontributor/naskah-saya" class="nav-item"
-                    :class="{ active: isRouteActive('/kontributor/naskah-saya') || isRoutePrefix('/kontributor/naskah/') }"
-                    title="Naskah Saya">
+                <router-link to="/kontributor/naskah-saya" class="nav-item" :class="{
+                    active:
+                        isRouteActive('/kontributor/naskah-saya') ||
+                        isRoutePrefix('/kontributor/naskah/')
+                }" title="Naskah Saya" @click="closeMobileSidebar">
                     <svg viewBox="0 0 24 24" class="menu-icon">
                         <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
                         <path d="M14 2v6h6M8 13h8M8 17h8" />
                     </svg>
-                    <span v-if="!isSidebarCollapsed">Naskah Saya</span>
+                    <span v-if="!isSidebarCollapsed || isMobileSidebarOpen">
+                        Naskah Saya
+                    </span>
                 </router-link>
 
-                <!-- Notifikasi -->
-                <router-link to="/kontributor/notifikasi" class="nav-item nav-item-notifikasi"
-                    :class="{ active: isRouteActive('/kontributor/notifikasi') }" title="Notifikasi">
+                <router-link to="/kontributor/notifikasi" class="nav-item nav-item-notifikasi" :class="{
+                    active: isRouteActive('/kontributor/notifikasi')
+                }" title="Notifikasi" @click="closeMobileSidebar">
                     <svg viewBox="0 0 24 24" class="menu-icon">
                         <path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9" />
                         <path d="M10 21h4" />
                     </svg>
 
-                    <span v-if="!isSidebarCollapsed" class="nav-label">
+                    <span v-if="!isSidebarCollapsed || isMobileSidebarOpen" class="nav-label">
                         Notifikasi
                     </span>
 
                     <span class="notif-floating-badge" :class="{
                         'has-unread': displayUnreadCount > 0,
-                        'collapsed-badge': isSidebarCollapsed
+                        'collapsed-badge':
+                            isSidebarCollapsed && !isMobileSidebarOpen
                     }" :title="`${displayUnreadCount} notifikasi belum dibaca`">
                         {{ displayUnreadCount }}
                     </span>
                 </router-link>
-
 
                 <button type="button" class="nav-item nav-logout" @click="handleLogout" title="Keluar">
                     <svg viewBox="0 0 24 24" class="menu-icon">
@@ -82,14 +96,22 @@
                         <path d="m16 17 5-5-5-5" />
                         <path d="M21 12H9" />
                     </svg>
-                    <span v-if="!isSidebarCollapsed">Keluar</span>
+                    <span v-if="!isSidebarCollapsed || isMobileSidebarOpen">
+                        Keluar
+                    </span>
                 </button>
-
             </nav>
-
         </aside>
 
         <div class="ktr-main-wrap">
+            <header class="ktr-topbar">
+                <button type="button" class="mobile-menu-button" aria-label="Buka menu" @click="openMobileSidebar">
+                    <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M4 6h16M4 12h16M4 18h16" />
+                    </svg>
+                </button>
+            </header>
+
             <main class="ktr-content">
                 <slot :userName="userName" :userInitial="userInitial" />
             </main>
@@ -97,8 +119,17 @@
     </div>
 </template>
 
+
+
 <script setup>
-import { ref, computed, onMounted, onBeforeUnmount, watch } from 'vue'
+import {
+    ref,
+    computed,
+    onMounted,
+    onBeforeUnmount,
+    watch
+} from 'vue'
+
 import { useRoute, useRouter } from 'vue-router'
 import api from '@/api/index.js'
 
@@ -115,17 +146,45 @@ const router = useRouter()
 const userRaw = localStorage.getItem('user_info')
 const user = userRaw ? JSON.parse(userRaw) : null
 
-const userName = computed(() => user?.nama_lengkap || user?.name || 'Kontributor')
-const userInitial = computed(() => userName.value.charAt(0).toUpperCase() || 'K')
+const userName = computed(
+    () => user?.nama_lengkap || user?.name || 'Kontributor'
+)
+
+const userInitial = computed(
+    () => userName.value.charAt(0).toUpperCase() || 'K'
+)
 
 const isSidebarCollapsed = ref(false)
+
+const isMobileSidebarOpen = ref(false)
+
+function openMobileSidebar() {
+    isMobileSidebarOpen.value = true
+}
+
+function closeMobileSidebar() {
+    isMobileSidebarOpen.value = false
+}
+
+function toggleSidebar() {
+    if (window.matchMedia('(max-width: 960px)').matches) {
+        closeMobileSidebar()
+        return
+    }
+
+    isSidebarCollapsed.value = !isSidebarCollapsed.value
+}
 
 const fetchedUnreadCount = ref(0)
 
 const displayUnreadCount = computed(() => {
-    if (props.unreadCountOverride !== null && props.unreadCountOverride !== undefined) {
+    if (
+        props.unreadCountOverride !== null &&
+        props.unreadCountOverride !== undefined
+    ) {
         return props.unreadCountOverride
     }
+
     return fetchedUnreadCount.value
 })
 
@@ -140,6 +199,7 @@ function isRoutePrefix(prefix) {
 async function fetchUnreadCount() {
     try {
         const res = await api.kontributor.getNotifikasi()
+
         if (typeof res.data?.unread_count === 'number') {
             fetchedUnreadCount.value = res.data.unread_count
         }
@@ -167,30 +227,40 @@ watch(
 
 onMounted(() => {
     fetchUnreadCount()
-    window.addEventListener('kontributor-unread-updated', handleUnreadEvent)
+
+    window.addEventListener(
+        'kontributor-unread-updated',
+        handleUnreadEvent
+    )
 })
 
 onBeforeUnmount(() => {
-    window.removeEventListener('kontributor-unread-updated', handleUnreadEvent)
+    window.removeEventListener(
+        'kontributor-unread-updated',
+        handleUnreadEvent
+    )
 })
 
+// Logout
 async function handleLogout() {
+    closeMobileSidebar()
+
     try {
         await api.auth.logout()
-    } catch { }
+    } catch {
+        // Tetap lanjutkan proses logout lokal
+    }
+
     localStorage.removeItem('auth_token')
     localStorage.removeItem('user_info')
-    router.push({ name: 'login' })
-}
 
-function toggleSidebar() {
-    isSidebarCollapsed.value = !isSidebarCollapsed.value
+    router.push({ name: 'login' })
 }
 </script>
 
 
-<style scoped>
 
+<style scoped>
 .ktr-layout {
     display: flex;
     min-height: 100vh;
@@ -199,7 +269,6 @@ function toggleSidebar() {
     color: var(--ktr-text-main);
 }
 
-/* SIDEBAR */
 .ktr-sidebar {
     width: 260px;
     flex: 0 0 260px;
@@ -215,13 +284,11 @@ function toggleSidebar() {
     transition: width 0.3s ease, flex-basis 0.3s ease;
 }
 
-/* SIDEBAR COLLAPSED */
 .ktr-sidebar.collapsed {
     width: 80px;
     flex-basis: 80px;
 }
 
-/* BRAND */
 .sidebar-brand {
     min-height: 112px;
     padding: 25px 20px;
@@ -252,7 +319,6 @@ function toggleSidebar() {
     margin-top: 5px;
 }
 
-/* TOGGLE SIDEBAR */
 .toggle-sidebar {
     width: 36px;
     height: 36px;
@@ -272,7 +338,6 @@ function toggleSidebar() {
     background: var(--ktr-teal);
 }
 
-/* NAVIGATION */
 .sidebar-nav {
     display: flex;
     flex-direction: column;
@@ -317,7 +382,6 @@ function toggleSidebar() {
     font-weight: 600;
 }
 
-/* ICON */
 .menu-icon {
     width: 21px;
     height: 21px;
@@ -329,7 +393,6 @@ function toggleSidebar() {
     stroke-linejoin: round;
 }
 
-/* NOTIFICATION */
 .nav-item-notifikasi {
     position: relative;
 }
@@ -363,7 +426,6 @@ function toggleSidebar() {
     color: var(--ktr-teal);
 }
 
-/* LOGOUT */
 .nav-logout {
     margin-top: 22px;
     color: var(--ktr-border-soft);
@@ -374,7 +436,6 @@ function toggleSidebar() {
     color: #FCA5A5;
 }
 
-/* COLLAPSED BRAND */
 .ktr-sidebar.collapsed .sidebar-brand {
     padding: 20px 0;
     justify-content: center;
@@ -405,7 +466,6 @@ function toggleSidebar() {
     border: 2px solid var(--ktr-green);
 }
 
-/* MAIN CONTENT */
 .ktr-main-wrap {
     flex: 1;
     display: flex;
@@ -418,27 +478,133 @@ function toggleSidebar() {
     padding: 2.25rem 2.75rem 3.5rem;
 }
 
-/* RESPONSIVE */
+.ktr-topbar {
+    display: none;
+    align-items: center;
+    min-height: 62px;
+    padding: 0 20px;
+    background: var(--ktr-bg-page);
+    border-bottom: 1px solid var(--ktr-border-soft);
+    box-sizing: border-box;
+}
+
+.mobile-menu-button {
+    width: 42px;
+    height: 42px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    border-radius: 9px;
+    background: var(--ktr-green);
+    color: var(--ktr-white);
+    cursor: pointer;
+}
+
+.mobile-menu-button:hover {
+    background: var(--ktr-green-hover);
+}
+
+.sidebar-overlay {
+    display: none;
+}
+
 @media (max-width: 960px) {
     .ktr-layout {
-        flex-direction: column;
+        flex-direction: row;
+        min-height: 100vh;
     }
 
-    .ktr-sidebar {
-        width: 100%;
-        flex: none;
-        min-height: auto;
-        height: auto;
-        position: static;
-    }
-
+    .ktr-sidebar,
     .ktr-sidebar.collapsed {
+        position: fixed;
+        top: 0;
+        left: 0;
+        bottom: 0;
+
+        width: min(280px, 85vw);
+        flex: 0 0 auto;
+
+        height: 100vh;
+        height: 100dvh;
+        min-height: 0;
+
+        overflow-y: auto;
+        overflow-x: hidden;
+
+        z-index: 1001;
+
+        transform: translateX(-100%);
+        transition: transform 0.3s ease;
+
+        box-shadow: none;
+    }
+
+    .ktr-sidebar.mobile-open {
+        transform: translateX(0);
+        box-shadow: 8px 0 30px rgba(0, 0, 0, 0.2);
+    }
+
+    .ktr-sidebar.collapsed .sidebar-brand {
+        padding: 25px 20px;
+        justify-content: space-between;
+    }
+
+    .ktr-sidebar.collapsed .sidebar-nav {
+        padding: 12px;
+    }
+
+    .ktr-sidebar.collapsed .nav-item {
+        justify-content: flex-start;
+        padding: 0 14px;
+        gap: 13px;
+    }
+
+    .ktr-sidebar.collapsed .notif-floating-badge {
+        position: static;
+        min-width: 22px;
+        height: 22px;
+        padding: 0 6px;
+        margin-left: auto;
+        font-size: 0.75rem;
+        border: none;
+    }
+
+    .sidebar-overlay {
+        display: block;
+        position: fixed;
+        inset: 0;
         width: 100%;
-        flex-basis: auto;
+        height: 100%;
+        padding: 0;
+        border: none;
+        background: rgba(0, 0, 0, 0.45);
+        z-index: 1000;
+        cursor: pointer;
+    }
+
+    .ktr-topbar {
+        display: flex;
+    }
+
+    .ktr-main-wrap {
+        width: 100%;
+        min-width: 0;
     }
 
     .ktr-content {
         padding: 1.5rem;
+    }
+}
+
+@media (max-width: 600px) {
+    .ktr-topbar {
+        min-height: 58px;
+        padding: 0 15px;
+    }
+
+    .ktr-content {
+        padding: 1.15rem 1rem 1.5rem;
     }
 }
 
