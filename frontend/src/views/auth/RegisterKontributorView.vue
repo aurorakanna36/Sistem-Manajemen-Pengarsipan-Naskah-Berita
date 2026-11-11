@@ -68,6 +68,7 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import api from '../../api/index.js'
+import Swal from 'sweetalert2'
 
 const router = useRouter()
 
@@ -88,6 +89,22 @@ function handleFileChange(event) {
 }
 
 async function handleRegister() {
+    // Pop-up konfirmasi sebelum mendaftar
+    const result = await Swal.fire({
+        icon: 'info',
+        title: 'Informasi Pendaftaran Kontributor',
+        text: 'Status verifikasi pendaftaran akan dikabarkan melalui email. Pastikan alamat email yang kamu masukkan sudah benar.',
+        showCancelButton: true,
+        confirmButtonText: 'Ya, Daftar',
+        cancelButtonText: 'Periksa Kembali',
+        confirmButtonColor: '#0d5c4d',
+        cancelButtonColor: '#6b7280',
+        reverseButtons: true
+    })
+
+    // Jika pengguna membatalkan
+    if (!result.isConfirmed) return
+
     loading.value = true
     errorMessage.value = ''
 
@@ -97,7 +114,11 @@ async function handleRegister() {
     formData.append('email', form.value.email)
     formData.append('nomor_whatsapp', form.value.nomor_whatsapp)
     formData.append('phone_number', form.value.nomor_whatsapp)
-    if (form.value.instansi) formData.append('instansi', form.value.instansi)
+
+    if (form.value.instansi) {
+        formData.append('instansi', form.value.instansi)
+    }
+
     formData.append('password', form.value.password)
     formData.append('password_confirmation', form.value.password_confirmation)
 
@@ -113,19 +134,40 @@ async function handleRegister() {
         localStorage.setItem('auth_token', token)
         localStorage.setItem('user_info', JSON.stringify(user))
 
+        // Notifikasi setelah pendaftaran berhasil
+        await Swal.fire({
+            icon: 'success',
+            title: 'Pendaftaran Berhasil!',
+            text: 'Terima kasih telah mendaftar sebagai kontributor Harian Cakrawala. Status verifikasi akan dikabarkan melalui email.',
+            confirmButtonText: 'Mengerti',
+            confirmButtonColor: '#0d5c4d',
+            allowOutsideClick: false
+        })
+
         router.push({ name: 'kontributor.pending' })
+
     } catch (error) {
         const errors = error.response?.data?.errors
+
         if (errors) {
             const firstKey = Object.keys(errors)[0]
             errorMessage.value = errors[firstKey][0]
         } else {
             errorMessage.value = 'Terjadi kesalahan. Coba lagi.'
         }
+
+        Swal.fire({
+            icon: 'error',
+            title: 'Pendaftaran Gagal',
+            text: errorMessage.value,
+            confirmButtonColor: '#0d5c4d'
+        })
+
     } finally {
         loading.value = false
     }
 }
+
 </script>
 
 <style scoped>
@@ -138,7 +180,7 @@ async function handleRegister() {
 .register-left {
     width: 340px;
     flex-shrink: 0;
-    background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 50%, #0f4c81 100%);
+    background: linear-gradient(135deg, #0f2a22 0%, #0f8168 50%, #1e5f51 100%);
     display: flex;
     flex-direction: column;
     justify-content: space-between;
@@ -273,7 +315,7 @@ async function handleRegister() {
 .btn-submit {
     margin-top: 0.5rem;
     padding: 0.75rem;
-    background: linear-gradient(135deg, #0f4c81, #1e3a5f);
+    background: linear-gradient(135deg, #0f8168, #1e5f51);
     color: white;
     border: none;
     border-radius: 8px;
