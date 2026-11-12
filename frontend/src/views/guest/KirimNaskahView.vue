@@ -189,35 +189,34 @@ function resetForm() {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0 2rem;
-    height: 64px;
-    background: #fff;
+    padding: 1rem 2rem;
+    background: white;
     border-bottom: 1px solid #e2e8f0;
     position: sticky;
     top: 0;
-    z-index: 100;
+    z-index: 10;
 }
 
 .navbar-brand {
-    display: flex;
+   display: flex;
     align-items: center;
     gap: 0.75rem;
     font-weight: 700;
-    font-size: 1.1rem;
-    color: #0f172a;
+    font-size: 1rem;
+    color: #0f2a1e;
 }
 
 .nav-logo {
     width: 36px;
     height: 36px;
-    background: #0f4c81;
-    color: #fff;
+    background: linear-gradient(135deg, #0f8168, #1e5f51);
     border-radius: 8px;
+    color: white;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-weight: 800;
     font-size: 0.85rem;
+    font-weight: 700;
 }
 
 .navbar-links {
@@ -227,30 +226,29 @@ function resetForm() {
 }
 
 .nav-link {
-    color: #64748b;
+    color: #374151;
     text-decoration: none;
     font-size: 0.9rem;
     font-weight: 500;
     transition: color 0.2s;
 }
 
-.nav-link:hover { color: #0f4c81; }
+.nav-link:hover { color: #1e5f51; }
 
 .nav-btn {
-    background: #0f4c81;
-    color: #fff;
-    padding: 0.5rem 1.25rem;
-    border-radius: 8px;
-    text-decoration: none;
+    padding: 0.5rem 1rem;
+    background: linear-gradient(135deg, #0f8168, #1e5f51);
+    color: white;
+    border-radius: 7px;
     font-size: 0.875rem;
-    font-weight: 600;
-    transition: background 0.2s;
+    font-weight: 500;
+    transition: opacity 0.2s;
 }
 
-.nav-btn:hover { background: #0a3460; }
+.nav-btn:hover { background: #1e5f51; }
 
 .page-hero {
-    background: linear-gradient(135deg, #0f4c81 0%, #1e3a5f 100%);
+    background: linear-gradient(135deg, #0f2a22 0%, #1e5f51 100%);
     padding: 4rem 2rem;
     text-align: center;
     color: #fff;
@@ -317,7 +315,7 @@ function resetForm() {
 .success-card h2 {
     font-size: 1.5rem;
     font-weight: 700;
-    color: #0f172a;
+    color: #1e5f51;
     margin-bottom: 0.75rem;
 }
 
@@ -344,7 +342,7 @@ function resetForm() {
 .form-header h2 {
     font-size: 1.5rem;
     font-weight: 700;
-    color: #0f172a;
+    color: #1e5f51;
     margin-bottom: 0.4rem;
 }
 
@@ -362,7 +360,7 @@ function resetForm() {
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.06em;
-    color: #0f4c81;
+    color: #1e5f51;
     margin-bottom: 1.25rem;
     padding-bottom: 0.5rem;
     border-bottom: 2px solid #e0edfa;
@@ -395,18 +393,18 @@ function resetForm() {
     border: 1.5px solid #e2e8f0;
     border-radius: 10px;
     font-size: 0.9rem;
-    color: #0f172a;
+    color: #1e5f51;
     background: #fafbfc;
     transition: border-color 0.2s, box-shadow 0.2s;
     font-family: inherit;
     resize: vertical;
 }
 
-.form-group input:focus,
+.form-group input:focus,a
 .form-group textarea:focus {
     outline: none;
-    border-color: #0f4c81;
-    box-shadow: 0 0 0 3px rgba(15,76,129,0.1);
+    border-color: #1e5f51;
+    box-shadow: 0 0 0 3px hsla(167, 52%, 25%, 0.102);
     background: #fff;
 }
 
@@ -424,9 +422,9 @@ function resetForm() {
 
 .file-upload-zone:hover,
 .file-upload-zone.has-file {
-    border-color: #0f4c81;
+    border-color: #1e5f51;
     background: #f0f7ff;
-    color: #0f4c81;
+    color: #1e5f51;
 }
 
 .file-upload-zone svg {
@@ -469,7 +467,7 @@ function resetForm() {
 .btn-submit {
     width: 100%;
     padding: 0.9rem;
-    background: #0f4c81;
+    background: #1e5f51;
     color: #fff;
     border: none;
     border-radius: 10px;
@@ -484,7 +482,7 @@ function resetForm() {
 }
 
 .btn-submit:hover:not(:disabled) {
-    background: #0a3460;
+    background: #1e5f51;
     transform: translateY(-1px);
 }
 
@@ -496,7 +494,7 @@ function resetForm() {
 .btn-primary {
     display: inline-block;
     padding: 0.75rem 2rem;
-    background: #0f4c81;
+    background: #1e5f51;
     color: #fff;
     border: none;
     border-radius: 10px;
@@ -509,7 +507,7 @@ function resetForm() {
     transition: background 0.2s;
 }
 
-.btn-primary:hover { background: #0a3460; }
+.btn-primary:hover { background: #cbe6e0; }
 
 .btn-secondary {
     display: inline-block;

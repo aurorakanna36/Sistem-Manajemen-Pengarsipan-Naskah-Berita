@@ -900,7 +900,7 @@ async function submitNaskah() {
     border: 1px solid transparent;
     border-radius: 6px;
     background: transparent;
-    color: var(--ktr-navy-muted);
+    color: var(--ktr-green-muted);
     font-size: 0.88rem;
     display: inline-flex;
     align-items: center;
@@ -923,7 +923,7 @@ async function submitNaskah() {
 
 .color-letter {
     font-weight: 800;
-    border-bottom: 3px solid #12263A;
+    border-bottom: 3px solid #12343a;
     line-height: 1;
     padding-bottom: 1px;
 }

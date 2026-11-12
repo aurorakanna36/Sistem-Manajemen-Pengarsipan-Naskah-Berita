@@ -110,13 +110,13 @@ onMounted(async () => {
     gap: 0.75rem;
     font-weight: 700;
     font-size: 1rem;
-    color: #0f172a;
+    color: #0f2a1e;
 }
 
 .nav-logo {
     width: 36px;
     height: 36px;
-    background: linear-gradient(135deg, #0f4c81, #1e3a5f);
+    background: linear-gradient(135deg, #0f8168, #1e5f51);
     border-radius: 8px;
     color: white;
     display: flex;
@@ -142,11 +142,11 @@ onMounted(async () => {
     transition: border-color 0.2s;
 }
 
-.btn-outline:hover { border-color: #94a3b8; }
+.btn-outline:hover { border-color: #94b8a7; }
 
 .btn-primary {
     padding: 0.5rem 1rem;
-    background: linear-gradient(135deg, #0f4c81, #1e3a5f);
+    background: linear-gradient(135deg, #0f8168, #1e5f51);
     color: white;
     border-radius: 7px;
     font-size: 0.875rem;
@@ -157,7 +157,7 @@ onMounted(async () => {
 .btn-primary:hover { opacity: 0.9; }
 
 .hero {
-    background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 50%, #0f4c81 100%);
+    background: linear-gradient(135deg, #0f2a22 0%, #0f8168 50%, #1e5f51 100%);
     color: white;
     text-align: center;
     padding: 4rem 2rem;
@@ -212,7 +212,7 @@ onMounted(async () => {
 .card-badge {
     display: inline-block;
     background: #eff6ff;
-    color: #0f4c81;
+    color: #0f8172;
     font-size: 0.75rem;
     font-weight: 600;
     padding: 0.25rem 0.65rem;
@@ -225,7 +225,7 @@ onMounted(async () => {
 .card-title {
     font-size: 1rem;
     font-weight: 600;
-    color: #0f172a;
+    color: #0f2a25;
     margin: 0 0 0.6rem;
     line-height: 1.4;
 }
