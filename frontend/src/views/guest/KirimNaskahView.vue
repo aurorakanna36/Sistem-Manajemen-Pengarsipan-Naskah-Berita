@@ -13,97 +13,133 @@
 
         <div class="page-hero">
             <div class="hero-content">
-                <div class="hero-badge">Kontribusi Publik</div>
                 <h1>Kirim Naskah Berita</h1>
-                <p>Punya informasi atau berita penting? Kirimkan naskah Anda kepada redaksi Harian Cakrawala. Setiap naskah yang masuk akan ditinjau oleh tim redaksi kami.</p>
+                <p>Kamu masuk sebagai guest. Hasil review naskah akan dikirim ke email yang terdaftar.</p>
             </div>
+        </div>
+
+        <div class="card-form">
+            <h2>Draf tidak bisa disimpan sebagai Guest</h2>
+            <p>Daftar sebagai kontributor untuk menyimpan draf, memantau status naskah, dan menerima notifikasi
+                sistem.</p>
         </div>
 
         <div class="form-container">
             <div v-if="submitSuccess" class="success-card">
                 <div class="success-icon">
-                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
-                        <polyline points="22 4 12 14.01 9 11.01"/>
+                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="1.5">
+                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                        <polyline points="22 4 12 14.01 9 11.01" />
                     </svg>
                 </div>
                 <h2>Naskah Berhasil Dikirim!</h2>
-                <p>Terima kasih atas kontribusi Anda. Tim redaksi Harian Cakrawala akan meninjau naskah Anda dan menghubungi Anda jika diperlukan.</p>
+                <p>Terima kasih atas kontribusi Anda. Tim redaksi Harian Cakrawala akan meninjau naskah Anda dan
+                    menghubungi Anda jika diperlukan.</p>
                 <button class="btn-primary" @click="resetForm">Kirim Naskah Lain</button>
                 <router-link to="/" class="btn-secondary">Kembali ke Beranda</router-link>
             </div>
 
             <form v-else class="naskah-form" @submit.prevent="handleSubmit">
-                <div class="form-header">
-                    <h2>Detail Naskah</h2>
-                    <p>Isi semua kolom berikut dengan informasi yang lengkap dan akurat.</p>
-                </div>
-
                 <div v-if="error" class="alert-error">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+                        <circle cx="12" cy="12" r="10" />
+                        <line x1="12" y1="8" x2="12" y2="12" />
+                        <line x1="12" y1="16" x2="12.01" y2="16" />
                     </svg>
                     {{ error }}
                 </div>
 
                 <div class="form-section">
-                    <h3 class="section-title">Informasi Pengirim</h3>
+                    <h3 class="section-title">Data Pengirim</h3>
                     <div class="form-row">
                         <div class="form-group">
                             <label for="g-nama">Nama Lengkap <span class="required">*</span></label>
-                            <input id="g-nama" v-model="form.nama_pengirim" type="text" placeholder="Nama Anda" required />
+                            <input id="g-nama" v-model="form.nama_pengirim" type="text" placeholder="Nama Anda"
+                                required />
                         </div>
                         <div class="form-group">
                             <label for="g-email">Email</label>
-                            <input id="g-email" v-model="form.email_pengirim" type="email" placeholder="email@contoh.com" />
+                            <input id="g-email" v-model="form.email_pengirim" type="email"
+                                placeholder="email@contoh.com" />
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="g-phone">Nomor Telepon / WhatsApp</label>
+                            <input id="g-phone" v-model="form.phone_pengirim" type="text" placeholder="08xxxxxxxxxx" />
+                        </div>
+                        <div class="form-group">
+                            <label for="g-sosmed">Sosial Media</label>
+                            <input id="g-sosmed" v-model="form.sosmed_pengirim" type="text" placeholder="Nama sosmed" />
                         </div>
                     </div>
                     <div class="form-group">
-                        <label for="g-phone">Nomor Telepon / WhatsApp</label>
-                        <input id="g-phone" v-model="form.phone_pengirim" type="text" placeholder="08xxxxxxxxxx" />
+                        <label for="g-instansi">Instansi</label>
+                        <input id="g-instansi" v-model="form.instansi_pengirim" type="text"
+                            placeholder="Nama instansi" />
                     </div>
+
                 </div>
 
                 <div class="form-section">
-                    <h3 class="section-title">Naskah Berita</h3>
+                    <h3 class="section-title">Data Naskah</h3>
                     <div class="form-group">
                         <label for="g-judul">Judul Naskah <span class="required">*</span></label>
-                        <input id="g-judul" v-model="form.judul" type="text" placeholder="Tuliskan judul berita yang menarik" required />
+                        <input id="g-judul" v-model="form.judul" type="text"
+                            placeholder="Tuliskan judul berita yang menarik" required />
                     </div>
                     <div class="form-group">
-                        <label for="g-isi">Isi / Deskripsi Singkat <span class="required">*</span></label>
-                        <textarea id="g-isi" v-model="form.isi" rows="6" placeholder="Tuliskan ringkasan atau isi berita Anda di sini..." required></textarea>
+                        <label for="g-kategori">Kategori <span class="required">*</span></label>
+                        <input id="g-kategori" v-model="form.kategori" type="text" placeholder="Pilih Kategori"
+                            required />
+                    </div>
+                    <div class="form-group">
+                        <label for="g-isi">Isi Naskah <span class="required">*</span></label>
+                        <textarea id="g-isi" v-model="form.isi" rows="6"
+                            placeholder="Tulis atau tempel isi naskah di sini" required></textarea>
                     </div>
                     <div class="form-group">
                         <label for="g-file">Lampiran Dokumen / Berkas</label>
-                        <div class="file-upload-zone" :class="{ 'has-file': selectedFileName }" @click="triggerFileInput">
-                            <svg v-if="!selectedFileName" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                                <polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>
+                        <div class="file-upload-zone" :class="{ 'has-file': selectedFileName }"
+                            @click="triggerFileInput">
+                            <svg v-if="!selectedFileName" width="32" height="32" viewBox="0 0 24 24" fill="none"
+                                stroke="currentColor" stroke-width="1.5">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                                <polyline points="17 8 12 3 7 8" />
+                                <line x1="12" y1="3" x2="12" y2="15" />
                             </svg>
-                            <svg v-else width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                                <polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>
+                            <svg v-else width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="1.5">
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                                <polyline points="14 2 14 8 20 8" />
+                                <line x1="16" y1="13" x2="8" y2="13" />
+                                <line x1="16" y1="17" x2="8" y2="17" />
                             </svg>
                             <span v-if="selectedFileName" class="file-name">{{ selectedFileName }}</span>
                             <span v-else>
-                                <strong>Klik untuk upload</strong> atau seret file ke sini<br/>
+                                <strong>Klik untuk upload</strong> atau seret file ke sini<br />
                                 <small>PDF, DOC, DOCX, JPG, PNG — Maks. 10MB</small>
                             </span>
-                            <input id="g-file" ref="fileInput" type="file" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" @change="handleFileChange" hidden />
+                            <input id="g-file" ref="fileInput" type="file" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+                                @change="handleFileChange" hidden />
                         </div>
                     </div>
                 </div>
 
                 <div class="form-footer">
                     <p class="disclaimer">
-                        Dengan mengirimkan naskah ini, Anda menyatakan bahwa informasi yang diberikan adalah benar dan bukan merupakan plagiarisme. Redaksi berhak mengedit dan menerbitkan naskah sesuai kebijakan editorial.
+                        Dengan mengirimkan naskah ini, Anda menyatakan bahwa informasi yang diberikan adalah benar dan
+                        bukan merupakan plagiarisme. Redaksi berhak mengedit dan menerbitkan naskah sesuai kebijakan
+                        editorial.
                     </p>
                     <button type="submit" class="btn-submit" :disabled="loading">
                         <span v-if="loading" class="spinner"></span>
                         <span v-else>
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <line x1="22" y1="2" x2="11" y2="13" />
+                                <polygon points="22 2 15 22 11 13 2 9 22 2" />
                             </svg>
                             Kirim Naskah
                         </span>
@@ -122,7 +158,10 @@ const form = ref({
     nama_pengirim: '',
     email_pengirim: '',
     phone_pengirim: '',
+    sosmed_pengirim: '',
+    instansi_pengirim: '',
     judul: '',
+    kategori: '',
     isi: '',
 })
 const selectedFile = ref(null)
@@ -153,6 +192,10 @@ async function handleSubmit() {
         payload.append('nama_pengirim', form.value.nama_pengirim)
         payload.append('email', form.value.email_pengirim)
         payload.append('email_pengirim', form.value.email_pengirim)
+        payload.append('sosmed', form.value.sosmed_pengirim)
+        payload.append('sosmed_pengirim', form.value.sosmed_pengirim)
+        payload.append('instansi', form.value.instansi_pengirim)
+        payload.append('instansi_pengirim', form.value.instansi_pengirim)
         payload.append('nomot_Whatsapp', form.value.phone_pengirim)
         payload.append('phone_pengirim', form.value.phone_pengirim)
         payload.append('judul', form.value.judul)
@@ -198,7 +241,7 @@ function resetForm() {
 }
 
 .navbar-brand {
-   display: flex;
+    display: flex;
     align-items: center;
     gap: 0.75rem;
     font-weight: 700;
@@ -233,7 +276,9 @@ function resetForm() {
     transition: color 0.2s;
 }
 
-.nav-link:hover { color: #1e5f51; }
+.nav-link:hover {
+    color: #1e5f51;
+}
 
 .nav-btn {
     padding: 0.5rem 1rem;
@@ -245,7 +290,9 @@ function resetForm() {
     transition: opacity 0.2s;
 }
 
-.nav-btn:hover { background: #1e5f51; }
+.nav-btn:hover {
+    background: #1e5f51;
+}
 
 .btn-outline {
     padding: 0.5rem 1rem;
@@ -257,7 +304,9 @@ function resetForm() {
     transition: border-color 0.2s;
 }
 
-.btn-outline:hover { border-color: #94b8a7; }
+.btn-outline:hover {
+    border-color: #94b8a7;
+}
 
 .page-hero {
     background: linear-gradient(135deg, #0f2a22 0%, #1e5f51 100%);
@@ -271,19 +320,6 @@ function resetForm() {
     margin: 0 auto;
 }
 
-.hero-badge {
-    display: inline-block;
-    background: rgba(255,255,255,0.15);
-    border: 1px solid rgba(255,255,255,0.3);
-    padding: 0.35rem 1rem;
-    border-radius: 999px;
-    font-size: 0.8rem;
-    font-weight: 600;
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
-    margin-bottom: 1rem;
-}
-
 .page-hero h1 {
     font-size: 2.25rem;
     font-weight: 800;
@@ -293,8 +329,34 @@ function resetForm() {
 
 .page-hero p {
     font-size: 1rem;
-    color: rgba(255,255,255,0.8);
+    color: rgba(255, 255, 255, 0.8);
     line-height: 1.7;
+}
+
+.card-form {
+    width: 100%;
+    max-width: 700px;
+    margin: 24px auto 0px;
+    padding: 12px 16px;
+    background: #dbfefc;
+    border: 1px solid #a4dccf;
+    border-radius: 8px;
+    height: auto;
+    box-sizing: border-box;
+}
+
+.card-form h2 {
+    font-size: 13px;
+    font-weight: 700;
+    color: #1e5f51;
+    margin: 0 0 4px;
+}
+
+.card-form p {
+    font-size: 11px;
+    color: #475569;
+    line-height: 1.5;
+    margin: 0;
 }
 
 .form-container {
@@ -308,7 +370,7 @@ function resetForm() {
     border-radius: 16px;
     padding: 3rem;
     text-align: center;
-    box-shadow: 0 4px 24px rgba(0,0,0,0.06);
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
     border: 1px solid #e2e8f0;
 }
 
@@ -341,7 +403,7 @@ function resetForm() {
     background: #fff;
     border-radius: 16px;
     padding: 2.5rem;
-    box-shadow: 0 4px 24px rgba(0,0,0,0.06);
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
     border: 1px solid #e2e8f0;
 }
 
@@ -396,7 +458,9 @@ function resetForm() {
     margin-bottom: 0.5rem;
 }
 
-.required { color: #ef4444; }
+.required {
+    color: #ef4444;
+}
 
 .form-group input,
 .form-group textarea {
@@ -412,8 +476,8 @@ function resetForm() {
     resize: vertical;
 }
 
-.form-group input:focus,a
-.form-group textarea:focus {
+.form-group input:focus,
+a .form-group textarea:focus {
     outline: none;
     border-color: #1e5f51;
     box-shadow: 0 0 0 3px hsla(167, 52%, 25%, 0.102);
@@ -519,7 +583,9 @@ function resetForm() {
     transition: background 0.2s;
 }
 
-.btn-primary:hover { background: #cbe6e0; }
+.btn-primary:hover {
+    background: #cbe6e0;
+}
 
 .btn-secondary {
     display: inline-block;
@@ -533,22 +599,36 @@ function resetForm() {
     transition: background 0.2s;
 }
 
-.btn-secondary:hover { background: #e2e8f0; }
+.btn-secondary:hover {
+    background: #e2e8f0;
+}
 
 .spinner {
     width: 20px;
     height: 20px;
-    border: 2px solid rgba(255,255,255,0.3);
+    border: 2px solid rgba(255, 255, 255, 0.3);
     border-top-color: #fff;
     border-radius: 50%;
     animation: spin 0.7s linear infinite;
 }
 
-@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
 
 @media (max-width: 600px) {
-    .form-row { grid-template-columns: 1fr; }
-    .naskah-form { padding: 1.5rem; }
-    .page-hero h1 { font-size: 1.75rem; }
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+
+    .naskah-form {
+        padding: 1.5rem;
+    }
+
+    .page-hero h1 {
+        font-size: 1.75rem;
+    }
 }
 </style>

@@ -255,60 +255,6 @@
                     </div>
                 </div>
 
-                <!-- Gambar Sampul (Berkas Naskah PDF/DOCX Dihapus) -->
-                <div class="form-field">
-                    <label class="field-label">Gambar sampul</label>
-
-                    <div
-                        class="sampul-dropzone"
-                        :class="{ 'has-preview': sampulPreviewUrl }"
-                        @click="$refs.sampulInput.click()"
-                    >
-                        <template v-if="!sampulPreviewUrl">
-                            <span class="sampul-title">Klik untuk unggah gambar sampul</span>
-                            <span class="sampul-sub">PNG, JPG maksimal 2 MB</span>
-                        </template>
-
-                        <div v-else class="sampul-preview-container" @click.stop>
-                            <img :src="sampulPreviewUrl" alt="Preview Gambar Sampul" class="sampul-preview-img" />
-                            <div class="sampul-preview-actions">
-                                <span class="sampul-filename">{{ sampulFileName }}</span>
-                                <div class="sampul-btns">
-                                    <button
-                                        type="button"
-                                        class="btn-sampul-action"
-                                        @click="insertSampulToEditor"
-                                    >
-                                        Sisipkan juga ke isi naskah
-                                    </button>
-                                    <button
-                                        type="button"
-                                        class="btn-sampul-action"
-                                        @click="$refs.sampulInput.click()"
-                                    >
-                                        Ganti gambar
-                                    </button>
-                                    <button
-                                        type="button"
-                                        class="btn-sampul-remove"
-                                        @click="removeSampul"
-                                    >
-                                        Hapus
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-
-                        <input
-                            ref="sampulInput"
-                            type="file"
-                            accept="image/png,image/jpeg,image/webp"
-                            hidden
-                            @change="onSelectSampul"
-                        />
-                    </div>
-                </div>
-
                 <!-- Footer Tombol Aksi -->
                 <div class="form-actions">
                     <button
@@ -579,10 +525,6 @@ async function submitNaskah() {
             .map((k) => k.nama_kategori)
             .join(', ')
         fd.append('kategori', selectedNames)
-
-        if (sampulFile.value) {
-            fd.append('gambar_sampul', sampulFile.value)
-        }
 
         await api.kontributor.storeNaskah(fd)
         successMessage.value = 'Naskah berhasil dikirim dan sedang menunggu review redaksi!'
@@ -1036,93 +978,6 @@ async function submitNaskah() {
     font-size: 0.78rem;
     color: var(--ktr-text-muted);
     border-radius: 0 0 10px 10px;
-}
-
-/* Gambar Sampul */
-.sampul-dropzone {
-    border: 1.5px dashed var(--ktr-border-dark);
-    border-radius: 12px;
-    background-color: #FAFCFF;
-    padding: 1.75rem;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 0.3rem;
-    cursor: pointer;
-    transition: border-color 0.15s, background-color 0.15s;
-}
-
-.sampul-dropzone:hover {
-    border-color: var(--ktr-teal);
-    background-color: #F0F9F6;
-}
-
-.sampul-title {
-    font-size: 0.92rem;
-    font-weight: 600;
-    color: var(--ktr-text-muted);
-}
-
-.sampul-sub {
-    font-size: 0.8rem;
-    color: var(--ktr-text-light);
-}
-
-.sampul-preview-container {
-    width: 100%;
-    display: flex;
-    align-items: center;
-    gap: 1.25rem;
-    flex-wrap: wrap;
-}
-
-.sampul-preview-img {
-    width: 180px;
-    height: 115px;
-    object-fit: cover;
-    border-radius: 8px;
-    border: 1px solid var(--ktr-border);
-}
-
-.sampul-preview-actions {
-    display: flex;
-    flex-direction: column;
-    gap: 0.6rem;
-}
-
-.sampul-filename {
-    font-size: 0.9rem;
-    font-weight: 600;
-    color: var(--ktr-text-main);
-}
-
-.sampul-btns {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-}
-
-.btn-sampul-action {
-    padding: 0.42rem 0.85rem;
-    border: 1px solid var(--ktr-border-dark);
-    background: #FFFFFF;
-    color: var(--ktr-text-main);
-    border-radius: 7px;
-    font-size: 0.82rem;
-    font-weight: 600;
-    cursor: pointer;
-}
-
-.btn-sampul-remove {
-    padding: 0.42rem 0.85rem;
-    border: 1px solid #FCA5A5;
-    background: #FEE2E2;
-    color: #991B1B;
-    border-radius: 7px;
-    font-size: 0.82rem;
-    font-weight: 600;
-    cursor: pointer;
 }
 
 .form-actions {
