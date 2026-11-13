@@ -6,7 +6,7 @@
                 <span>Harian Cakrawala</span>
             </div>
             <div class="navbar-links">
-                <router-link to="/" class="nav-link">Beranda</router-link>
+                <router-link to="/" class="btn-outline">Beranda</router-link>
                 <router-link to="/login" class="nav-btn">Masuk</router-link>
             </div>
         </nav>
@@ -246,6 +246,18 @@ function resetForm() {
 }
 
 .nav-btn:hover { background: #1e5f51; }
+
+.btn-outline {
+    padding: 0.5rem 1rem;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 7px;
+    font-size: 0.875rem;
+    color: #374151;
+    font-weight: 500;
+    transition: border-color 0.2s;
+}
+
+.btn-outline:hover { border-color: #94b8a7; }
 
 .page-hero {
     background: linear-gradient(135deg, #0f2a22 0%, #1e5f51 100%);
