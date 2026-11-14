@@ -236,6 +236,11 @@ onMounted(() => {
     border: 1px solid var(--adm-border);
     border-radius: 14px;
     padding: 1.75rem;
+    height: 324px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
 }
 
 .panel-title {
@@ -243,11 +248,33 @@ onMounted(() => {
     font-weight: 700;
     color: var(--adm-text-main);
     margin: 0 0 1.25rem 0;
+    flex-shrink: 0;
 }
 
 .items-list {
     display: flex;
     flex-direction: column;
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    padding-right: 8px;
+}
+
+.items-list::-webkit-scrollbar {
+    width: 6px;
+}
+
+.items-list::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.items-list::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 10px;
+}
+
+.items-list::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
 }
 
 .item-row {

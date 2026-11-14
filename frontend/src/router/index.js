@@ -14,8 +14,6 @@ import DetailNaskahKontributorView from "../views/kontributor/DetailNaskahKontri
 import AdminDashboardView from "../views/admin/AdminDashboardView.vue";
 import KelolaKontributorView from "../views/admin/KelolaKontributorView.vue";
 import DetailKontributorView from "../views/admin/DetailKontributorView.vue";
-import ReviewNaskahView from "../views/admin/ReviewNaskahView.vue";
-import DetailReviewNaskahView from "../views/admin/DetailReviewNaskahView.vue";
 import KelolaNaskahView from "../views/admin/KelolaNaskahView.vue";
 
 const routes = [
@@ -104,18 +102,6 @@ const routes = [
     path: "/admin/kontributor/:id",
     name: "admin.kontributor.detail",
     component: DetailKontributorView,
-    meta: { requiresAuth: true, role: "admin" },
-  },
-  {
-    path: "/admin/review-naskah",
-    name: "admin.review",
-    component: ReviewNaskahView,
-    meta: { requiresAuth: true, role: "admin" },
-  },
-  {
-    path: "/admin/review-naskah/:id",
-    name: "admin.review.detail",
-    component: DetailReviewNaskahView,
     meta: { requiresAuth: true, role: "admin" },
   },
   {

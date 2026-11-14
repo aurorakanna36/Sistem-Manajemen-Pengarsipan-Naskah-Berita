@@ -91,20 +91,6 @@
                 </router-link>
 
                 <router-link
-                    to="/admin/review-naskah"
-                    class="nav-item"
-                    active-class="active"
-                    title="Review Naskah"
-                    @click="closeMobileSidebar"
-                >
-                    <svg viewBox="0 0 24 24" class="menu-icon">
-                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-                        <path d="M14 2v6h6M8 13h8M8 17h8" />
-                    </svg>
-                    <span v-if="!isSidebarCollapsed">Review Naskah</span>
-                </router-link>
-
-                <router-link
                     to="/admin/kelola-naskah"
                     class="nav-item"
                     active-class="active"
