@@ -21,7 +21,6 @@
                     {{ successMessage }}
                 </div>
 
-                <!-- Judul Naskah -->
                 <div class="form-field">
                     <label class="field-label">
                         Judul naskah <span class="req">*</span>
@@ -35,7 +34,6 @@
                     />
                 </div>
 
-                <!-- Kategori (Multi-Select Radio Style Buttons) -->
                 <div class="form-field">
                     <div class="label-row">
                         <label class="field-label">
@@ -63,7 +61,6 @@
                     </div>
                 </div>
 
-                <!-- Kata Kunci -->
                 <div class="form-field">
                     <label class="field-label">Kata kunci</label>
                     <input
@@ -74,7 +71,6 @@
                     />
                 </div>
 
-                <!-- Abstrak -->
                 <div class="form-field">
                     <label class="field-label">
                         Abstrak <span class="req">*</span>
@@ -88,7 +84,6 @@
                     ></textarea>
                 </div>
 
-                <!-- Isi Naskah (Rich Text Editor sesuai fitur isi naskah.png & fitur heading.png) -->
                 <div class="form-field">
                     <div class="editor-top-row">
                         <label class="field-label">
@@ -109,9 +104,7 @@
                     </div>
 
                     <div class="rich-editor-shell">
-                        <!-- Baris Toolbar 1 -->
                         <div class="editor-toolbar">
-                            <!-- Dropdown Heading / Format Blok -->
                             <div class="heading-dropdown-wrap">
                                 <button
                                     type="button"
@@ -137,7 +130,6 @@
 
                             <span class="toolbar-divider"></span>
 
-                            <!-- Bold & Italic -->
                             <button type="button" class="tool-btn" title="Bold (Ctrl+B)" @click="execCmd('bold')">
                                 <strong>B</strong>
                             </button>
@@ -145,7 +137,6 @@
                                 <em>I</em>
                             </button>
 
-                            <!-- List tanpa numbering & List numbering -->
                             <button type="button" class="tool-btn" title="List tanpa numbering" @click="execCmd('insertUnorderedList')">
                                 &#8226;&#8801;
                             </button>
@@ -153,12 +144,10 @@
                                 1&#8801;
                             </button>
 
-                            <!-- Kutipan (Blockquote) -->
                             <button type="button" class="tool-btn" title="Kutipan" @click="toggleBlockquote">
                                 &#10078;
                             </button>
 
-                            <!-- Alignment -->
                             <button type="button" class="tool-btn" title="Rata Kiri" @click="execCmd('justifyLeft')">
                                 &#8676;
                             </button>
@@ -169,24 +158,20 @@
                                 &#8677;
                             </button>
 
-                            <!-- Sisipkan Link -->
                             <button type="button" class="tool-btn" title="Sisipkan Link" @click="promptInsertLink">
                                 &#128279;
                             </button>
 
                             <span class="toolbar-divider"></span>
 
-                            <!-- Coretan di tengah tulisan (Strikethrough) -->
                             <button type="button" class="tool-btn" title="Coretan di tengah tulisan" @click="execCmd('strikeThrough')">
                                 <s>ABE</s>
                             </button>
 
-                            <!-- Garis mendatar (Horizontal rule) -->
                             <button type="button" class="tool-btn" title="Garis mendatar" @click="execCmd('insertHorizontalRule')">
                                 &#8213;
                             </button>
 
-                            <!-- Text Color -->
                             <div class="color-picker-wrap" title="Warna Teks">
                                 <label class="tool-btn color-btn">
                                     <span class="color-letter" :style="{ borderBottomColor: currentTextColor }">A</span>
@@ -199,7 +184,6 @@
                                 </label>
                             </div>
 
-                            <!-- Karakter Khusus -->
                             <div class="special-char-wrap">
                                 <button
                                     type="button"
@@ -222,7 +206,6 @@
                                 </div>
                             </div>
 
-                            <!-- Persempit & Perlebar Inden -->
                             <button type="button" class="tool-btn" title="Persempit inden (Outdent)" @click="execCmd('outdent')">
                                 &#8672;
                             </button>
@@ -230,7 +213,6 @@
                                 &#8674;
                             </button>
 
-                            <!-- Undo & Redo -->
                             <button type="button" class="tool-btn" title="Undo (Ctrl+Z)" @click="execCmd('undo')">
                                 &#8630;
                             </button>
@@ -239,7 +221,6 @@
                             </button>
                         </div>
 
-                        <!-- Area Isi Naskah ContentEditable -->
                         <div
                             ref="editorRef"
                             class="editor-canvas"
@@ -255,7 +236,6 @@
                     </div>
                 </div>
 
-                <!-- Footer Tombol Aksi -->
                 <div class="form-actions">
                     <button
                         type="button"
@@ -275,7 +255,6 @@
                 </div>
             </form>
 
-            <!-- Popup Sisipkan Media ke Isi Naskah -->
             <MediaUploadModal
                 :visible="showMediaModal"
                 @close="showMediaModal = false"

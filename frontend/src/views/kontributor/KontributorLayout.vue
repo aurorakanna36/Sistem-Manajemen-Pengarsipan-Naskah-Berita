@@ -31,7 +31,6 @@
             </div>
 
             <nav class="sidebar-nav">
-                <!-- Dashboard -->
                 <router-link to="/kontributor/dashboard" class="nav-item"
                     :class="{ active: isRouteActive('/kontributor/dashboard') }" title="Dashboard"
                     @click="closeMobileSidebar">

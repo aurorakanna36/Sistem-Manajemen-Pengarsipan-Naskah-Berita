@@ -18,26 +18,65 @@
             </div>
         </div>
 
-        <div class="card-form">
+        <div v-if="!submitSuccess" class="card-form">
             <h2>Draf tidak bisa disimpan sebagai Guest</h2>
-            <p>Daftar sebagai kontributor untuk menyimpan draf, memantau status naskah, dan menerima notifikasi
-                sistem.</p>
+            <p>
+                Daftar sebagai kontributor untuk menyimpan draf,
+                memantau status naskah, dan menerima notifikasi sistem.
+            </p>
         </div>
 
         <div class="form-container">
             <div v-if="submitSuccess" class="success-card">
                 <div class="success-icon">
-                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                        stroke-width="1.5">
-                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
-                        <polyline points="22 4 12 14.01 9 11.01" />
+                    <svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                        <polyline points="20 6 9 17 4 12" />
                     </svg>
                 </div>
-                <h2>Naskah Berhasil Dikirim!</h2>
-                <p>Terima kasih atas kontribusi Anda. Tim redaksi Harian Cakrawala akan meninjau naskah Anda dan
-                    menghubungi Anda jika diperlukan.</p>
-                <button class="btn-primary" @click="resetForm">Kirim Naskah Lain</button>
-                <router-link to="/" class="btn-secondary">Kembali ke Beranda</router-link>
+
+                <h2>Naskah berhasil dikirim</h2>
+
+                <p class="success-description">
+                    Terima kasih. Hasil review akan dikirim ke
+                    <strong>{{ form.email_pengirim || 'email pengirim' }}</strong>.
+                </p>
+
+                <div class="success-details">
+                    <div class="detail-row">
+                        <span>Judul</span>
+                        <strong>{{ form.judul }}</strong>
+                    </div>
+
+                    <div class="detail-row">
+                        <span>Kategori</span>
+                        <strong>{{ form.kategori }}</strong>
+                    </div>
+
+                    <div class="detail-row">
+                        <span>Dikirim pada</span>
+                        <strong>{{ tanggalKirim }}</strong>
+                    </div>
+
+                    <div class="detail-row">
+                        <span>Status</span>
+                        <strong class="status-review">Dalam review</strong>
+                    </div>
+                </div>
+
+                <div class="success-actions">
+                    <button class="btn-send-again" @click="resetForm">
+                        Kirim naskah lain
+                    </button>
+
+                    <router-link to="/daftar-kontributor" class="btn-register">
+                        Daftar jadi kontributor
+                    </router-link>
+                </div>
+
+                <p class="success-note">
+                    Sebagai guest, kamu tidak bisa memantau status naskah di sistem.
+                    Daftar sebagai kontributor untuk memantau status dan menyimpan draf.
+                </p>
             </div>
 
             <form v-else class="naskah-form" @submit.prevent="handleSubmit">
@@ -100,7 +139,7 @@
                             placeholder="Tulis atau tempel isi naskah di sini" required></textarea>
                     </div>
                     <div class="form-group">
-                        <label for="g-file">Lampiran Dokumen / Berkas</label>
+                        <label for="g-file">Gambar Sampul</label>
                         <div class="file-upload-zone" :class="{ 'has-file': selectedFileName }"
                             @click="triggerFileInput">
                             <svg v-if="!selectedFileName" width="32" height="32" viewBox="0 0 24 24" fill="none"
@@ -119,7 +158,7 @@
                             <span v-if="selectedFileName" class="file-name">{{ selectedFileName }}</span>
                             <span v-else>
                                 <strong>Klik untuk upload</strong> atau seret file ke sini<br />
-                                <small>PDF, DOC, DOCX, JPG, PNG — Maks. 10MB</small>
+                                <small>JPG atau PNG, rasio 16:9</small>
                             </span>
                             <input id="g-file" ref="fileInput" type="file" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
                                 @change="handleFileChange" hidden />
@@ -128,12 +167,17 @@
                 </div>
 
                 <div class="form-footer">
-                    <p class="disclaimer">
-                        Dengan mengirimkan naskah ini, Anda menyatakan bahwa informasi yang diberikan adalah benar dan
-                        bukan merupakan plagiarisme. Redaksi berhak mengedit dan menerbitkan naskah sesuai kebijakan
-                        editorial.
-                    </p>
-                    <button type="submit" class="btn-submit" :disabled="loading">
+                    <label class="disclaimer-checkbox">
+                        <input type="checkbox" v-model="form.persetujuan" required>
+                        <span class="disclaimer">
+                            Dengan mengirimkan naskah ini, Anda menyatakan bahwa
+                            informasi yang diberikan adalah benar dan bukan merupakan
+                            plagiarisme. Redaksi berhak mengedit dan menerbitkan naskah
+                            sesuai kebijakan editorial.
+                        </span>
+                    </label>
+
+                    <button type="submit" class="btn-submit" :disabled="loading || !form.persetujuan">
                         <span v-if="loading" class="spinner"></span>
                         <span v-else>
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -170,6 +214,7 @@ const fileInput = ref(null)
 const loading = ref(false)
 const error = ref('')
 const submitSuccess = ref(false)
+const tanggalKirim = ref('')
 
 function triggerFileInput() {
     fileInput.value.click()
@@ -204,6 +249,13 @@ async function handleSubmit() {
             payload.append('file', selectedFile.value)
         }
         await api.guest.kirimNaskah(payload)
+
+        tanggalKirim.value = new Date().toLocaleDateString('id-ID', {
+            day: '2-digit',
+            month: 'short',
+            year: 'numeric'
+        })
+
         submitSuccess.value = true
     } catch (err) {
         error.value = err.response?.data?.message || 'Gagal mengirim naskah. Silakan coba lagi.'
@@ -366,37 +418,140 @@ function resetForm() {
 }
 
 .success-card {
-    background: #fff;
-    border-radius: 16px;
-    padding: 3rem;
-    text-align: center;
-    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
+    background: #ffffff;
     border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 40px 42px;
+    text-align: center;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+    max-width: 650px;
+    margin: 0 auto;
 }
 
 .success-icon {
-    width: 80px;
-    height: 80px;
-    background: #f0fdf4;
+    width: 72px;
+    height: 72px;
+    background: #dcfce7;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    margin: 0 auto 1.5rem;
+    margin: 0 auto 20px;
     color: #16a34a;
 }
 
 .success-card h2 {
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: #1e5f51;
-    margin-bottom: 0.75rem;
+    font-size: 26px;
+    font-weight: 800;
+    color: #172b43;
+    margin-bottom: 16px;
+}
+
+.success-description {
+    color: #475569;
+    font-size: 15px;
+    line-height: 1.6;
+    margin-bottom: 20px;
+}
+
+.success-description strong {
+    color: #475569;
+    font-weight: 500;
+}
+
+.success-details {
+    background: #f1f5f9;
+    border-radius: 10px;
+    padding: 10px 20px;
+    margin-bottom: 20px;
 }
 
 .success-card p {
     color: #64748b;
     line-height: 1.7;
     margin-bottom: 2rem;
+}
+
+.detail-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+    padding: 13px 0;
+    border-bottom: 1px solid #d5dee8;
+    font-size: 14px;
+    text-align: left;
+}
+
+.detail-row:last-child {
+    border-bottom: 1px solid #d5dee8;
+}
+
+.detail-row span {
+    color: #475569;
+}
+
+.detail-row strong {
+    color: #172b43;
+    font-weight: 700;
+    text-align: right;
+    overflow-wrap: anywhere;
+}
+
+.status-review {
+    background: #dbeafe;
+    color: #1d4ed8 !important;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 13px;
+}
+
+/* TOMBOL */
+.success-actions {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    margin: 20px 0;
+    flex-wrap: wrap;
+}
+
+.btn-send-again,
+.btn-register {
+    padding: 13px 22px;
+    border-radius: 9px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    text-decoration: none;
+    transition: 0.2s;
+}
+
+.btn-send-again {
+    background: white;
+    color: #172b43;
+    border: 1px solid #172b43;
+}
+
+.btn-send-again:hover {
+    background: #f1f5f9;
+}
+
+.btn-register {
+    background: #0f766e;
+    color: white;
+    border: 1px solid #0f766e;
+}
+
+.btn-register:hover {
+    background: #115e59;
+}
+
+/* CATATAN GUEST */
+.success-note {
+    font-size: 12px;
+    line-height: 1.6;
+    color: #475569;
+    margin: 18px 0 0;
 }
 
 .naskah-form {
@@ -531,13 +686,33 @@ a .form-group textarea:focus {
 .form-footer {
     padding-top: 1.5rem;
     border-top: 1px solid #f1f5f9;
+    margin-top: 25px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.disclaimer-checkbox {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    cursor: pointer;
+}
+
+.disclaimer-checkbox input {
+    width: 17px;
+    height: 17px;
+    margin-top: 3px;
+    flex-shrink: 0;
+    accent-color: #0d5c4d;
+    cursor: pointer;
 }
 
 .disclaimer {
-    font-size: 0.78rem;
-    color: #94a3b8;
+    font-size: 13px;
     line-height: 1.6;
-    margin-bottom: 1.5rem;
+    color: #64748b;
+    margin: 0;
 }
 
 .btn-submit {
@@ -629,6 +804,27 @@ a .form-group textarea:focus {
 
     .page-hero h1 {
         font-size: 1.75rem;
+    }
+     .success-card {
+        padding: 30px 18px;
+    }
+
+    .success-card h2 {
+        font-size: 22px;
+    }
+
+    .detail-row {
+        font-size: 12px;
+    }
+
+    .success-actions {
+        flex-direction: column;
+    }
+
+    .btn-send-again,
+    .btn-register {
+        width: 100%;
+        box-sizing: border-box;
     }
 }
 </style>
