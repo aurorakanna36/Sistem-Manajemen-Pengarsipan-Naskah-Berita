@@ -49,7 +49,12 @@
 
                     <div class="detail-row">
                         <span>Kategori</span>
-                        <strong>{{ form.kategori }}</strong>
+                        <strong>
+                            {{kategoriOptions
+                                .filter(kat => selectedKategoriIds.includes(kat.id))
+                                .map(kat => kat.nama_kategori)
+                                .join(', ') || '-'}}
+                        </strong>
                     </div>
 
                     <div class="detail-row">
@@ -129,9 +134,21 @@
                             placeholder="Tuliskan judul berita yang menarik" required />
                     </div>
                     <div class="form-group">
-                        <label for="g-kategori">Kategori <span class="required">*</span></label>
-                        <input id="g-kategori" v-model="form.kategori" type="text" placeholder="Pilih Kategori"
-                            required />
+                        <div class="label-row">
+                            <label class="field-label">
+                                Kategori <span class="req">*</span>
+                            </label>
+                        </div>
+
+                        <div class="kategori-radio-grid">
+                            <button v-for="kat in kategoriOptions" :key="kat.id" type="button" class="radio-multi-btn"
+                                :class="{ selected: isKategoriSelected(kat.id) }" @click="toggleKategori(kat.id)">
+                                <span class="radio-circle">
+                                    <span v-if="isKategoriSelected(kat.id)" class="radio-dot"></span>
+                                </span>
+                                <span class="radio-label">{{ kat.nama_kategori }}</span>
+                            </button>
+                        </div>
                     </div>
                     <div class="form-group">
                         <label for="g-isi">Isi Naskah <span class="required">*</span></label>
@@ -140,28 +157,23 @@
                     </div>
                     <div class="form-group">
                         <label for="g-file">Gambar Sampul</label>
+
                         <div class="file-upload-zone" :class="{ 'has-file': selectedFileName }"
-                            @click="triggerFileInput">
-                            <svg v-if="!selectedFileName" width="32" height="32" viewBox="0 0 24 24" fill="none"
-                                stroke="currentColor" stroke-width="1.5">
-                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                                <polyline points="17 8 12 3 7 8" />
-                                <line x1="12" y1="3" x2="12" y2="15" />
-                            </svg>
-                            <svg v-else width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                stroke-width="1.5">
-                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-                                <polyline points="14 2 14 8 20 8" />
-                                <line x1="16" y1="13" x2="8" y2="13" />
-                                <line x1="16" y1="17" x2="8" y2="17" />
-                            </svg>
-                            <span v-if="selectedFileName" class="file-name">{{ selectedFileName }}</span>
-                            <span v-else>
-                                <strong>Klik untuk upload</strong> atau seret file ke sini<br />
-                                <small>JPG atau PNG, rasio 16:9</small>
-                            </span>
-                            <input id="g-file" ref="fileInput" type="file" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
-                                @change="handleFileChange" hidden />
+                            @click="showMediaModal = true">
+                            <template v-if="selectedFilePreview">
+                                <img :src="selectedFilePreview" alt="Pratinjau gambar sampul" class="cover-preview" />
+                            </template>
+
+                            <template v-else>
+                                <span class="upload-icon">
+                                    <i class="fas fa-cloud-upload-alt"></i>
+                                </span>
+                                <span>
+                                    <strong>Klik untuk upload</strong> atau seret file ke sini
+                                    <br />
+                                    <small>JPG atau PNG, rasio 16:9</small>
+                                </span>
+                            </template>
                         </div>
                     </div>
                 </div>
@@ -191,12 +203,15 @@
                 </div>
             </form>
         </div>
+        <MediaUploadGuest :visible="showMediaModal" @close="showMediaModal = false" @insert="handleMediaInsert" />
+
     </div>
 </template>
 
 <script setup>
 import { ref } from 'vue'
 import api from '@/api/index.js'
+import MediaUploadGuest from './MediaUploadGuest.vue'
 
 const form = ref({
     nama_pengirim: '',
@@ -205,49 +220,95 @@ const form = ref({
     sosmed_pengirim: '',
     instansi_pengirim: '',
     judul: '',
-    kategori: '',
     isi: '',
+    persetujuan: false,
 })
+
+const defaultKategoriList = [
+    { id: 1, nama_kategori: 'Berita', slug: 'berita' },
+    { id: 2, nama_kategori: 'Nasional', slug: 'nasional' },
+    { id: 3, nama_kategori: 'Pendidikan', slug: 'pendidikan' },
+    { id: 4, nama_kategori: 'Teknologi', slug: 'teknologi' },
+    { id: 5, nama_kategori: 'Bisnis', slug: 'bisnis' },
+    { id: 6, nama_kategori: 'Daerah', slug: 'daerah' },
+    { id: 7, nama_kategori: 'Ekonomi', slug: 'ekonomi' },
+    { id: 8, nama_kategori: 'Kriminal', slug: 'kriminal' },
+    { id: 9, nama_kategori: 'Olahraga', slug: 'olahraga' },
+    { id: 10, nama_kategori: 'Opini', slug: 'opini' },
+    { id: 11, nama_kategori: 'Otomotif', slug: 'otomotif' },
+    { id: 12, nama_kategori: 'Politik', slug: 'politik' },
+    { id: 13, nama_kategori: 'Uncategorized', slug: 'uncategorized' },
+]
+
+const kategoriOptions = ref([...defaultKategoriList])
+const selectedKategoriIds = ref([])
+
 const selectedFile = ref(null)
 const selectedFileName = ref('')
-const fileInput = ref(null)
+const selectedFilePreview = ref('')
+const showMediaModal = ref(false)
+
+const coverMeta = ref({
+    alt: '',
+    judul: '',
+    keterangan: '',
+    deskripsi: '',
+})
+
 const loading = ref(false)
 const error = ref('')
 const submitSuccess = ref(false)
 const tanggalKirim = ref('')
 
-function triggerFileInput() {
-    fileInput.value.click()
-}
-
-function handleFileChange(event) {
-    const file = event.target.files[0]
-    if (file) {
-        selectedFile.value = file
-        selectedFileName.value = file.name
-    }
-}
 
 async function handleSubmit() {
+    if (selectedKategoriIds.value.length === 0) {
+        error.value = 'Silakan pilih minimal satu kategori naskah.'
+        return
+    }
     loading.value = true
     error.value = ''
+
     try {
         const payload = new FormData()
+
         payload.append('nama', form.value.nama_pengirim)
         payload.append('nama_pengirim', form.value.nama_pengirim)
+
         payload.append('email', form.value.email_pengirim)
         payload.append('email_pengirim', form.value.email_pengirim)
+
         payload.append('sosmed', form.value.sosmed_pengirim)
         payload.append('sosmed_pengirim', form.value.sosmed_pengirim)
+
         payload.append('instansi', form.value.instansi_pengirim)
         payload.append('instansi_pengirim', form.value.instansi_pengirim)
+
         payload.append('nomot_Whatsapp', form.value.phone_pengirim)
         payload.append('phone_pengirim', form.value.phone_pengirim)
+
         payload.append('judul', form.value.judul)
         payload.append('isi', form.value.isi)
+
+        // Persetujuan
+        payload.append('persetujuan', form.value.persetujuan ? 1 : 0)
+
+        // Kategori
+        selectedKategoriIds.value.forEach(id => {
+            payload.append('kategori_ids[]', id)
+        })
+
+        // File gambar
         if (selectedFile.value) {
-            payload.append('file', selectedFile.value)
+            payload.append('gambar_sampul', selectedFile.value)
         }
+
+        // Metadata gambar
+        payload.append('alt', coverMeta.value.alt)
+        payload.append('judul_gambar', coverMeta.value.judul)
+        payload.append('keterangan_gambar', coverMeta.value.keterangan)
+        payload.append('deskripsi_gambar', coverMeta.value.deskripsi)
+
         await api.guest.kirimNaskah(payload)
 
         tanggalKirim.value = new Date().toLocaleDateString('id-ID', {
@@ -257,19 +318,88 @@ async function handleSubmit() {
         })
 
         submitSuccess.value = true
+
     } catch (err) {
-        error.value = err.response?.data?.message || 'Gagal mengirim naskah. Silakan coba lagi.'
+        console.error('Error kirim naskah:', err.response?.data || err)
+
+        error.value =
+            err.response?.data?.message ||
+            'Gagal mengirim naskah. Silakan coba lagi.'
+
     } finally {
         loading.value = false
     }
 }
 
+
+function isKategoriSelected(id) {
+    return selectedKategoriIds.value.includes(id)
+}
+
+function toggleKategori(id) {
+    if (isKategoriSelected(id)) {
+        selectedKategoriIds.value = selectedKategoriIds.value.filter(
+            kategoriId => kategoriId !== id
+        )
+    } else {
+        selectedKategoriIds.value.push(id)
+    }
+}
+
 function resetForm() {
-    form.value = { nama_pengirim: '', email_pengirim: '', phone_pengirim: '', judul: '', isi: '' }
+    if (selectedFilePreview.value) {
+        URL.revokeObjectURL(selectedFilePreview.value)
+    }
+
+    form.value = {
+        nama_pengirim: '',
+        email_pengirim: '',
+        phone_pengirim: '',
+        sosmed_pengirim: '',
+        instansi_pengirim: '',
+        judul: '',
+        isi: '',
+        persetujuan: false,
+    }
+
+    selectedKategoriIds.value = []
+
     selectedFile.value = null
     selectedFileName.value = ''
+    selectedFilePreview.value = ''
+
+    coverMeta.value = {
+        alt: '',
+        judul: '',
+        keterangan: '',
+        deskripsi: '',
+    }
+
+    showMediaModal.value = false
     submitSuccess.value = false
     error.value = ''
+}
+
+function handleMediaInsert(media) {
+    if (!media?.file) return
+
+    if (selectedFilePreview.value) {
+        URL.revokeObjectURL(selectedFilePreview.value)
+    }
+
+    selectedFile.value = media.file
+    selectedFileName.value = media.file.name
+
+    selectedFilePreview.value = URL.createObjectURL(media.file)
+
+    coverMeta.value = {
+        alt: media.alt || '',
+        judul: media.judul || '',
+        keterangan: media.keterangan || '',
+        deskripsi: media.deskripsi || '',
+    }
+
+    showMediaModal.value = false
 }
 </script>
 
@@ -632,11 +762,67 @@ function resetForm() {
 }
 
 .form-group input:focus,
-a .form-group textarea:focus {
+.form-group textarea:focus {
     outline: none;
     border-color: #1e5f51;
     box-shadow: 0 0 0 3px hsla(167, 52%, 25%, 0.102);
     background: #fff;
+}
+
+.kategori-radio-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.65rem;
+}
+
+.radio-multi-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    padding: 0.55rem 1rem;
+    border-radius: 999px;
+    border: 1.5px solid var(--ktr-border);
+    background-color: #FAFCFF;
+    color: var(--ktr-text-main);
+    font-size: 0.88rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s;
+}
+
+.radio-multi-btn:hover {
+    border-color: var(--ktr-teal);
+    background-color: #F0F9F6;
+}
+
+.radio-multi-btn.selected {
+    border-color: var(--ktr-teal);
+    background-color: var(--ktr-teal-light);
+    color: var(--ktr-teal);
+    font-weight: 700;
+}
+
+.radio-circle {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    border: 2px solid var(--ktr-border-dark);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: #FFFFFF;
+    flex-shrink: 0;
+}
+
+.radio-multi-btn.selected .radio-circle {
+    border-color: var(--ktr-teal);
+}
+
+.radio-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: var(--ktr-teal);
 }
 
 .file-upload-zone {
@@ -662,6 +848,19 @@ a .form-group textarea:focus {
     display: block;
     margin: 0 auto 0.75rem;
     opacity: 0.6;
+}
+
+.cover-preview {
+    width: 100%;
+    height: 220px;
+    object-fit: cover;
+    border-radius: 10px;
+    display: block;
+}
+
+.file-upload-zone.has-file {
+    padding: 10px;
+    overflow: hidden;
 }
 
 .file-name {
@@ -805,7 +1004,8 @@ a .form-group textarea:focus {
     .page-hero h1 {
         font-size: 1.75rem;
     }
-     .success-card {
+
+    .success-card {
         padding: 30px 18px;
     }
 

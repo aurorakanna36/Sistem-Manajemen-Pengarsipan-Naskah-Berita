@@ -91,10 +91,6 @@
 
                         <h2 class="card-item-title">{{ item.judul }}</h2>
 
-                        <p class="card-item-excerpt">
-                            {{ item.abstrak || item.isi || 'Cuplikan naskah belum tersedia.' }}
-                        </p>
-
                         <div class="card-author-name">
                             {{ item.nama_kontributor || item.penulis?.name || item.author?.name || 'Kontributor' }}
                         </div>

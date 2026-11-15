@@ -1,23 +1,14 @@
-
 <template>
     <div class="admin-layout">
 
-        <!-- Overlay mobile -->
-        <button
-            v-if="isMobileSidebarOpen"
-            class="sidebar-overlay"
-            aria-label="Tutup menu"
-            @click="closeMobileSidebar"
-        ></button>
+        <button v-if="isMobileSidebarOpen" class="sidebar-overlay" aria-label="Tutup menu"
+            @click="closeMobileSidebar"></button>
 
-        <!-- SIDEBAR -->
-        <aside
-            :class="[
-                'admin-sidebar',
-                { collapsed: isSidebarCollapsed },
-                { 'mobile-open': isMobileSidebarOpen }
-            ]"
-        >
+        <aside :class="[
+            'admin-sidebar',
+            { collapsed: isSidebarCollapsed },
+            { 'mobile-open': isMobileSidebarOpen }
+        ]">
             <div class="sidebar-brand">
 
                 <div v-if="!isSidebarCollapsed" class="brand-info">
@@ -25,35 +16,15 @@
                     <span class="brand-sub">Admin</span>
                 </div>
 
-                <button
-                    class="toggle-sidebar"
-                    @click="toggleSidebar"
-                    :title="isSidebarCollapsed ? 'Tampilkan Sidebar' : 'Sembunyikan Sidebar'"
-                >
-                    <svg
-                        v-if="isSidebarCollapsed"
-                        width="21"
-                        height="21"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="2"
-                        stroke-linecap="round"
-                    >
+                <button class="toggle-sidebar" @click="toggleSidebar"
+                    :title="isSidebarCollapsed ? 'Tampilkan Sidebar' : 'Sembunyikan Sidebar'">
+                    <svg v-if="isSidebarCollapsed" width="21" height="21" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round">
                         <path d="M4 6h16M4 12h16M4 18h16" />
                     </svg>
 
-                    <svg
-                        v-else
-                        width="21"
-                        height="21"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="2"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                    >
+                    <svg v-else width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="m15 18-6-6 6-6" />
                     </svg>
                 </button>
@@ -62,26 +33,16 @@
 
             <nav class="sidebar-nav">
 
-                <router-link
-                    to="/admin/dashboard"
-                    class="nav-item"
-                    active-class="active"
-                    title="Dashboard"
-                    @click="closeMobileSidebar"
-                >
+                <router-link to="/admin/dashboard" class="nav-item" active-class="active" title="Dashboard"
+                    @click="closeMobileSidebar">
                     <svg viewBox="0 0 24 24" class="menu-icon">
                         <path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1h-6v-7h-4v7H4a1 1 0 0 1-1-1z" />
                     </svg>
                     <span v-if="!isSidebarCollapsed">Dashboard</span>
                 </router-link>
 
-                <router-link
-                    to="/admin/kontributor"
-                    class="nav-item"
-                    active-class="active"
-                    title="Kelola Kontributor"
-                    @click="closeMobileSidebar"
-                >
+                <router-link to="/admin/kontributor" class="nav-item" active-class="active" title="Kelola Kontributor"
+                    @click="closeMobileSidebar">
                     <svg viewBox="0 0 24 24" class="menu-icon">
                         <path d="M16 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
                         <circle cx="10" cy="7" r="4" />
@@ -90,59 +51,77 @@
                     <span v-if="!isSidebarCollapsed">Kelola Kontributor</span>
                 </router-link>
 
-                <router-link
-                    to="/admin/kelola-naskah"
-                    class="nav-item"
-                    active-class="active"
-                    title="Kelola Naskah"
-                    @click="closeMobileSidebar"
-                >
+                <router-link to="/admin/kelola-naskah" class="nav-item" active-class="active" title="Kelola Naskah"
+                    @click="closeMobileSidebar">
                     <svg viewBox="0 0 24 24" class="menu-icon">
                         <path d="M12 20h9" />
                         <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L8 18l-4 1 1-4z" />
                     </svg>
                     <span v-if="!isSidebarCollapsed">Kelola Naskah</span>
                 </router-link>
-
-                <button
-                    class="nav-item nav-logout"
-                    @click="handleLogout"
-                    title="Keluar"
-                >
-                    <svg viewBox="0 0 24 24" class="menu-icon">
-                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-                        <path d="m16 17 5-5-5-5" />
-                        <path d="M21 12H9" />
-                    </svg>
-                    <span v-if="!isSidebarCollapsed">Keluar</span>
-                </button>
-
             </nav>
         </aside>
 
-        <!-- MAIN CONTENT -->
-        <div class="admin-main-wrap">
+        <div class="admin-main-wrap" @click="closeProfileMenu">
 
             <header class="admin-topbar">
 
                 <div class="topbar-left">
-                    <!-- Hamburger mobile -->
-                    <button
-                        class="mobile-menu-button"
-                        @click="openMobileSidebar"
-                        aria-label="Buka menu"
-                    >
+                    <button class="mobile-menu-button" @click="openMobileSidebar" aria-label="Buka menu">
                         <svg viewBox="0 0 24 24">
                             <path d="M4 6h16M4 12h16M4 18h16" />
                         </svg>
                     </button>
                 </div>
 
-                <div class="topbar-user">
-                    <div class="user-avatar">
-                        {{ userInitial }}
+                <div class="topbar-user-wrapper" @click.stop>
+
+                    <!-- Tombol Profil -->
+                    <button class="topbar-user" @click="toggleProfileMenu" :aria-expanded="isProfileMenuOpen"
+                        aria-label="Buka menu profil">
+                        <div class="user-avatar">
+                            {{ userInitial }}
+                        </div>
+
+                        <span class="user-name">
+                            {{ userName }}
+                        </span>
+
+                        <svg class="profile-chevron" :class="{ rotated: isProfileMenuOpen }" viewBox="0 0 24 24">
+                            <path d="m6 9 6 6 6-6" />
+                        </svg>
+                    </button>
+
+                    <!-- Dropdown Profil -->
+                    <div v-if="isProfileMenuOpen" class="profile-dropdown">
+                        <div class="profile-dropdown-info">
+
+                            <div class="profile-avatar">
+                                {{ userInitial }}
+                            </div>
+
+                            <div class="profile-details">
+                                <span class="profile-name">
+                                    {{ userName }}
+                                </span>
+                            </div>
+
+                        </div>
+
+                        <div class="profile-divider"></div>
+
+                        <button class="profile-logout" @click="handleLogout">
+                            <svg viewBox="0 0 24 24">
+                                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                                <path d="m16 17 5-5-5-5" />
+                                <path d="M21 12H9" />
+                            </svg>
+
+                            <span>Logout</span>
+                        </button>
+
                     </div>
-                    <span class="user-name">{{ userName }}</span>
+
                 </div>
 
             </header>
@@ -176,6 +155,17 @@ const userInitial = computed(
 const isSidebarCollapsed = ref(false)
 const isMobileSidebarOpen = ref(false)
 
+// Dropdown profil
+const isProfileMenuOpen = ref(false)
+
+function toggleProfileMenu() {
+    isProfileMenuOpen.value = !isProfileMenuOpen.value
+}
+
+function closeProfileMenu() {
+    isProfileMenuOpen.value = false
+}
+
 function toggleSidebar() {
     if (window.innerWidth <= 900) {
         closeMobileSidebar()
@@ -195,10 +185,11 @@ function closeMobileSidebar() {
 
 async function handleLogout() {
     closeMobileSidebar()
+    closeProfileMenu()
 
     try {
         await api.auth.logout()
-    } catch {}
+    } catch { }
 
     localStorage.removeItem('auth_token')
     localStorage.removeItem('user_info')
@@ -387,6 +378,176 @@ async function handleLogout() {
     align-items: center;
 }
 
+/* PROFILE WRAPPER */
+.topbar-user-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+/* TOMBOL PROFIL */
+.topbar-user {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 7px 10px;
+    min-width: 0;
+    border: none;
+    border-radius: 10px;
+    background: transparent;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.topbar-user:hover {
+    background: #f1f5f9;
+}
+
+.topbar-user .user-avatar {
+    width: 38px;
+    height: 38px;
+    flex-shrink: 0;
+    background-color: var(--adm-green);
+    color: #fff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.95rem;
+}
+
+.user-name {
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: var(--adm-text-main);
+    white-space: nowrap;
+}
+
+.profile-chevron {
+    width: 16px;
+    height: 16px;
+    fill: none;
+    stroke: #64748b;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    transition: transform 0.2s ease;
+}
+
+.profile-chevron.rotated {
+    transform: rotate(180deg);
+}
+
+/* DROPDOWN */
+.profile-dropdown {
+    position: absolute;
+    top: calc(100% + 12px);
+    right: 0;
+    width: 260px;
+    padding: 12px;
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+    z-index: 1100;
+    animation: profileDropdownIn 0.2s ease;
+    box-sizing: border-box;
+}
+
+.profile-dropdown-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px;
+}
+
+.profile-avatar {
+    width: 44px;
+    height: 44px;
+    flex-shrink: 0;
+    background: var(--adm-green);
+    color: white;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 17px;
+    font-weight: 700;
+}
+
+.profile-details {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+}
+
+.profile-name {
+    font-size: 13px;
+    font-weight: 700;
+    color: #1e293b;
+    overflow-wrap: anywhere;
+}
+
+.profile-role {
+    font-size: 12px;
+    color: #64748b;
+}
+
+.profile-divider {
+    height: 1px;
+    background: #e2e8f0;
+    margin: 8px 0;
+}
+
+/* LOGOUT */
+.profile-logout {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    padding: 11px 10px;
+    border: none;
+    border-radius: 8px;
+    background: transparent;
+    color: #64748b;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    text-align: left;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.profile-logout svg {
+    width: 18px;
+    height: 18px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.profile-logout:hover {
+    background: #fef2f2;
+    color: #dc2626;
+}
+
+/* ANIMATION */
+@keyframes profileDropdownIn {
+    from {
+        opacity: 0;
+        transform: translateY(-8px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
 .mobile-menu-button {
     display: none;
     width: 42px;
@@ -544,6 +705,27 @@ async function handleLogout() {
     .user-avatar {
         width: 34px;
         height: 34px;
+    }
+
+    .topbar-user {
+        gap: 6px;
+        padding: 5px;
+    }
+
+    .topbar-user .user-avatar {
+        width: 34px;
+        height: 34px;
+    }
+
+    .user-name {
+        max-width: 100px;
+        font-size: 0.85rem;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .profile-dropdown {
+        width: 250px;
     }
 }
 

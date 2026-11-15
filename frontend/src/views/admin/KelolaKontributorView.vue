@@ -21,13 +21,6 @@
                 >
                     Perlu verifikasi ({{ pendingCount }})
                 </button>
-                <button 
-                    class="pill-btn" 
-                    :class="{ active: currentTab === 'admin' }"
-                    @click="currentTab = 'admin'"
-                >
-                    Kelola Admin
-                </button>
             </div>
 
             <section v-if="currentTab === 'verifikasi' || (currentTab === 'kontributor' && pendingUsers.length > 0)" class="panel-box">
@@ -145,99 +138,6 @@
                     </table>
                 </div>
             </section>
-
-            <section v-if="currentTab === 'admin'" class="panel-box">
-                <div class="table-header-row">
-                    <div>
-                        <h2 class="section-title">Kelola Akun Admin</h2>
-                        <p class="section-sub">Daftar pengguna dengan hak akses admin redaksi.</p>
-                    </div>
-                    <button class="btn-add-admin" @click="openAddAdminModal">
-                        + Tambah Admin
-                    </button>
-                </div>
-
-                <div v-if="loadingAdmins" class="empty-state">Memuat data admin...</div>
-                <div v-else-if="adminsList.length === 0" class="empty-state">
-                    Belum ada akun admin terdaftar.
-                </div>
-                <div v-else class="table-responsive">
-                    <table class="adm-table">
-                        <thead>
-                            <tr>
-                                <th>Admin</th>
-                                <th>Email</th>
-                                <th>WhatsApp</th>
-                                <th>Instansi</th>
-                                <th>Terdaftar</th>
-                                <th class="text-right">Aksi</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr v-for="adm in adminsList" :key="adm.id">
-                                <td>
-                                    <div class="cell-name">{{ adm.nama_lengkap || adm.name }}</div>
-                                </td>
-                                <td>{{ adm.email }}</td>
-                                <td>{{ adm.nomor_whatsapp || adm.phone_number || '-' }}</td>
-                                <td>{{ adm.instansi || '-' }}</td>
-                                <td>{{ formatDate(adm.created_at) }}</td>
-                                <td class="text-right">
-                                    <div class="actions-cell">
-                                        <button class="link-edit" @click="openEditAdminModal(adm)">Edit</button>
-                                        <button class="btn-delete-icon" @click="confirmDeleteAdmin(adm)">Hapus</button>
-                                    </div>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </section>
-        </div>
-
-        <div v-if="showAdminModal" class="modal-backdrop" @click.self="showAdminModal = false">
-            <div class="modal-card">
-                <div class="modal-header">
-                    <h3 class="modal-title">{{ isEditingAdmin ? 'Edit Data Admin' : 'Tambah Akun Admin Baru' }}</h3>
-                    <button class="modal-close-btn" @click="showAdminModal = false">&times;</button>
-                </div>
-
-                <form @submit.prevent="submitAdminForm" class="modal-form">
-                    <div v-if="adminModalError" class="modal-error">{{ adminModalError }}</div>
-
-                    <div class="form-group">
-                        <label>Nama Lengkap</label>
-                        <input v-model="adminForm.nama_lengkap" type="text" required placeholder="Nama lengkap admin" />
-                    </div>
-
-                    <div class="form-group">
-                        <label>Email</label>
-                        <input v-model="adminForm.email" type="email" required placeholder="email@cakrawala.com" />
-                    </div>
-
-                    <div class="form-group">
-                        <label>Nomor WhatsApp</label>
-                        <input v-model="adminForm.nomor_whatsapp" type="text" placeholder="08xxxxxxxxxx" />
-                    </div>
-
-                    <div class="form-group">
-                        <label>Instansi / Divisi</label>
-                        <input v-model="adminForm.instansi" type="text" placeholder="Redaksi Harian Cakrawala" />
-                    </div>
-
-                    <div class="form-group">
-                        <label>{{ isEditingAdmin ? 'Password Baru (Kosongkan jika tidak diubah)' : 'Password' }}</label>
-                        <input v-model="adminForm.password" type="password" :required="!isEditingAdmin" placeholder="Minimal 8 karakter" />
-                    </div>
-
-                    <div class="modal-actions">
-                        <button type="button" class="btn-cancel" @click="showAdminModal = false">Batal</button>
-                        <button type="submit" class="btn-submit" :disabled="adminModalLoading">
-                            {{ adminModalLoading ? 'Menyimpan...' : 'Simpan' }}
-                        </button>
-                    </div>
-                </form>
-            </div>
         </div>
     </AdminLayout>
 </template>
