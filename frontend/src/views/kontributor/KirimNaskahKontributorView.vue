@@ -21,7 +21,6 @@
                     {{ successMessage }}
                 </div>
 
-                <!-- Judul Naskah -->
                 <div class="form-field">
                     <label class="field-label">
                         Judul naskah <span class="req">*</span>
@@ -35,7 +34,6 @@
                     />
                 </div>
 
-                <!-- Kategori (Multi-Select Radio Style Buttons) -->
                 <div class="form-field">
                     <div class="label-row">
                         <label class="field-label">
@@ -63,7 +61,6 @@
                     </div>
                 </div>
 
-                <!-- Kata Kunci -->
                 <div class="form-field">
                     <label class="field-label">Kata kunci</label>
                     <input
@@ -74,7 +71,6 @@
                     />
                 </div>
 
-                <!-- Abstrak -->
                 <div class="form-field">
                     <label class="field-label">
                         Abstrak <span class="req">*</span>
@@ -88,7 +84,6 @@
                     ></textarea>
                 </div>
 
-                <!-- Isi Naskah (Rich Text Editor sesuai fitur isi naskah.png & fitur heading.png) -->
                 <div class="form-field">
                     <div class="editor-top-row">
                         <label class="field-label">
@@ -109,9 +104,7 @@
                     </div>
 
                     <div class="rich-editor-shell">
-                        <!-- Baris Toolbar 1 -->
                         <div class="editor-toolbar">
-                            <!-- Dropdown Heading / Format Blok -->
                             <div class="heading-dropdown-wrap">
                                 <button
                                     type="button"
@@ -137,7 +130,6 @@
 
                             <span class="toolbar-divider"></span>
 
-                            <!-- Bold & Italic -->
                             <button type="button" class="tool-btn" title="Bold (Ctrl+B)" @click="execCmd('bold')">
                                 <strong>B</strong>
                             </button>
@@ -145,7 +137,6 @@
                                 <em>I</em>
                             </button>
 
-                            <!-- List tanpa numbering & List numbering -->
                             <button type="button" class="tool-btn" title="List tanpa numbering" @click="execCmd('insertUnorderedList')">
                                 &#8226;&#8801;
                             </button>
@@ -153,12 +144,10 @@
                                 1&#8801;
                             </button>
 
-                            <!-- Kutipan (Blockquote) -->
                             <button type="button" class="tool-btn" title="Kutipan" @click="toggleBlockquote">
                                 &#10078;
                             </button>
 
-                            <!-- Alignment -->
                             <button type="button" class="tool-btn" title="Rata Kiri" @click="execCmd('justifyLeft')">
                                 &#8676;
                             </button>
@@ -169,24 +158,20 @@
                                 &#8677;
                             </button>
 
-                            <!-- Sisipkan Link -->
                             <button type="button" class="tool-btn" title="Sisipkan Link" @click="promptInsertLink">
                                 &#128279;
                             </button>
 
                             <span class="toolbar-divider"></span>
 
-                            <!-- Coretan di tengah tulisan (Strikethrough) -->
                             <button type="button" class="tool-btn" title="Coretan di tengah tulisan" @click="execCmd('strikeThrough')">
                                 <s>ABE</s>
                             </button>
 
-                            <!-- Garis mendatar (Horizontal rule) -->
                             <button type="button" class="tool-btn" title="Garis mendatar" @click="execCmd('insertHorizontalRule')">
                                 &#8213;
                             </button>
 
-                            <!-- Text Color -->
                             <div class="color-picker-wrap" title="Warna Teks">
                                 <label class="tool-btn color-btn">
                                     <span class="color-letter" :style="{ borderBottomColor: currentTextColor }">A</span>
@@ -199,7 +184,6 @@
                                 </label>
                             </div>
 
-                            <!-- Karakter Khusus -->
                             <div class="special-char-wrap">
                                 <button
                                     type="button"
@@ -222,7 +206,6 @@
                                 </div>
                             </div>
 
-                            <!-- Persempit & Perlebar Inden -->
                             <button type="button" class="tool-btn" title="Persempit inden (Outdent)" @click="execCmd('outdent')">
                                 &#8672;
                             </button>
@@ -230,7 +213,6 @@
                                 &#8674;
                             </button>
 
-                            <!-- Undo & Redo -->
                             <button type="button" class="tool-btn" title="Undo (Ctrl+Z)" @click="execCmd('undo')">
                                 &#8630;
                             </button>
@@ -239,7 +221,6 @@
                             </button>
                         </div>
 
-                        <!-- Area Isi Naskah ContentEditable -->
                         <div
                             ref="editorRef"
                             class="editor-canvas"
@@ -255,61 +236,6 @@
                     </div>
                 </div>
 
-                <!-- Gambar Sampul (Berkas Naskah PDF/DOCX Dihapus) -->
-                <div class="form-field">
-                    <label class="field-label">Gambar sampul</label>
-
-                    <div
-                        class="sampul-dropzone"
-                        :class="{ 'has-preview': sampulPreviewUrl }"
-                        @click="$refs.sampulInput.click()"
-                    >
-                        <template v-if="!sampulPreviewUrl">
-                            <span class="sampul-title">Klik untuk unggah gambar sampul</span>
-                            <span class="sampul-sub">PNG, JPG maksimal 2 MB</span>
-                        </template>
-
-                        <div v-else class="sampul-preview-container" @click.stop>
-                            <img :src="sampulPreviewUrl" alt="Preview Gambar Sampul" class="sampul-preview-img" />
-                            <div class="sampul-preview-actions">
-                                <span class="sampul-filename">{{ sampulFileName }}</span>
-                                <div class="sampul-btns">
-                                    <button
-                                        type="button"
-                                        class="btn-sampul-action"
-                                        @click="insertSampulToEditor"
-                                    >
-                                        Sisipkan juga ke isi naskah
-                                    </button>
-                                    <button
-                                        type="button"
-                                        class="btn-sampul-action"
-                                        @click="$refs.sampulInput.click()"
-                                    >
-                                        Ganti gambar
-                                    </button>
-                                    <button
-                                        type="button"
-                                        class="btn-sampul-remove"
-                                        @click="removeSampul"
-                                    >
-                                        Hapus
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-
-                        <input
-                            ref="sampulInput"
-                            type="file"
-                            accept="image/png,image/jpeg,image/webp"
-                            hidden
-                            @change="onSelectSampul"
-                        />
-                    </div>
-                </div>
-
-                <!-- Footer Tombol Aksi -->
                 <div class="form-actions">
                     <button
                         type="button"
@@ -329,7 +255,6 @@
                 </div>
             </form>
 
-            <!-- Popup Sisipkan Media ke Isi Naskah -->
             <MediaUploadModal
                 :visible="showMediaModal"
                 @close="showMediaModal = false"
@@ -579,10 +504,6 @@ async function submitNaskah() {
             .map((k) => k.nama_kategori)
             .join(', ')
         fd.append('kategori', selectedNames)
-
-        if (sampulFile.value) {
-            fd.append('gambar_sampul', sampulFile.value)
-        }
 
         await api.kontributor.storeNaskah(fd)
         successMessage.value = 'Naskah berhasil dikirim dan sedang menunggu review redaksi!'
@@ -900,7 +821,7 @@ async function submitNaskah() {
     border: 1px solid transparent;
     border-radius: 6px;
     background: transparent;
-    color: var(--ktr-navy-muted);
+    color: var(--ktr-green-muted);
     font-size: 0.88rem;
     display: inline-flex;
     align-items: center;
@@ -923,7 +844,7 @@ async function submitNaskah() {
 
 .color-letter {
     font-weight: 800;
-    border-bottom: 3px solid #12263A;
+    border-bottom: 3px solid #12343a;
     line-height: 1;
     padding-bottom: 1px;
 }
@@ -1036,93 +957,6 @@ async function submitNaskah() {
     font-size: 0.78rem;
     color: var(--ktr-text-muted);
     border-radius: 0 0 10px 10px;
-}
-
-/* Gambar Sampul */
-.sampul-dropzone {
-    border: 1.5px dashed var(--ktr-border-dark);
-    border-radius: 12px;
-    background-color: #FAFCFF;
-    padding: 1.75rem;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 0.3rem;
-    cursor: pointer;
-    transition: border-color 0.15s, background-color 0.15s;
-}
-
-.sampul-dropzone:hover {
-    border-color: var(--ktr-teal);
-    background-color: #F0F9F6;
-}
-
-.sampul-title {
-    font-size: 0.92rem;
-    font-weight: 600;
-    color: var(--ktr-text-muted);
-}
-
-.sampul-sub {
-    font-size: 0.8rem;
-    color: var(--ktr-text-light);
-}
-
-.sampul-preview-container {
-    width: 100%;
-    display: flex;
-    align-items: center;
-    gap: 1.25rem;
-    flex-wrap: wrap;
-}
-
-.sampul-preview-img {
-    width: 180px;
-    height: 115px;
-    object-fit: cover;
-    border-radius: 8px;
-    border: 1px solid var(--ktr-border);
-}
-
-.sampul-preview-actions {
-    display: flex;
-    flex-direction: column;
-    gap: 0.6rem;
-}
-
-.sampul-filename {
-    font-size: 0.9rem;
-    font-weight: 600;
-    color: var(--ktr-text-main);
-}
-
-.sampul-btns {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-}
-
-.btn-sampul-action {
-    padding: 0.42rem 0.85rem;
-    border: 1px solid var(--ktr-border-dark);
-    background: #FFFFFF;
-    color: var(--ktr-text-main);
-    border-radius: 7px;
-    font-size: 0.82rem;
-    font-weight: 600;
-    cursor: pointer;
-}
-
-.btn-sampul-remove {
-    padding: 0.42rem 0.85rem;
-    border: 1px solid #FCA5A5;
-    background: #FEE2E2;
-    color: #991B1B;
-    border-radius: 7px;
-    font-size: 0.82rem;
-    font-weight: 600;
-    cursor: pointer;
 }
 
 .form-actions {

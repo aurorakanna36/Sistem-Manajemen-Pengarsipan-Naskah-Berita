@@ -115,7 +115,7 @@ async function handleLogin() {
 
 .login-left {
     flex: 1;
-    background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 50%, #0f4c81 100%);
+    background: linear-gradient(135deg, #0f2a22 0%, #0f8168 50%, #1e5f51 100%);
     display: flex;
     flex-direction: column;
     justify-content: space-between;
@@ -196,7 +196,7 @@ async function handleLogin() {
 .login-form-container h2 {
     font-size: 1.75rem;
     font-weight: 700;
-    color: #0f172a;
+    color: #1e5f51;
     margin: 0 0 0.5rem;
 }
 
@@ -239,20 +239,20 @@ async function handleLogin() {
     border: 1.5px solid #e2e8f0;
     border-radius: 8px;
     font-size: 0.9rem;
-    color: #0f172a;
+    color: #1e5f51;
     background: white;
     transition: border-color 0.2s;
     outline: none;
 }
 
 .form-group input:focus {
-    border-color: #0f4c81;
+    border-color: #1e5f51;
 }
 
 .btn-login {
     margin-top: 0.5rem;
     padding: 0.75rem;
-    background: linear-gradient(135deg, #0f4c81, #1e3a5f);
+    background: linear-gradient(135deg, #0f8168, #1e5f51);
     color: white;
     border: none;
     border-radius: 8px;

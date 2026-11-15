@@ -2,8 +2,8 @@
     <AdminLayout>
         <div class="detail-review-page">
             <div class="top-nav-bar">
-                <router-link to="/admin/review-naskah" class="back-link">
-                    &larr; Kembali ke review naskah
+                <router-link to="/admin/kelola-naskah" class="back-link">
+                    &larr; Kembali ke kelola naskah
                 </router-link>
             </div>
 
@@ -12,7 +12,15 @@
             <div v-else class="review-grid">
                 <div class="naskah-main-panel">
                     <div class="naskah-header-image">
-                        <img v-if="naskah.gambar_sampul" :src="naskah.gambar_sampul" :alt="naskah.judul" class="sampul-img" />
+                        <figure v-if="naskah.gambar_sampul" class="sampul-figure">
+                            <img :src="naskah.gambar_sampul" :alt="naskah.gambar_sampul_alt || naskah.judul"
+                                class="sampul-img" />
+
+                            <figcaption v-if="naskah.gambar_sampul_keterangan">
+                                Keterangan: {{ naskah.gambar_sampul_keterangan }}
+                            </figcaption>
+                        </figure>
+
                         <span v-else>Gambar sampul</span>
                     </div>
 
@@ -35,14 +43,10 @@
                             Dikirim {{ formatDate(naskah.waktu_kirim || naskah.created_at) }} · {{ authorName }}
                         </p>
 
-                        <div v-if="naskah.abstrak" class="content-section">
-                            <h2 class="section-label">Abstrak</h2>
-                            <p class="section-body">{{ naskah.abstrak }}</p>
-                        </div>
-
                         <div class="content-section">
                             <h2 class="section-label">Isi naskah</h2>
-                            <div v-if="isHtmlContent" class="article-paragraphs rich-html-body" v-html="naskah.isi || naskah.isi_naskah"></div>
+                            <div v-if="isHtmlContent" class="article-paragraphs rich-html-body"
+                                v-html="naskah.isi || naskah.isi_naskah"></div>
                             <div v-else class="article-paragraphs">
                                 <p v-for="(p, i) in articleParagraphs" :key="i">
                                     {{ p }}
@@ -84,11 +88,7 @@
                             {{ authorStatsText }}
                         </p>
 
-                        <router-link
-                            v-if="authorId"
-                            :to="`/admin/kontributor/${authorId}`"
-                            class="link-profile-author"
-                        >
+                        <router-link v-if="authorId" :to="`/admin/kontributor/${authorId}`" class="link-profile-author">
                             Lihat profil kontributor
                         </router-link>
                     </div>
@@ -102,71 +102,36 @@
                             </div>
 
                             <div class="radio-options-list">
-                                <label
-                                    class="radio-card-label"
-                                    :class="{ selected: selectedDecision === 'approved' }"
-                                >
-                                    <input
-                                        type="radio"
-                                        value="approved"
-                                        v-model="selectedDecision"
-                                        name="decision"
-                                    />
+                                <label class="radio-card-label" :class="{ selected: selectedDecision === 'approved' }">
+                                    <input type="radio" value="approved" v-model="selectedDecision" name="decision" />
                                     <span>Terima dan terbitkan</span>
                                 </label>
 
-                                <label
-                                    class="radio-card-label"
-                                    :class="{ selected: selectedDecision === 'revision' }"
-                                >
-                                    <input
-                                        type="radio"
-                                        value="revision"
-                                        v-model="selectedDecision"
-                                        name="decision"
-                                    />
+                                <label class="radio-card-label" :class="{ selected: selectedDecision === 'revision' }">
+                                    <input type="radio" value="revision" v-model="selectedDecision" name="decision" />
                                     <span>Minta revisi</span>
                                 </label>
 
-                                <label
-                                    class="radio-card-label"
-                                    :class="{ selected: selectedDecision === 'rejected' }"
-                                >
-                                    <input
-                                        type="radio"
-                                        value="rejected"
-                                        v-model="selectedDecision"
-                                        name="decision"
-                                    />
+                                <label class="radio-card-label" :class="{ selected: selectedDecision === 'rejected' }">
+                                    <input type="radio" value="rejected" v-model="selectedDecision" name="decision" />
                                     <span>Tolak naskah</span>
                                 </label>
                             </div>
 
                             <div class="form-field-group">
                                 <label class="field-label">Catatan atau alasan</label>
-                                <textarea
-                                    v-model="decisionNote"
-                                    rows="4"
+                                <textarea v-model="decisionNote" rows="4"
                                     placeholder="Wajib diisi jika naskah ditolak atau perlu direvisi"
-                                    class="note-textarea"
-                                ></textarea>
+                                    class="note-textarea"></textarea>
                             </div>
 
                             <div v-if="selectedDecision === 'approved'" class="form-field-group">
                                 <label class="field-label">URL Publikasi Berita (Opsional)</label>
-                                <input
-                                    v-model="urlBerita"
-                                    type="url"
-                                    placeholder="https://cakrawala.com/berita/..."
-                                    class="note-input"
-                                />
+                                <input v-model="urlBerita" type="url" placeholder="https://cakrawala.com/berita/..."
+                                    class="note-input" />
                             </div>
 
-                            <button
-                                type="submit"
-                                class="btn-save-decision"
-                                :disabled="savingDecision"
-                            >
+                            <button type="submit" class="btn-save-decision" :disabled="savingDecision">
                                 {{ savingDecision ? 'Menyimpan...' : 'Simpan keputusan' }}
                             </button>
                         </form>
@@ -267,25 +232,38 @@ function statusClass(status) {
     return 'badge-info'
 }
 
+
 async function fetchNaskahDetail() {
     loading.value = true
     const id = route.params.id
+
     try {
         const res = await api.admin.getNaskahDetail(id)
         naskah.value = res.data.naskah || res.data.data
+
+        console.log('Data naskah:', naskah.value)
+        console.log('Gambar sampul:', naskah.value?.gambar_sampul)
+        console.log('Alt gambar:', naskah.value?.gambar_sampul_alt)
+        console.log('Keterangan gambar:', naskah.value?.gambar_sampul_keterangan)
+
         if (res.data.review?.catatan) {
             decisionNote.value = res.data.review.catatan
         }
-    } catch {
+    } catch (error) {
+        console.error('Gagal mengambil detail naskah:', error)
+
         try {
             const listRes = await api.admin.getNaskahs()
             const all = listRes.data.naskahs || listRes.data.data || []
             naskah.value = all.find(item => String(item.id) === String(id)) || null
-        } catch {}
+        } catch (err) {
+            console.error(err)
+        }
     } finally {
         loading.value = false
     }
 }
+
 
 async function submitDecision() {
     decisionError.value = ''
@@ -359,8 +337,8 @@ onMounted(() => {
 }
 
 .naskah-header-image {
-    height: 300px;
-    background-color: #DDE5EC;
+    min-height: 300px;
+    height: auto;
     background-color: var(--adm-border-soft);
     display: flex;
     align-items: center;
@@ -371,10 +349,29 @@ onMounted(() => {
     overflow: hidden;
 }
 
+.sampul-figure {
+    width: 100%;
+    max-height: 350px;
+    object-fit: cover;
+    display: block;
+}
+
 .sampul-img {
     width: 100%;
     height: 100%;
     object-fit: cover;
+}
+
+.sampul-figure figcaption {
+    width: 100%;
+    padding: 0.75rem 1.5rem;
+    box-sizing: border-box;
+    background: var(--adm-bg-page);
+    color: var(--adm-text-muted);
+    font-size: 0.85rem;
+    font-style: italic;
+    text-align: center;
+    line-height: 1.5;
 }
 
 .rich-html-body :deep(img) {
@@ -385,13 +382,25 @@ onMounted(() => {
 }
 
 .rich-html-body :deep(figure) {
-    margin: 1rem 0;
+    margin: 1.5rem 0;
+    text-align: center;
+}
+
+.rich-html-body :deep(figure img) {
+    max-width: 100%;
+    height: auto;
+    border-radius: 10px;
+    display: block;
+    margin: 0 auto;
 }
 
 .rich-html-body :deep(figcaption) {
+    margin-top: 0.5rem;
     font-size: 0.85rem;
+    line-height: 1.5;
     color: var(--adm-text-muted);
-    margin-top: 0.35rem;
+    font-style: italic;
+    text-align: center;
 }
 
 .naskah-content-area {

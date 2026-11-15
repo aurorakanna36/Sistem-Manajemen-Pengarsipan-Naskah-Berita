@@ -29,27 +29,21 @@
             <div class="lists-grid">
                 <div class="panel-card panel-left">
                     <h2 class="panel-title">Naskah menunggu review</h2>
-                    
+
                     <div v-if="loading" class="empty-state">Memuat data naskah...</div>
                     <div v-else-if="naskahMenunggu.length === 0" class="empty-state">
                         Tidak ada naskah yang menunggu review saat ini.
                     </div>
                     <div v-else class="items-list">
-                        <div 
-                            v-for="item in naskahMenunggu" 
-                            :key="item.id" 
-                            class="item-row"
-                        >
+                        <div v-for="item in naskahMenunggu" :key="item.id" class="item-row">
                             <div class="item-info">
                                 <h3 class="item-title">{{ item.judul }}</h3>
                                 <p class="item-meta">
-                                    {{ item.nama_kontributor || item.penulis?.name || 'Kontributor' }} · Dikirim {{ formatDate(item.waktu_kirim || item.created_at) }}
+                                    {{ item.nama_kontributor || item.penulis?.name || 'Kontributor' }} · Dikirim {{
+                                        formatDate(item.waktu_kirim || item.created_at) }}
                                 </p>
                             </div>
-                            <router-link 
-                                :to="`/admin/review-naskah/${item.id}`" 
-                                class="action-link"
-                            >
+                            <router-link :to="`/admin/review-naskah/${item.id}`" class="action-link">
                                 Buka
                             </router-link>
                         </div>
@@ -57,18 +51,14 @@
                 </div>
 
                 <div class="panel-card panel-right">
-                    <h2 class="panel-title">Kontributor perlu diverifikasi</h2>
+                    <h2 class="panel-title">Aktivitas Terbaru</h2>
 
                     <div v-if="loading" class="empty-state">Memuat data kontributor...</div>
                     <div v-else-if="kontributorPending.length === 0" class="empty-state">
                         Semua kontributor telah diverifikasi.
                     </div>
                     <div v-else class="items-list">
-                        <div 
-                            v-for="kontri in kontributorPending" 
-                            :key="kontri.id" 
-                            class="item-row kontri-row"
-                        >
+                        <div v-for="kontri in kontributorPending" :key="kontri.id" class="item-row kontri-row">
                             <div class="kontri-avatar">
                                 {{ (kontri.nama_lengkap || kontri.name || 'K').charAt(0).toUpperCase() }}
                             </div>
@@ -76,12 +66,7 @@
                                 <h3 class="item-title">{{ kontri.nama_lengkap || kontri.name }}</h3>
                                 <p class="item-meta">Mendaftar {{ formatDate(kontri.created_at) }}</p>
                             </div>
-                            <router-link 
-                                :to="`/admin/kontributor/${kontri.id}`" 
-                                class="action-link"
-                            >
-                                Verifikasi
-                            </router-link>
+
                         </div>
                     </div>
                 </div>
@@ -130,7 +115,7 @@ async function fetchDashboard() {
             ])
             const allNaskahs = naskahRes.data.naskahs || naskahRes.data.data || []
             const pendingNaskahs = allNaskahs.filter(n => n.status_naskah === 'perlu_direview' || n.status === 'pending')
-            
+
             stats.value = {
                 total_naskah: allNaskahs.length,
                 total_kontributor: userRes.data.meta?.total || userRes.data.stats?.total || 0,
@@ -138,7 +123,7 @@ async function fetchDashboard() {
             }
             naskahMenunggu.value = pendingNaskahs.slice(0, 5)
             kontributorPending.value = userRes.data.users || userRes.data.data || []
-        } catch {}
+        } catch { }
     } finally {
         loading.value = false
     }
@@ -236,6 +221,11 @@ onMounted(() => {
     border: 1px solid var(--adm-border);
     border-radius: 14px;
     padding: 1.75rem;
+    height: 324px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
 }
 
 .panel-title {
@@ -243,11 +233,33 @@ onMounted(() => {
     font-weight: 700;
     color: var(--adm-text-main);
     margin: 0 0 1.25rem 0;
+    flex-shrink: 0;
 }
 
 .items-list {
     display: flex;
     flex-direction: column;
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    padding-right: 8px;
+}
+
+.items-list::-webkit-scrollbar {
+    width: 6px;
+}
+
+.items-list::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.items-list::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 10px;
+}
+
+.items-list::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
 }
 
 .item-row {
@@ -308,7 +320,7 @@ onMounted(() => {
     width: 40px;
     height: 40px;
     border-radius: 50%;
-    background-color: var(--adm-navy-muted);
+    background-color: var(--adm-green-muted);
     background-color: var(--adm-border-dark);
     color: #ffffff;
     display: flex;
@@ -330,9 +342,9 @@ onMounted(() => {
     .summary-cards-grid {
         grid-template-columns: 1fr;
     }
+
     .lists-grid {
         grid-template-columns: 1fr;
     }
 }
 </style>
-
