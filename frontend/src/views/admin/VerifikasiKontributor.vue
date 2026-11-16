@@ -400,7 +400,7 @@ async function handleVerification() {
             confirmButtonColor: '#087d77',
         })
 
-        router.push('/admin/kelola-kontributor')
+        router.push({ name: 'admin.kontributor' })
     } catch (err) {
         Swal.fire({
             icon: 'error',
@@ -453,7 +453,7 @@ async function handleRejection() {
             confirmButtonColor: '#087d77',
         })
 
-        router.push('/admin/kelola-kontributor')
+        router.push({ name: 'admin.kontributor' })
     } catch (err) {
         Swal.fire({
             icon: 'error',
