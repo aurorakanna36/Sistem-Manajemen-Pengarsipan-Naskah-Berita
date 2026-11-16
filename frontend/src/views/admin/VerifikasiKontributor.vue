@@ -219,22 +219,44 @@
 
                         </div>
 
-                        <div class="form-group rejection-group">
-                            <label>Alasan penolakan</label>
-                            <textarea v-model="alasanPenolakan" placeholder="Wajib diisi jika pendaftaran ditolak..."
-                                rows="4"></textarea>
+                        <div class="account-preview-card" v-if="kontributor.status_verifikasi !== 'verified'">
+                            <div class="preview-badge-row">
+                                <span class="gmail-pill">
+                                    <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2">
+                                        <rect width="20" height="16" x="2" y="4" rx="2" />
+                                        <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
+                                    </svg>
+                                    Notifikasi Gmail Aktif
+                                </span>
+                            </div>
+                            <div class="preview-info-row">
+                                <span class="preview-label">Email Baru Dibuatkan:</span>
+                                <strong class="preview-email-val">{{ generatedEmail }}</strong>
+                            </div>
+                            <div class="preview-info-row">
+                                <span class="preview-label">Kirim Notifikasi ke:</span>
+                                <span class="target-gmail-val">{{ kontributor.email_gmail || kontributor.email }}</span>
+                            </div>
                         </div>
 
-                        <button class="btn-verify" :disabled="!allChecksComplete" @click="handleVerification">
-                            Verifikasi akun
+                        <div class="form-group catatan-group">
+                            <label>Catatan Tambahan Redaksi / Alasan Penolakan</label>
+                            <textarea v-model="catatanAdmin" placeholder="Tuliskan catatan tambahan atau alasan jika pendaftaran ditolak (akan dikirimkan ke Gmail kontributor)..."
+                                rows="3"></textarea>
+                        </div>
+
+                        <button class="btn-verify" :disabled="submittingVerif" @click="handleVerification">
+                            <span v-if="submittingVerif">Memproses & Mengirim Gmail...</span>
+                            <span v-else>Terima & Kirim Gmail (@cakrawala.id)</span>
                         </button>
 
-                        <button class="btn-reject" :disabled="!alasanPenolakan.trim()" @click="handleRejection">
-                            Tolak pendaftaran
+                        <button class="btn-reject" :disabled="submittingVerif" @click="handleRejection">
+                            <span v-if="submittingVerif">Memproses...</span>
+                            <span v-else>Tolak Pendaftaran</span>
                         </button>
 
                         <p class="decision-note">
-                            Kontributor akan diberi tahu lewat email setelah keputusan disimpan.
+                            Kontributor akan secara otomatis menerima notifikasi resmi redaksi melalui Gmail setelah keputusan disimpan.
                         </p>
 
                     </section>
@@ -253,12 +275,15 @@ import { ref, computed, onMounted } from 'vue'
 import AdminLayout from './AdminLayout.vue'
 import api from '@/api/index.js'
 import { useRoute, useRouter } from 'vue-router'
+import Swal from 'sweetalert2'
 
 const route = useRoute()
 const router = useRouter()
 
 const loading = ref(true)
+const submittingVerif = ref(false)
 const kontributor = ref({})
+const catatanAdmin = ref('')
 
 const checks = ref({
     dataSesuai: false,
@@ -269,9 +294,16 @@ const checks = ref({
 
 const alasanPenolakan = ref('')
 
+const generatedEmail = computed(() => {
+    const raw = kontributor.value?.nama_lengkap || kontributor.value?.name || 'kontributor'
+    const slug = raw.toLowerCase().trim().replace(/[^a-z0-9]/g, '')
+    return `${slug || 'kontributor'}@cakrawala.id`
+})
+
 // Sesuaikan nama field dengan respons API Laravel kamu.
 const ktpUrl = computed(() => {
-    const path = kontributor.value.dokumen_ktp ||
+    const path = kontributor.value.foto_identitas ||
+        kontributor.value.dokumen_ktp ||
         kontributor.value.ktp ||
         kontributor.value.foto_ktp
 
@@ -279,7 +311,8 @@ const ktpUrl = computed(() => {
 })
 
 const suratAdministrasiUrl = computed(() => {
-    const path = kontributor.value.surat_administrasi ||
+    const path = kontributor.value.file_path ||
+        kontributor.value.surat_administrasi ||
         kontributor.value.dokumen_administrasi
 
     return path ? (path.startsWith('http') ? path : `/storage/${path}`) : ''
@@ -337,26 +370,100 @@ function statusClass(status) {
     return 'badge-warning'
 }
 
-// Tampilan validasi sementara.
-// Hubungkan kedua fungsi ini ke endpoint verifikasi Laravel
-// setelah nama endpoint dan method API dipastikan.
+async function handleVerification() {
+    const targetEmail = kontributor.value.email_gmail || kontributor.value.email
 
-function handleVerification() {
-    if (!allChecksComplete.value) {
-        alert('Silakan periksa dan centang seluruh kelengkapan data.')
-        return
+    const confirm = await Swal.fire({
+        icon: 'question',
+        title: 'Verifikasi & Buat Akun?',
+        html: `Akun akan diverifikasi dan login baru <b>${generatedEmail.value}</b> akan dibuatkan.<br><br>Notifikasi resmi redaksi akan dikirim ke Gmail: <b>${targetEmail}</b>.`,
+        showCancelButton: true,
+        confirmButtonText: 'Ya, Terima & Kirim Gmail',
+        cancelButtonText: 'Batal',
+        confirmButtonColor: '#087d77',
+        cancelButtonColor: '#64748b',
+    })
+
+    if (!confirm.isConfirmed) return
+
+    submittingVerif.value = true
+    try {
+        await api.admin.verifyUser(route.params.id, {
+            status: 'verified',
+            catatan_admin: catatanAdmin.value || null,
+        })
+
+        await Swal.fire({
+            icon: 'success',
+            title: 'Berhasil Diverifikasi!',
+            text: `Akun pendaftar telah diverifikasi menjadi ${generatedEmail.value} dan notifikasi Gmail telah terkirim.`,
+            confirmButtonColor: '#087d77',
+        })
+
+        router.push('/admin/kelola-kontributor')
+    } catch (err) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Gagal Memverifikasi',
+            text: err.response?.data?.message || 'Terjadi kendala saat memverifikasi akun kontributor.',
+            confirmButtonColor: '#087d77',
+        })
+    } finally {
+        submittingVerif.value = false
     }
-
-    alert('Pemeriksaan lengkap. Hubungkan tombol ini ke API verifikasi akun.')
 }
 
-function handleRejection() {
-    if (!alasanPenolakan.value.trim()) {
-        alert('Alasan penolakan wajib diisi.')
+async function handleRejection() {
+    if (!catatanAdmin.value.trim()) {
+        Swal.fire({
+            icon: 'warning',
+            title: 'Alasan Penolakan Wajib Diisi',
+            text: 'Silakan isi alasan atau catatan penolakan pendaftaran pada kolom catatan sebelum menolak.',
+            confirmButtonColor: '#087d77',
+        })
         return
     }
 
-    alert('Alasan penolakan sudah diisi. Hubungkan tombol ini ke API penolakan.')
+    const targetEmail = kontributor.value.email_gmail || kontributor.value.email
+
+    const confirm = await Swal.fire({
+        icon: 'warning',
+        title: 'Tolak Pendaftaran?',
+        html: `Pendaftaran kontributor akan ditolak dan surat pemberitahuan beserta alasan akan dikirimkan ke Gmail: <b>${targetEmail}</b>.`,
+        showCancelButton: true,
+        confirmButtonText: 'Ya, Tolak Pendaftaran',
+        cancelButtonText: 'Batal',
+        confirmButtonColor: '#dc2626',
+        cancelButtonColor: '#64748b',
+    })
+
+    if (!confirm.isConfirmed) return
+
+    submittingVerif.value = true
+    try {
+        await api.admin.verifyUser(route.params.id, {
+            status: 'rejected',
+            catatan_admin: catatanAdmin.value.trim(),
+        })
+
+        await Swal.fire({
+            icon: 'info',
+            title: 'Pendaftaran Ditolak',
+            text: 'Status pendaftaran kontributor telah ditolak dan email pemberitahuan telah dikirimkan.',
+            confirmButtonColor: '#087d77',
+        })
+
+        router.push('/admin/kelola-kontributor')
+    } catch (err) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Gagal Menolak',
+            text: err.response?.data?.message || 'Terjadi kesalahan saat memproses penolakan.',
+            confirmButtonColor: '#087d77',
+        })
+    } finally {
+        submittingVerif.value = false
+    }
 }
 
 async function fetchKontributorDetail() {
@@ -806,6 +913,91 @@ onMounted(() => {
 
 .rejection-group textarea::placeholder {
     color: #94a3b8;
+}
+
+/* NOTIFIKASI GMAIL & PREVIEW CARD */
+.account-preview-card {
+    background: #f0fdf4;
+    border: 1px solid #bbf7d0;
+    border-radius: 8px;
+    padding: 0.85rem;
+    margin-bottom: 0.9rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.45rem;
+}
+
+.preview-badge-row {
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.2rem;
+}
+
+.gmail-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    background: #dcfce7;
+    color: #166534;
+    font-size: 0.72rem;
+    font-weight: 700;
+    padding: 0.2rem 0.55rem;
+    border-radius: 999px;
+}
+
+.preview-info-row {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+}
+
+.preview-label {
+    font-size: 0.68rem;
+    color: #4b5563;
+    font-weight: 600;
+}
+
+.preview-email-val {
+    font-size: 0.82rem;
+    color: #087d77;
+    font-weight: 800;
+    font-family: monospace;
+}
+
+.target-gmail-val {
+    font-size: 0.75rem;
+    color: #374151;
+    font-weight: 600;
+}
+
+.catatan-group {
+    margin-bottom: 0.85rem;
+}
+
+.catatan-group label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #374151;
+}
+
+.catatan-group textarea {
+    width: 100%;
+    box-sizing: border-box;
+    min-height: 75px;
+    padding: 0.65rem;
+    border: 1px solid #dce5ed;
+    border-radius: 8px;
+    background: #f8fafc;
+    font-family: inherit;
+    font-size: 0.75rem;
+    color: #152d45;
+    resize: vertical;
+    outline: none;
+}
+
+.catatan-group textarea:focus {
+    border-color: #087d77;
+    box-shadow: 0 0 0 2px rgba(8, 125, 119, 0.1);
 }
 
 /* BUTTON */

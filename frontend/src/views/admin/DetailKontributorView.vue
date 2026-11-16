@@ -14,6 +14,13 @@
                             <span class="status-badge" :class="statusClass(kontributor.status_verifikasi)">
                                 {{ statusLabel(kontributor.status_verifikasi) }}
                             </span>
+                            <router-link
+                                v-if="kontributor.status_verifikasi === 'pending' || kontributor.status_verifikasi === 'menunggu'"
+                                :to="'/admin/verifikasi-kontributor/' + kontributor.id"
+                                class="btn-action-verif"
+                            >
+                                Proses Verifikasi & Kirim Gmail &rarr;
+                            </router-link>
                         </div>
                         <p class="profile-meta">
                             {{ kontributor.email }} · {{ kontributor.instansi || 'Independen' }}
@@ -368,6 +375,23 @@ onMounted(() => {
     display: flex;
     align-items: center;
     gap: 0.85rem;
+    flex-wrap: wrap;
+}
+
+.btn-action-verif {
+    margin-left: auto;
+    padding: 0.45rem 0.95rem;
+    background: #087d77;
+    color: white;
+    font-size: 0.8rem;
+    font-weight: 700;
+    border-radius: 6px;
+    text-decoration: none;
+    transition: background 0.15s;
+}
+
+.btn-action-verif:hover {
+    background: #065c57;
 }
 
 .profile-name {
