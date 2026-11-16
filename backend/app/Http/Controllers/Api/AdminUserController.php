@@ -3,12 +3,16 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Mail\VerifikasiKontributorMail;
 use App\Models\Naskah;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Str;
 
 class AdminUserController extends Controller
 {
@@ -76,19 +80,85 @@ class AdminUserController extends Controller
     public function verify(Request $request, $id)
     {
         $request->validate([
-            'status' => ['required', 'in:verified,approved,rejected'],
+            'status'        => ['required', 'in:verified,approved,rejected'],
+            'catatan_admin' => ['nullable', 'string', 'max:2000'],
         ]);
 
         $status = ($request->status === 'approved') ? 'verified' : $request->status;
+        $catatanAdmin = $request->input('catatan_admin');
 
         $user = User::where('role', 'kontributor')->findOrFail($id);
-        $user->update(['status_verifikasi' => $status]);
 
-        $statusText = ($status === 'verified') ? 'diverifikasi' : 'ditolak';
+        // Ambil email gmail asli penerima notifikasi
+        $emailTujuan = $user->email_gmail ?: $user->email;
+
+        $emailCakrawala = null;
+
+        if ($status === 'verified') {
+            // Amankan email_gmail asli jika belum tersimpan
+            if (empty($user->email_gmail)) {
+                $user->email_gmail = $user->email;
+            }
+
+            // Generate email unik @cakrawala.id dari nama lengkap
+            $baseSlug = Str::slug($user->nama_lengkap, '.');
+            if (empty($baseSlug)) {
+                $baseSlug = 'kontributor.' . $user->id;
+            }
+
+            $candidateEmail = $baseSlug . '@cakrawala.id';
+            $counter = 1;
+
+            // Pastikan email unik jika ada kontributor dengan nama sama
+            while (User::where('email', $candidateEmail)->where('id', '!=', $user->id)->exists()) {
+                $candidateEmail = $baseSlug . $counter . '@cakrawala.id';
+                $counter++;
+            }
+
+            $emailCakrawala = $candidateEmail;
+            $user->email = $emailCakrawala;
+            $user->status_verifikasi = 'verified';
+            $user->save();
+        } else {
+            if (empty($user->email_gmail)) {
+                $user->email_gmail = $user->email;
+            }
+            $user->status_verifikasi = 'rejected';
+            $user->save();
+        }
+
+        // Kirim email notifikasi ke Gmail asli kontributor
+        $emailSent = false;
+        $emailError = null;
+
+        if (!empty($emailTujuan)) {
+            try {
+                Mail::to($emailTujuan)->send(
+                    new VerifikasiKontributorMail($user, $status, $catatanAdmin, $emailCakrawala)
+                );
+                $emailSent = true;
+            } catch (\Throwable $e) {
+                Log::warning("Gagal mengirim email verifikasi ke {$emailTujuan}: " . $e->getMessage());
+                $emailError = $e->getMessage();
+            }
+        }
+
+        $statusText = ($status === 'verified') ? 'diverifikasi dan dibuatkan akun Cakrawala' : 'ditolak';
 
         return response()->json([
-            'status'  => 'success',
-            'message' => "Akun kontributor '{$user->nama_lengkap}' berhasil {$statusText}.",
+            'status'         => 'success',
+            'message'        => "Akun kontributor '{$user->nama_lengkap}' berhasil {$statusText}.",
+            'email_sent'     => $emailSent,
+            'email_error'    => $emailError,
+            'email_cakrawala'=> $emailCakrawala,
+            'email_gmail'    => $emailTujuan,
+            'user'           => [
+                'id'                => $user->id,
+                'nama_lengkap'      => $user->nama_lengkap,
+                'email'             => $user->email,
+                'email_gmail'       => $user->email_gmail,
+                'status_verifikasi' => $user->status_verifikasi,
+            ],
         ]);
     }
 
@@ -143,7 +213,6 @@ class AdminUserController extends Controller
             'id'            => $n->id,
             'judul'         => $n->judul,
             'kata_kunci'    => $n->kata_kunci,
-            'abstrak'       => $n->abstrak,
             'isi'           => $n->isi,
             'gambar_sampul' => $n->gambar_sampul ? asset('storage/' . $n->gambar_sampul) : null,
             'kategori'      => $n->kategoris->isNotEmpty() ? $n->kategoris->pluck('nama_kategori')->implode(', ') : $n->kategori,
@@ -153,16 +222,23 @@ class AdminUserController extends Controller
             'file_path'     => $n->file_path ? asset('storage/' . $n->file_path) : null,
         ])->values();
 
+        $suggestedSlug = Str::slug($user->nama_lengkap, '.') ?: ('kontributor.' . $user->id);
+        $suggestedEmail = $suggestedSlug . '@cakrawala.id';
+
         return response()->json([
             'kontributor' => [
                 'id'                => $user->id,
                 'nama_lengkap'      => $user->nama_lengkap,
                 'name'              => $user->nama_lengkap,
                 'email'             => $user->email,
+                'email_gmail'       => $user->email_gmail ?: $user->email,
+                'email_cakrawala_preview' => $suggestedEmail,
                 'nomor_whatsapp'    => $user->nomor_whatsapp,
                 'instansi'          => $user->instansi,
                 'status_verifikasi' => $user->status_verifikasi,
                 'file_path'         => $user->file_path ? asset('storage/' . $user->file_path) : null,
+                'foto_identitas'    => $user->foto_identitas ? asset('storage/' . $user->foto_identitas) : null,
+                'tanda_tangan'      => $user->tanda_tangan ? asset('storage/' . $user->tanda_tangan) : null,
                 'created_at'        => $user->created_at ? $user->created_at->toDateTimeString() : null,
             ],
             'stats'            => $stats,

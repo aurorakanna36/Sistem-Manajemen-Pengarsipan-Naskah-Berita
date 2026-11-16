@@ -50,12 +50,15 @@ class AuthController extends Controller
                 'nama_lengkap' => $user->nama_lengkap,
                 'name' => $user->nama_lengkap,
                 'email' => $user->email,
+                'email_gmail' => $user->email_gmail,
                 'nomor_whatsapp' => $user->nomor_whatsapp,
                 'phone_number' => $user->nomor_whatsapp,
                 'role' => $user->role,
                 'status_verifikasi' => $user->status_verifikasi,
                 'instansi' => $user->instansi,
                 'file_path' => $user->file_path ? asset('storage/' . $user->file_path) : null,
+                'foto_identitas' => $user->foto_identitas ? asset('storage/' . $user->foto_identitas) : null,
+                'tanda_tangan' => $user->tanda_tangan ? asset('storage/' . $user->tanda_tangan) : null,
             ],
         ]);
     }
@@ -72,6 +75,9 @@ class AuthController extends Controller
             'password' => ['required', 'confirmed', 'min:8'],
             'file' => ['nullable', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:5120'],
             'surat_administrasi' => ['nullable', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:5120'],
+            'foto_identitas' => ['nullable', 'file', 'mimes:pdf,jpg,jpeg,png,webp', 'max:5120'],
+            'ktp' => ['nullable', 'file', 'mimes:pdf,jpg,jpeg,png,webp', 'max:5120'],
+            'tanda_tangan' => ['nullable'],
         ]);
 
         $namaLengkap = $validated['nama_lengkap'] ?? $validated['name'] ?? '';
@@ -90,15 +96,42 @@ class AuthController extends Controller
             $filePath = $request->file('surat_administrasi')->store('administrasi', 'public');
         }
 
+        $fotoIdentitasPath = null;
+        if ($request->hasFile('foto_identitas')) {
+            $fotoIdentitasPath = $request->file('foto_identitas')->store('identitas_kontributor', 'public');
+        } elseif ($request->hasFile('ktp')) {
+            $fotoIdentitasPath = $request->file('ktp')->store('identitas_kontributor', 'public');
+        }
+
+        $tandaTanganPath = null;
+        if ($request->hasFile('tanda_tangan')) {
+            $tandaTanganPath = $request->file('tanda_tangan')->store('tanda_tangan', 'public');
+        } elseif ($request->filled('tanda_tangan')) {
+            $signatureInput = $request->input('tanda_tangan');
+            if (is_string($signatureInput) && str_starts_with($signatureInput, 'data:image')) {
+                @list($type, $data) = explode(';', $signatureInput);
+                @list(, $data) = explode(',', $data);
+                if ($data) {
+                    $decodedImage = base64_decode($data);
+                    $fileName = 'tanda_tangan/' . \Illuminate\Support\Str::random(40) . '.png';
+                    \Illuminate\Support\Facades\Storage::disk('public')->put($fileName, $decodedImage);
+                    $tandaTanganPath = $fileName;
+                }
+            }
+        }
+
         $user = User::create([
             'nama_lengkap' => $namaLengkap,
             'email' => $validated['email'],
+            'email_gmail' => $validated['email'],
             'password' => Hash::make($validated['password']),
             'role' => 'kontributor',
             'status_verifikasi' => 'pending',
             'nomor_whatsapp' => $nomorWhatsapp,
             'instansi' => $validated['instansi'] ?? null,
+            'foto_identitas' => $fotoIdentitasPath,
             'file_path' => $filePath,
+            'tanda_tangan' => $tandaTanganPath,
         ]);
 
         Kontributor::create([
@@ -116,6 +149,7 @@ class AuthController extends Controller
                 'nama_lengkap' => $user->nama_lengkap,
                 'name' => $user->nama_lengkap,
                 'email' => $user->email,
+                'email_gmail' => $user->email_gmail,
                 'role' => $user->role,
                 'status_verifikasi' => $user->status_verifikasi,
             ],
@@ -132,12 +166,15 @@ class AuthController extends Controller
                 'nama_lengkap' => $user->nama_lengkap,
                 'name' => $user->nama_lengkap,
                 'email' => $user->email,
+                'email_gmail' => $user->email_gmail,
                 'nomor_whatsapp' => $user->nomor_whatsapp,
                 'phone_number' => $user->nomor_whatsapp,
                 'role' => $user->role,
                 'status_verifikasi' => $user->status_verifikasi,
                 'instansi' => $user->instansi,
                 'file_path' => $user->file_path ? asset('storage/' . $user->file_path) : null,
+                'foto_identitas' => $user->foto_identitas ? asset('storage/' . $user->foto_identitas) : null,
+                'tanda_tangan' => $user->tanda_tangan ? asset('storage/' . $user->tanda_tangan) : null,
             ],
         ]);
     }

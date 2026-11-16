@@ -18,7 +18,6 @@ class Naskah extends Model
         'nama_guest',
         'judul',
         'kata_kunci',
-        'abstrak',
         'isi',
         'gambar_sampul',
         'file_path',

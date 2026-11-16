@@ -24,7 +24,6 @@ class PublicBeritaController extends Controller
                 return [
                     'id' => $naskah->id,
                     'judul' => $naskah->judul,
-                    'abstrak' => $naskah->abstrak,
                     'isi' => $naskah->isi,
                     'gambar_sampul' => $naskah->gambar_sampul ? asset('storage/' . $naskah->gambar_sampul) : null,
                     'kategori' => $naskah->kategoris->isNotEmpty() ? $naskah->kategoris->pluck('nama_kategori')->implode(', ') : $naskah->kategori,

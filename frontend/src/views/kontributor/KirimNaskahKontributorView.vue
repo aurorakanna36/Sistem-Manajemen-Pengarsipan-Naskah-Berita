@@ -209,15 +209,103 @@
                             </button>
                         </div>
 
-                        <!-- Area Isi Naskah ContentEditable -->
-                        <div
-                            ref="editorRef"
-                            class="editor-canvas"
-                            contenteditable="true"
-                            data-placeholder="Tulis isi naskah lengkap di sini..."
-                            @input="onEditorInput"
-                            @click="closeMenus"
-                        ></div>
+                        <!-- Canvas Wrapper: Menampung canvas dan overlay resize agar koordinat tidak tergeser toolbar -->
+                        <div class="editor-canvas-wrapper" ref="canvasWrapperRef">
+                            <div
+                                ref="editorRef"
+                                class="editor-canvas"
+                                contenteditable="true"
+                                data-placeholder="Tulis isi naskah lengkap di sini..."
+                                @input="onEditorInput"
+                                @click="handleEditorClick"
+                            ></div>
+
+                            <!-- Overlay: Resize Handles & Floating Toolbar untuk Gambar Terpilih -->
+                            <div
+                                v-if="selectedImage && imageOverlay.visible"
+                                class="img-interactive-overlay"
+                                :style="{
+                                    top: imageOverlay.top + 'px',
+                                    left: imageOverlay.left + 'px',
+                                    width: imageOverlay.width + 'px',
+                                    height: imageOverlay.height + 'px'
+                                }"
+                            >
+                                <!-- 4 Handle Sudut -->
+                                <div class="resize-handle handle-nw" @mousedown.prevent.stop="startImageResize($event, 'nw')"></div>
+                                <div class="resize-handle handle-ne" @mousedown.prevent.stop="startImageResize($event, 'ne')"></div>
+                                <div class="resize-handle handle-sw" @mousedown.prevent.stop="startImageResize($event, 'sw')"></div>
+                                <div class="resize-handle handle-se" @mousedown.prevent.stop="startImageResize($event, 'se')"></div>
+
+                                <!-- Floating Alignment Toolbar -->
+                                <div class="img-float-toolbar" @mousedown.stop @click.stop>
+                                    <button
+                                        type="button"
+                                        class="img-tb-btn"
+                                        :class="{ active: currentImageAlignment === 'align-left' }"
+                                        title="Rata Kiri (Float Left)"
+                                        @click="setImageAlignment('align-left')"
+                                    >
+                                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <line x1="3" y1="6" x2="21" y2="6"></line>
+                                            <line x1="3" y1="12" x2="11" y2="12"></line>
+                                            <line x1="3" y1="18" x2="17" y2="18"></line>
+                                        </svg>
+                                    </button>
+                                    <button
+                                        type="button"
+                                        class="img-tb-btn"
+                                        :class="{ active: currentImageAlignment === 'align-center' }"
+                                        title="Rata Tengah"
+                                        @click="setImageAlignment('align-center')"
+                                    >
+                                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <line x1="3" y1="6" x2="21" y2="6"></line>
+                                            <line x1="6" y1="12" x2="18" y2="12"></line>
+                                            <line x1="4" y1="18" x2="20" y2="18"></line>
+                                        </svg>
+                                    </button>
+                                    <button
+                                        type="button"
+                                        class="img-tb-btn"
+                                        :class="{ active: currentImageAlignment === 'align-right' }"
+                                        title="Rata Kanan (Float Right)"
+                                        @click="setImageAlignment('align-right')"
+                                    >
+                                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <line x1="3" y1="6" x2="21" y2="6"></line>
+                                            <line x1="13" y1="12" x2="21" y2="12"></line>
+                                            <line x1="7" y1="18" x2="21" y2="18"></line>
+                                        </svg>
+                                    </button>
+                                    <button
+                                        type="button"
+                                        class="img-tb-btn"
+                                        :class="{ active: currentImageAlignment === 'align-full' }"
+                                        title="Lebar Penuh (100%)"
+                                        @click="setImageAlignment('align-full')"
+                                    >
+                                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <line x1="2" y1="6" x2="22" y2="6"></line>
+                                            <line x1="2" y1="12" x2="22" y2="12"></line>
+                                            <line x1="2" y1="18" x2="22" y2="18"></line>
+                                        </svg>
+                                    </button>
+                                    <span class="img-tb-divider"></span>
+                                    <button
+                                        type="button"
+                                        class="img-tb-btn btn-delete-img"
+                                        title="Hapus Gambar"
+                                        @click="deleteActiveImage"
+                                    >
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
 
                         <div class="editor-statusbar">
                             <span>Jumlah kata: {{ wordCount }}</span>
@@ -310,7 +398,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted } from 'vue'
+import { ref, reactive, computed, onMounted, onBeforeUnmount } from 'vue'
 import { useRouter } from 'vue-router'
 import KontributorLayout from './KontributorLayout.vue'
 import MediaUploadModal from './MediaUploadModal.vue'
@@ -346,11 +434,11 @@ const selectedKategoriIds = ref([])
 const form = reactive({
     judul: '',
     kata_kunci: '',
-    abstrak: '',
     isi: '',
 })
 
 const editorRef = ref(null)
+const canvasWrapperRef = ref(null)
 const showHeadingMenu = ref(false)
 const showSpecialChars = ref(false)
 const currentBlockTag = ref('P')
@@ -394,6 +482,11 @@ const wordCount = computed(() => {
 })
 
 onMounted(async () => {
+    if (editorRef.value) {
+        editorRef.value.addEventListener('scroll', handleEditorScroll)
+    }
+    window.addEventListener('resize', handleEditorScroll)
+
     try {
         const res = await api.kontributor.getKategoris()
         const list = res.data?.kategoris || res.data?.data || []
@@ -403,6 +496,15 @@ onMounted(async () => {
     } catch {
         // Use fallback 13 categories
     }
+})
+
+onBeforeUnmount(() => {
+    if (editorRef.value) {
+        editorRef.value.removeEventListener('scroll', handleEditorScroll)
+    }
+    window.removeEventListener('resize', handleEditorScroll)
+    window.removeEventListener('mousemove', onImageResizing)
+    window.removeEventListener('mouseup', stopImageResize)
 })
 
 function isKategoriSelected(id) {
@@ -480,10 +582,184 @@ function handleInsertMediaToEditor(media) {
     const captionHtml = media.keterangan
         ? `<figcaption>${media.keterangan}</figcaption>`
         : ''
-    const html = `<figure class="inserted-media"><img src="${media.url}" alt="${media.alt || ''}" title="${media.judul || ''}" />${captionHtml}</figure><p><br></p>`
+    // Default gambar ukuran kecil/kompak (width: 320px) agar rapi dan mudah diatur
+    const html = `<figure class="inserted-media align-center"><img src="${media.url}" alt="${media.alt || ''}" title="${media.judul || ''}" style="width: 320px; max-width: 100%; height: auto; display: block; margin-left: auto; margin-right: auto;" />${captionHtml}</figure><p><br></p>`
 
     document.execCommand('insertHTML', false, html)
     onEditorInput()
+}
+
+// ==========================================
+// KONTROL GAMBAR INTERAKTIF (RESIZE & ALIGN)
+// ==========================================
+const selectedImage = ref(null)
+const imageOverlay = reactive({
+    visible: false,
+    top: 0,
+    left: 0,
+    width: 0,
+    height: 0,
+})
+const currentImageAlignment = ref('align-center')
+
+let isResizingImage = false
+let resizeStart = { x: 0, y: 0, width: 0, height: 0, handle: '' }
+
+function handleEditorClick(e) {
+    closeMenus()
+    const target = e.target
+    if (target && target.tagName === 'IMG') {
+        selectImage(target)
+    } else {
+        deselectImage()
+    }
+}
+
+function selectImage(imgEl) {
+    selectedImage.value = imgEl
+    detectImageAlignment(imgEl)
+    updateOverlayPosition()
+}
+
+function deselectImage() {
+    selectedImage.value = null
+    imageOverlay.visible = false
+}
+
+function detectImageAlignment(imgEl) {
+    const parentFigure = imgEl.closest('figure')
+    const target = parentFigure || imgEl
+
+    if (target.classList.contains('align-left')) {
+        currentImageAlignment.value = 'align-left'
+    } else if (target.classList.contains('align-right')) {
+        currentImageAlignment.value = 'align-right'
+    } else if (target.classList.contains('align-full')) {
+        currentImageAlignment.value = 'align-full'
+    } else {
+        currentImageAlignment.value = 'align-center'
+    }
+}
+
+function updateOverlayPosition() {
+    if (!selectedImage.value || !canvasWrapperRef.value) {
+        imageOverlay.visible = false
+        return
+    }
+
+    const wrapperBox = canvasWrapperRef.value.getBoundingClientRect()
+    const imgBox = selectedImage.value.getBoundingClientRect()
+
+    imageOverlay.top = imgBox.top - wrapperBox.top
+    imageOverlay.left = imgBox.left - wrapperBox.left
+    imageOverlay.width = imgBox.width
+    imageOverlay.height = imgBox.height
+    imageOverlay.visible = true
+}
+
+function setImageAlignment(alignment) {
+    if (!selectedImage.value) return
+    const img = selectedImage.value
+    const parentFigure = img.closest('figure')
+    const target = parentFigure || img
+
+    // Hapus kelas align sebelumnya
+    target.classList.remove('align-left', 'align-center', 'align-right', 'align-full')
+    target.classList.add(alignment)
+    currentImageAlignment.value = alignment
+
+    const currentWidth = img.style.width || '320px'
+
+    if (alignment === 'align-full') {
+        img.style.width = '100%'
+        img.style.height = 'auto'
+        img.style.display = 'block'
+        img.style.marginLeft = ''
+        img.style.marginRight = ''
+    } else if (alignment === 'align-center') {
+        img.style.width = currentWidth
+        img.style.height = 'auto'
+        img.style.display = 'block'
+        img.style.marginLeft = 'auto'
+        img.style.marginRight = 'auto'
+    } else {
+        img.style.width = currentWidth
+        img.style.height = 'auto'
+        img.style.display = 'block'
+        img.style.marginLeft = ''
+        img.style.marginRight = ''
+    }
+
+    onEditorInput()
+    setTimeout(() => {
+        updateOverlayPosition()
+    }, 30)
+}
+
+function deleteActiveImage() {
+    if (!selectedImage.value) return
+    const img = selectedImage.value
+    const parentFigure = img.closest('figure')
+    const toRemove = parentFigure || img
+    toRemove.remove()
+    deselectImage()
+    onEditorInput()
+}
+
+function startImageResize(e, handle) {
+    if (!selectedImage.value) return
+    isResizingImage = true
+    const img = selectedImage.value
+
+    resizeStart = {
+        x: e.clientX,
+        y: e.clientY,
+        width: img.offsetWidth,
+        height: img.offsetHeight,
+        aspectRatio: img.offsetWidth / (img.offsetHeight || 1),
+        handle,
+    }
+
+    window.addEventListener('mousemove', onImageResizing)
+    window.addEventListener('mouseup', stopImageResize)
+}
+
+function onImageResizing(e) {
+    if (!isResizingImage || !selectedImage.value) return
+
+    const dx = e.clientX - resizeStart.x
+    const handle = resizeStart.handle
+    let newWidth = resizeStart.width
+
+    if (handle === 'se' || handle === 'ne') {
+        newWidth = resizeStart.width + dx
+    } else if (handle === 'sw' || handle === 'nw') {
+        newWidth = resizeStart.width - dx
+    }
+
+    const maxEditorWidth = editorRef.value ? editorRef.value.clientWidth : 800
+    newWidth = Math.max(100, Math.min(newWidth, maxEditorWidth))
+
+    const img = selectedImage.value
+    img.style.width = `${Math.round(newWidth)}px`
+    img.style.height = 'auto'
+
+    updateOverlayPosition()
+}
+
+function stopImageResize() {
+    if (!isResizingImage) return
+    isResizingImage = false
+    window.removeEventListener('mousemove', onImageResizing)
+    window.removeEventListener('mouseup', stopImageResize)
+    onEditorInput()
+    updateOverlayPosition()
+}
+
+function handleEditorScroll() {
+    if (selectedImage.value) {
+        updateOverlayPosition()
+    }
 }
 
 function onSelectSampul(event) {
@@ -579,7 +855,6 @@ async function submitNaskah() {
 
         fd.append('judul', form.judul)
         fd.append('kata_kunci', form.kata_kunci)
-        fd.append('abstrak', form.abstrak)
         fd.append('isi', form.isi)
 
         selectedKategoriIds.value.forEach((id) => {
@@ -1005,13 +1280,28 @@ async function submitNaskah() {
     border-color: var(--ktr-teal);
 }
 
+/* Canvas Wrapper: anchor point presisi untuk overlay resize handle */
+.editor-canvas-wrapper {
+    position: relative;
+    width: 100%;
+    overflow: visible;
+}
+
 .editor-canvas {
+    display: flow-root; /* Block Formatting Context: float gambar tidak bocor keluar */
     min-height: 260px;
     padding: 1.15rem 1.25rem;
     font-size: 0.98rem;
     line-height: 1.7;
     color: var(--ktr-text-main);
     outline: none;
+}
+
+/* Clearfix eksplisit sebagai fallback */
+.editor-canvas::after {
+    content: "";
+    display: table;
+    clear: both;
 }
 
 .editor-canvas:empty::before {
@@ -1046,26 +1336,203 @@ async function submitNaskah() {
     font-style: italic;
 }
 
+/* Figure default: block agar konsisten, caption menempel di bawah gambar */
 .editor-canvas :deep(figure) {
     margin: 1rem 0;
-    display: inline-block;
+    display: block;
     max-width: 100%;
+    clear: both;
+}
+
+/* Rata kiri: figure float kiri, teks lain mengalir di kanan */
+.editor-canvas :deep(figure.align-left) {
+    float: left;
+    width: auto;
+    margin: 0.5rem 1.25rem 1rem 0;
+    clear: none;
+}
+
+/* Rata kanan: figure float kanan, teks lain mengalir di kiri */
+.editor-canvas :deep(figure.align-right) {
+    float: right;
+    width: auto;
+    margin: 0.5rem 0 1rem 1.25rem;
+    clear: none;
+}
+
+/* Rata tengah (horizontal): figure block margin auto, gambar di dalam juga margin auto */
+.editor-canvas :deep(figure.align-center) {
+    display: block;
+    width: fit-content;
+    max-width: 100%;
+    margin: 1.25rem auto;
+    float: none;
+    clear: both;
+    text-align: center;
+}
+
+/* Lebar penuh: figure dan gambar 100% lebar kanvas */
+.editor-canvas :deep(figure.align-full) {
+    display: block;
+    width: 100%;
+    margin: 1.25rem 0;
+    float: none;
+    clear: both;
+}
+
+.editor-canvas :deep(figure.align-full img) {
+    width: 100% !important;
+    max-width: 100% !important;
+    height: auto !important;
 }
 
 .editor-canvas :deep(img) {
-    max-width: 360px;
+    max-width: 100%;
     height: auto;
     border-radius: 8px;
     display: block;
+    cursor: pointer;
+    transition: outline 0.15s ease;
+}
+
+.editor-canvas :deep(img:hover) {
+    outline: 2px dashed rgba(15, 107, 99, 0.4);
+    outline-offset: 2px;
 }
 
 .editor-canvas :deep(figcaption) {
     font-size: 0.84rem;
     color: var(--ktr-text-muted);
     margin-top: 0.35rem;
+    text-align: center;
+}
+
+/* ======================================================== */
+/* Interactive Image Overlay: 4 Resize Handles & Floating Toolbar */
+/* ======================================================== */
+.img-interactive-overlay {
+    position: absolute;
+    box-sizing: border-box;
+    border: 2px solid var(--ktr-teal);
+    pointer-events: none;
+    z-index: 50;
+    border-radius: 4px;
+}
+
+.resize-handle {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    background: #FFFFFF;
+    border: 2px solid var(--ktr-teal);
+    border-radius: 2px;
+    pointer-events: auto;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.25);
+    z-index: 52;
+}
+
+.handle-nw {
+    top: -5px;
+    left: -5px;
+    cursor: nwse-resize;
+}
+
+.handle-ne {
+    top: -5px;
+    right: -5px;
+    cursor: nesw-resize;
+}
+
+.handle-sw {
+    bottom: -5px;
+    left: -5px;
+    cursor: nesw-resize;
+}
+
+.handle-se {
+    bottom: -5px;
+    right: -5px;
+    cursor: nwse-resize;
+}
+
+/* Floating Toolbar */
+.img-float-toolbar {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: #FFFFFF;
+    border: 1px solid var(--ktr-border-dark);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+    border-radius: 8px;
+    padding: 4px 6px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    pointer-events: auto;
+    z-index: 55;
+    white-space: nowrap;
+}
+
+.img-float-toolbar::before {
+    content: "";
+    position: absolute;
+    top: -6px;
+    left: 50%;
+    transform: translateX(-50%);
+    border-width: 0 6px 6px 6px;
+    border-style: solid;
+    border-color: transparent transparent #FFFFFF transparent;
+}
+
+.img-tb-btn {
+    background: transparent;
+    border: none;
+    color: var(--ktr-text-main);
+    width: 30px;
+    height: 30px;
+    border-radius: 6px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background-color 0.15s, color 0.15s;
+}
+
+.img-tb-btn:hover {
+    background: #F1F5F9;
+    color: var(--ktr-teal);
+}
+
+.img-tb-btn.active {
+    background: #E6F5F2;
+    color: var(--ktr-teal);
+    font-weight: 700;
+}
+
+.img-tb-divider {
+    width: 1px;
+    height: 18px;
+    background: var(--ktr-border);
+    margin: 0 2px;
+}
+
+.btn-delete-img {
+    color: #DC2626;
+}
+
+.btn-delete-img:hover {
+    background: #FEE2E2;
+    color: #991B1B;
 }
 
 .editor-statusbar {
+    clear: both;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    position: relative;
+    z-index: 10;
     padding: 0.45rem 1rem;
     border-top: 1px solid var(--ktr-border);
     background-color: #F8FAFC;

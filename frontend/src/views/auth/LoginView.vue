@@ -87,7 +87,7 @@ async function handleLogin() {
         localStorage.setItem('user_info', JSON.stringify(user))
 
         if (user.role === 'admin') {
-            router.push({ name: 'admin.review' })
+            router.push({ name: 'admin.dashboard' })
         } else if (user.role === 'kontributor') {
             router.push({ name: 'kontributor.dashboard' })
         } else {

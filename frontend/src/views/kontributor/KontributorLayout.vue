@@ -14,10 +14,10 @@
         ]">
             <!-- SIDEBAR BRAND -->
             <div class="sidebar-brand">
-                <div v-if="!isSidebarCollapsed || isMobileSidebarOpen" class="brand-info">
+                <router-link to="/" v-if="!isSidebarCollapsed || isMobileSidebarOpen" class="brand-info brand-link-home" title="Kembali ke Beranda">
                     <h2 class="brand-title">Harian Cakrawala</h2>
                     <span class="brand-sub">Kontributor</span>
-                </div>
+                </router-link>
 
                 <button type="button" class="toggle-sidebar"
                     :title="isMobileSidebarOpen ? 'Tutup menu' : 'Toggle sidebar'" @click="toggleSidebar">
@@ -420,6 +420,18 @@ onBeforeUnmount(() => {
 .brand-info {
     min-width: 0;
     white-space: nowrap;
+}
+
+.brand-link-home {
+    text-decoration: none;
+    cursor: pointer;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+    display: block;
+}
+
+.brand-link-home:hover {
+    opacity: 0.9;
+    transform: translateY(-1px);
 }
 
 .brand-title {
