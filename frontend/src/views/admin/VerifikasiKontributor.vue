@@ -96,7 +96,11 @@
                                 </div>
 
                                 <div class="document-preview">
-                                    <img v-if="ktpUrl" :src="ktpUrl" alt="Dokumen KTP" />
+                                    <img v-if="ktpUrl && isImage(ktpUrl)" :src="ktpUrl" alt="Dokumen KTP" />
+                                    <div v-else-if="ktpUrl" class="pdf-preview-indicator">
+                                        <i class="bi bi-file-earmark-pdf"></i>
+                                        <span>Dokumen PDF</span>
+                                    </div>
                                     <span v-else>Pratinjau dokumen</span>
                                 </div>
 
@@ -122,7 +126,10 @@
                                 <div class="document-preview">
                                     <img v-if="suratAdministrasiUrl && isImage(suratAdministrasiUrl)"
                                         :src="suratAdministrasiUrl" alt="Surat Administrasi" />
-
+                                    <div v-else-if="suratAdministrasiUrl" class="pdf-preview-indicator">
+                                        <i class="bi bi-file-earmark-pdf"></i>
+                                        <span>Dokumen PDF</span>
+                                    </div>
                                     <span v-else>Pratinjau dokumen</span>
                                 </div>
 

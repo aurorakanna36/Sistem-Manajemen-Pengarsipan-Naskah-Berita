@@ -75,7 +75,8 @@ class AuthController extends Controller
             'password' => ['required', 'confirmed', 'min:8'],
             'file' => ['nullable', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:5120'],
             'surat_administrasi' => ['nullable', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:5120'],
-            'foto_identitas' => ['nullable', 'file', 'mimes:jpg,jpeg,png,webp', 'max:5120'],
+            'foto_identitas' => ['nullable', 'file', 'mimes:pdf,jpg,jpeg,png,webp', 'max:5120'],
+            'ktp' => ['nullable', 'file', 'mimes:pdf,jpg,jpeg,png,webp', 'max:5120'],
             'tanda_tangan' => ['nullable'],
         ]);
 
@@ -98,6 +99,8 @@ class AuthController extends Controller
         $fotoIdentitasPath = null;
         if ($request->hasFile('foto_identitas')) {
             $fotoIdentitasPath = $request->file('foto_identitas')->store('identitas_kontributor', 'public');
+        } elseif ($request->hasFile('ktp')) {
+            $fotoIdentitasPath = $request->file('ktp')->store('identitas_kontributor', 'public');
         }
 
         $tandaTanganPath = null;

@@ -333,8 +333,9 @@ async function handleRegister() {
 
         formData.append('tanda_tangan', signatureFile)
 
-        // FILE KTP
+        // FILE KTP / IDENTITAS
         if (ktpFile.value) {
+            formData.append('foto_identitas', ktpFile.value)
             formData.append('ktp', ktpFile.value)
         }
 
