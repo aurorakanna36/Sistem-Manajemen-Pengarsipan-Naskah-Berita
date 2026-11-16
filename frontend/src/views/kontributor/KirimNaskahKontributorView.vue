@@ -6,11 +6,6 @@
                     <h1 class="page-title">Kirim Naskah</h1>
                     <p class="page-subtitle">Isi formulir di bawah untuk mengirim naskah baru ke redaksi.</p>
                 </div>
-
-                <div class="user-chip">
-                    <div class="user-avatar">{{ userInitial }}</div>
-                    <span class="user-name">{{ userName }}</span>
-                </div>
             </header>
 
             <form class="kirim-card" @submit.prevent="submitNaskah">
@@ -21,6 +16,7 @@
                     {{ successMessage }}
                 </div>
 
+                <!-- Judul Naskah -->
                 <div class="form-field">
                     <label class="field-label">
                         Judul naskah <span class="req">*</span>
@@ -34,6 +30,7 @@
                     />
                 </div>
 
+                <!-- Kategori (Multi-Select Radio Style Buttons) -->
                 <div class="form-field">
                     <div class="label-row">
                         <label class="field-label">
@@ -61,29 +58,7 @@
                     </div>
                 </div>
 
-                <div class="form-field">
-                    <label class="field-label">Kata kunci</label>
-                    <input
-                        v-model="form.kata_kunci"
-                        type="text"
-                        class="text-input"
-                        placeholder="Pisahkan dengan koma, contoh: pendidikan, kurikulum, sekolah"
-                    />
-                </div>
-
-                <div class="form-field">
-                    <label class="field-label">
-                        Abstrak <span class="req">*</span>
-                    </label>
-                    <textarea
-                        v-model="form.abstrak"
-                        rows="3"
-                        class="textarea-input"
-                        placeholder="Ringkasan singkat isi naskah dalam 2-3 kalimat..."
-                        required
-                    ></textarea>
-                </div>
-
+                <!-- Isi Naskah (Rich Text Editor sesuai fitur isi naskah.png & fitur heading.png) -->
                 <div class="form-field">
                     <div class="editor-top-row">
                         <label class="field-label">
@@ -104,7 +79,9 @@
                     </div>
 
                     <div class="rich-editor-shell">
+                        <!-- Baris Toolbar 1 -->
                         <div class="editor-toolbar">
+                            <!-- Dropdown Heading / Format Blok -->
                             <div class="heading-dropdown-wrap">
                                 <button
                                     type="button"
@@ -130,6 +107,7 @@
 
                             <span class="toolbar-divider"></span>
 
+                            <!-- Bold & Italic -->
                             <button type="button" class="tool-btn" title="Bold (Ctrl+B)" @click="execCmd('bold')">
                                 <strong>B</strong>
                             </button>
@@ -137,6 +115,7 @@
                                 <em>I</em>
                             </button>
 
+                            <!-- List tanpa numbering & List numbering -->
                             <button type="button" class="tool-btn" title="List tanpa numbering" @click="execCmd('insertUnorderedList')">
                                 &#8226;&#8801;
                             </button>
@@ -144,10 +123,12 @@
                                 1&#8801;
                             </button>
 
+                            <!-- Kutipan (Blockquote) -->
                             <button type="button" class="tool-btn" title="Kutipan" @click="toggleBlockquote">
                                 &#10078;
                             </button>
 
+                            <!-- Alignment -->
                             <button type="button" class="tool-btn" title="Rata Kiri" @click="execCmd('justifyLeft')">
                                 &#8676;
                             </button>
@@ -158,20 +139,24 @@
                                 &#8677;
                             </button>
 
+                            <!-- Sisipkan Link -->
                             <button type="button" class="tool-btn" title="Sisipkan Link" @click="promptInsertLink">
                                 &#128279;
                             </button>
 
                             <span class="toolbar-divider"></span>
 
+                            <!-- Coretan di tengah tulisan (Strikethrough) -->
                             <button type="button" class="tool-btn" title="Coretan di tengah tulisan" @click="execCmd('strikeThrough')">
                                 <s>ABE</s>
                             </button>
 
+                            <!-- Garis mendatar (Horizontal rule) -->
                             <button type="button" class="tool-btn" title="Garis mendatar" @click="execCmd('insertHorizontalRule')">
                                 &#8213;
                             </button>
 
+                            <!-- Text Color -->
                             <div class="color-picker-wrap" title="Warna Teks">
                                 <label class="tool-btn color-btn">
                                     <span class="color-letter" :style="{ borderBottomColor: currentTextColor }">A</span>
@@ -184,6 +169,7 @@
                                 </label>
                             </div>
 
+                            <!-- Karakter Khusus -->
                             <div class="special-char-wrap">
                                 <button
                                     type="button"
@@ -206,6 +192,7 @@
                                 </div>
                             </div>
 
+                            <!-- Persempit & Perlebar Inden -->
                             <button type="button" class="tool-btn" title="Persempit inden (Outdent)" @click="execCmd('outdent')">
                                 &#8672;
                             </button>
@@ -213,6 +200,7 @@
                                 &#8674;
                             </button>
 
+                            <!-- Undo & Redo -->
                             <button type="button" class="tool-btn" title="Undo (Ctrl+Z)" @click="execCmd('undo')">
                                 &#8630;
                             </button>
@@ -221,6 +209,7 @@
                             </button>
                         </div>
 
+                        <!-- Area Isi Naskah ContentEditable -->
                         <div
                             ref="editorRef"
                             class="editor-canvas"
@@ -236,6 +225,61 @@
                     </div>
                 </div>
 
+                <!-- Gambar Sampul (Berkas Naskah PDF/DOCX Dihapus) -->
+                <div class="form-field">
+                    <label class="field-label">Gambar sampul<span class="req">*</span></label>
+
+                    <div
+                        class="sampul-dropzone"
+                        :class="{ 'has-preview': sampulPreviewUrl }"
+                        @click="$refs.sampulInput.click()"
+                    >
+                        <template v-if="!sampulPreviewUrl">
+                            <span class="sampul-title">Klik untuk unggah gambar sampul</span>
+                            <span class="sampul-sub">PNG, JPG maksimal 2 MB</span>
+                        </template>
+
+                        <div v-else class="sampul-preview-container" @click.stop>
+                            <img :src="sampulPreviewUrl" alt="Preview Gambar Sampul" class="sampul-preview-img" />
+                            <div class="sampul-preview-actions">
+                                <span class="sampul-filename">{{ sampulFileName }}</span>
+                                <div class="sampul-btns">
+                                    <button
+                                        type="button"
+                                        class="btn-sampul-action"
+                                        @click="insertSampulToEditor"
+                                    >
+                                        Sisipkan juga ke isi naskah
+                                    </button>
+                                    <button
+                                        type="button"
+                                        class="btn-sampul-action"
+                                        @click="$refs.sampulInput.click()"
+                                    >
+                                        Ganti gambar
+                                    </button>
+                                    <button
+                                        type="button"
+                                        class="btn-sampul-remove"
+                                        @click="removeSampul"
+                                    >
+                                        Hapus
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <input
+                            ref="sampulInput"
+                            type="file"
+                            accept="image/png,image/jpeg,image/webp"
+                            hidden
+                            @change="onSelectSampul"
+                        />
+                    </div>
+                </div>
+
+                <!-- Footer Tombol Aksi -->
                 <div class="form-actions">
                     <button
                         type="button"
@@ -255,6 +299,7 @@
                 </div>
             </form>
 
+            <!-- Popup Sisipkan Media ke Isi Naskah -->
             <MediaUploadModal
                 :visible="showMediaModal"
                 @close="showMediaModal = false"
@@ -270,6 +315,7 @@ import { useRouter } from 'vue-router'
 import KontributorLayout from './KontributorLayout.vue'
 import MediaUploadModal from './MediaUploadModal.vue'
 import api from '@/api/index.js'
+import Swal from 'sweetalert2'
 
 const router = useRouter()
 const userRaw = localStorage.getItem('user_info')
@@ -469,27 +515,68 @@ function insertSampulToEditor() {
     })
 }
 
+
 async function submitNaskah() {
     errorMessage.value = ''
     successMessage.value = ''
 
     onEditorInput()
 
+    // Validasi kategori
     if (selectedKategoriIds.value.length === 0) {
         errorMessage.value = 'Silakan pilih minimal satu kategori untuk naskah Anda.'
+
+        Swal.fire({
+            icon: 'warning',
+            title: 'Kategori Belum Dipilih',
+            text: errorMessage.value,
+            confirmButtonText: 'Mengerti',
+            confirmButtonColor: '#0d5c4d'
+        })
+
         return
     }
 
+    // Validasi isi naskah
     const plainText = (form.isi || '').replace(/<[^>]*>/g, '').trim()
     const hasImage = /<img\s/i.test(form.isi || '')
+
     if (!plainText && !hasImage) {
         errorMessage.value = 'Isi naskah wajib diisi.'
+
+        Swal.fire({
+            icon: 'warning',
+            title: 'Isi Naskah Belum Diisi',
+            text: errorMessage.value,
+            confirmButtonText: 'Mengerti',
+            confirmButtonColor: '#0d5c4d'
+        })
+
         return
     }
 
+    // Pop-up konfirmasi sebelum mengirim naskah
+    const result = await Swal.fire({
+        icon: 'question',
+        title: 'Kirim Naskah?',
+        text: 'Apakah kamu yakin ingin mengirim naskah ini ke redaksi Harian Cakrawala? Setelah dikirim, naskah akan masuk ke tahap review oleh redaksi.',
+        showCancelButton: true,
+        confirmButtonText: 'Ya, Kirim Naskah',
+        cancelButtonText: 'Periksa Kembali',
+        confirmButtonColor: '#0d5c4d',
+        cancelButtonColor: '#6b7280',
+        reverseButtons: true,
+        allowOutsideClick: false
+    })
+
+    // Jika kontributor memilih batal
+    if (!result.isConfirmed) return
+
     submitting.value = true
+
     try {
         const fd = new FormData()
+
         fd.append('judul', form.judul)
         fd.append('kata_kunci', form.kata_kunci)
         fd.append('abstrak', form.abstrak)
@@ -503,19 +590,47 @@ async function submitNaskah() {
             .filter((k) => selectedKategoriIds.value.includes(k.id))
             .map((k) => k.nama_kategori)
             .join(', ')
+
         fd.append('kategori', selectedNames)
 
+        if (sampulFile.value) {
+            fd.append('gambar_sampul', sampulFile.value)
+        }
+
         await api.kontributor.storeNaskah(fd)
-        successMessage.value = 'Naskah berhasil dikirim dan sedang menunggu review redaksi!'
-        setTimeout(() => {
-            router.push('/kontributor/dashboard')
-        }, 700)
+
+        successMessage.value = 'Naskah berhasil dikirim!'
+
+        // Pop-up berhasil
+        await Swal.fire({
+            icon: 'success',
+            title: 'Naskah Berhasil Dikirim!',
+            text: 'Naskah kamu telah berhasil dikirim dan sedang menunggu review dari redaksi Harian Cakrawala.',
+            confirmButtonText: 'Kembali ke Dashboard',
+            confirmButtonColor: '#0d5c4d',
+            allowOutsideClick: false
+        })
+
+        router.push('/kontributor/dashboard')
+
     } catch (err) {
-        errorMessage.value = err.response?.data?.message || 'Gagal mengirim naskah. Periksa kembali isian Anda.'
+        errorMessage.value = err.response?.data?.message ||
+            'Gagal mengirim naskah. Periksa kembali isian Anda.'
+
+        // Pop-up gagal
+        await Swal.fire({
+            icon: 'error',
+            title: 'Gagal Mengirim Naskah',
+            text: errorMessage.value,
+            confirmButtonText: 'Mengerti',
+            confirmButtonColor: '#0d5c4d'
+        })
+
     } finally {
         submitting.value = false
     }
 }
+
 </script>
 
 <style scoped>
@@ -957,6 +1072,93 @@ async function submitNaskah() {
     font-size: 0.78rem;
     color: var(--ktr-text-muted);
     border-radius: 0 0 10px 10px;
+}
+
+/* Gambar Sampul */
+.sampul-dropzone {
+    border: 1.5px dashed var(--ktr-border-dark);
+    border-radius: 12px;
+    background-color: #FAFCFF;
+    padding: 1.75rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.3rem;
+    cursor: pointer;
+    transition: border-color 0.15s, background-color 0.15s;
+}
+
+.sampul-dropzone:hover {
+    border-color: var(--ktr-teal);
+    background-color: #F0F9F6;
+}
+
+.sampul-title {
+    font-size: 0.92rem;
+    font-weight: 600;
+    color: var(--ktr-text-muted);
+}
+
+.sampul-sub {
+    font-size: 0.8rem;
+    color: var(--ktr-text-light);
+}
+
+.sampul-preview-container {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    flex-wrap: wrap;
+}
+
+.sampul-preview-img {
+    width: 180px;
+    height: 115px;
+    object-fit: cover;
+    border-radius: 8px;
+    border: 1px solid var(--ktr-border);
+}
+
+.sampul-preview-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+}
+
+.sampul-filename {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--ktr-text-main);
+}
+
+.sampul-btns {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.btn-sampul-action {
+    padding: 0.42rem 0.85rem;
+    border: 1px solid var(--ktr-border-dark);
+    background: #FFFFFF;
+    color: var(--ktr-text-main);
+    border-radius: 7px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.btn-sampul-remove {
+    padding: 0.42rem 0.85rem;
+    border: 1px solid #FCA5A5;
+    background: #FEE2E2;
+    color: #991B1B;
+    border-radius: 7px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    cursor: pointer;
 }
 
 .form-actions {

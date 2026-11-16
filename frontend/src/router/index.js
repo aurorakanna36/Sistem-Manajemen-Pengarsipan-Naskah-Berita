@@ -16,6 +16,7 @@ import KelolaKontributorView from "../views/admin/KelolaKontributorView.vue";
 import DetailKontributorView from "../views/admin/DetailKontributorView.vue";
 import DetailReviewNaskahView from "../views/admin/DetailReviewNaskahView.vue";
 import KelolaNaskahView from "../views/admin/KelolaNaskahView.vue";
+import RevisiNaskahKontributorView from '../views/kontributor/RevisiNaskahKontributorView.vue'
 
 const routes = [
   {
@@ -116,6 +117,17 @@ const routes = [
     name: "admin.kelola.naskah",
     component: KelolaNaskahView,
     meta: { requiresAuth: true, role: "admin" },
+  },
+  {
+    path: '/admin/verifikasi-kontributor/:id',
+    name: 'admin.verifikasi.kontributor',
+    component: () => import('@/views/admin/VerifikasiKontributor.vue')
+  },
+  {
+    path: "/kontributor/naskah/:id/revisi",
+    name: "revisi.naskah.kontributor",
+    component: RevisiNaskahKontributorView,
+    meta: { requiresAuth: true, role: "kontributor" },
   },
 ];
 

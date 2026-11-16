@@ -74,6 +74,14 @@
                     </button>
                 </div>
 
+                <button @click="router.back()" class="back-link">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M19 12H5" />
+                        <path d="m12 19-7-7 7-7" />
+                    </svg>
+                    <span>Kembali</span>
+                </button>
+
                 <div class="topbar-user-wrapper" @click.stop>
 
                     <!-- Tombol Profil -->
@@ -92,8 +100,10 @@
                         </svg>
                     </button>
 
+
                     <!-- Dropdown Profil -->
                     <div v-if="isProfileMenuOpen" class="profile-dropdown">
+
                         <div class="profile-dropdown-info">
 
                             <div class="profile-avatar">
@@ -101,26 +111,27 @@
                             </div>
 
                             <div class="profile-details">
+
                                 <span class="profile-name">
                                     {{ userName }}
                                 </span>
+
+                                <button type="button" class="profile-logout" @click="handleLogout">
+                                    <svg viewBox="0 0 24 24">
+                                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                                        <path d="m16 17 5-5-5-5" />
+                                        <path d="M21 12H9" />
+                                    </svg>
+
+                                    <span>Logout</span>
+                                </button>
+
                             </div>
 
                         </div>
 
-                        <div class="profile-divider"></div>
-
-                        <button class="profile-logout" @click="handleLogout">
-                            <svg viewBox="0 0 24 24">
-                                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-                                <path d="m16 17 5-5-5-5" />
-                                <path d="M21 12H9" />
-                            </svg>
-
-                            <span>Logout</span>
-                        </button>
-
                     </div>
+
 
                 </div>
 
@@ -285,6 +296,38 @@ async function handleLogout() {
     gap: 8px;
 }
 
+.back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    border: none;
+    border-radius: 8px;
+    background: transparent;
+    color: #087d77;
+    font-family: inherit;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transform: translateX(-30px);
+    transition: all 0.2s ease;
+}
+
+.back-link svg {
+    width: 19px;
+    height: 19px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.back-link:hover {
+    background: #e6f4f1;
+    color: #065f59;
+}
+
 .nav-item {
     width: 100%;
     min-height: 48px;
@@ -368,7 +411,8 @@ async function handleLogout() {
     border-bottom: 1px solid var(--adm-border);
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: flex-start;
+    gap: 30px;
     padding: 0 2.5rem;
     box-sizing: border-box;
 }
@@ -383,6 +427,7 @@ async function handleLogout() {
     position: relative;
     display: flex;
     align-items: center;
+    margin-left: auto;
 }
 
 /* TOMBOL PROFIL */
@@ -440,100 +485,110 @@ async function handleLogout() {
 }
 
 /* DROPDOWN */
+
+/* DROPDOWN PROFIL */
 .profile-dropdown {
     position: absolute;
     top: calc(100% + 12px);
     right: 0;
-    width: 260px;
-    padding: 12px;
-    background: #fff;
-    border: 1px solid #e2e8f0;
-    border-radius: 12px;
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+    width: 290px;
+    padding: 20px 22px;
+    background: #d9d9d9;
+    border: none;
+    border-radius: 24px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.10);
     z-index: 1100;
-    animation: profileDropdownIn 0.2s ease;
     box-sizing: border-box;
+    animation: profileDropdownIn 0.2s ease;
 }
 
 .profile-dropdown-info {
     display: flex;
     align-items: center;
-    gap: 12px;
-    padding: 10px;
+    gap: 11px;
 }
 
 .profile-avatar {
-    width: 44px;
-    height: 44px;
-    flex-shrink: 0;
-    background: var(--adm-green);
-    color: white;
-    border-radius: 12px;
+    width: 10px;
+    height: 40px;
+    min-width: 40px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 17px;
+    background: #14283b;
+    color: #ffffff;
+    border-radius: 18px;
+    font-size: 15px;
     font-weight: 700;
 }
 
 .profile-details {
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    align-items: flex-start;
+    gap: 5px;
     min-width: 0;
 }
 
 .profile-name {
-    font-size: 13px;
+    color: #14283b;
+    font-size: 15px;
     font-weight: 700;
-    color: #1e293b;
-    overflow-wrap: anywhere;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: none;
 }
 
-.profile-role {
-    font-size: 12px;
-    color: #64748b;
-}
-
-.profile-divider {
-    height: 1px;
-    background: #e2e8f0;
-    margin: 8px 0;
-}
-
-/* LOGOUT */
 .profile-logout {
     display: flex;
     align-items: center;
-    gap: 10px;
-    width: 100%;
-    padding: 11px 10px;
+    gap: 7px;
+    padding: 0;
     border: none;
-    border-radius: 8px;
+    border-radius: 0;
     background: transparent;
-    color: #64748b;
+    color: #087f78;
     font-family: inherit;
-    font-size: 13px;
-    font-weight: 600;
+    font-size: 15px;
+    font-weight: 500;
     text-align: left;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: color 0.2s ease;
 }
 
 .profile-logout svg {
-    width: 18px;
-    height: 18px;
+    width: 19px;
+    height: 19px;
     fill: none;
-    stroke: currentColor;
-    stroke-width: 1.8;
+    stroke: #222222;
+    stroke-width: 2.5;
     stroke-linecap: round;
     stroke-linejoin: round;
 }
 
 .profile-logout:hover {
-    background: #fef2f2;
-    color: #dc2626;
+    background: transparent;
+    color: #065f59;
 }
+
+.profile-logout:hover svg {
+    stroke: #065f59;
+}
+
+/* ANIMATION DROPDOWN */
+@keyframes profileDropdownIn {
+    from {
+        opacity: 0;
+        transform: translateY(-8px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
 
 /* ANIMATION */
 @keyframes profileDropdownIn {
@@ -725,7 +780,12 @@ async function handleLogout() {
     }
 
     .profile-dropdown {
-        width: 250px;
+        width: 246px;
+        max-width: calc(100vw - 24px);
+    }
+
+    .profile-name {
+        max-width: 150px;
     }
 }
 

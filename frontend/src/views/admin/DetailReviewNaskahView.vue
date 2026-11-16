@@ -2,9 +2,6 @@
     <AdminLayout>
         <div class="detail-review-page">
             <div class="top-nav-bar">
-                <router-link to="/admin/kelola-naskah" class="back-link">
-                    &larr; Kembali ke kelola naskah
-                </router-link>
             </div>
 
             <div v-if="loading" class="empty-state">Memuat detail naskah...</div>
@@ -304,20 +301,6 @@ onMounted(() => {
 
 .top-nav-bar {
     margin-bottom: 0.25rem;
-}
-
-.back-link {
-    color: var(--adm-teal);
-    font-weight: 600;
-    font-size: 0.95rem;
-    text-decoration: none;
-    display: inline-flex;
-    align-items: center;
-    gap: 0.4rem;
-}
-
-.back-link:hover {
-    text-decoration: underline;
 }
 
 .review-grid {

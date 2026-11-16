@@ -103,23 +103,23 @@
                                 required />
                         </div>
                         <div class="form-group">
-                            <label for="g-email">Email</label>
+                            <label for="g-email">Email <span class="required">*</span></label>
                             <input id="g-email" v-model="form.email_pengirim" type="email"
                                 placeholder="email@contoh.com" />
                         </div>
                     </div>
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="g-phone">Nomor Telepon / WhatsApp</label>
+                            <label for="g-phone">Nomor Telepon / WhatsApp <span class="required">*</span></label>
                             <input id="g-phone" v-model="form.phone_pengirim" type="text" placeholder="08xxxxxxxxxx" />
                         </div>
                         <div class="form-group">
-                            <label for="g-sosmed">Sosial Media</label>
+                            <label for="g-sosmed">Sosial Media <span class="required">*</span></label>
                             <input id="g-sosmed" v-model="form.sosmed_pengirim" type="text" placeholder="Nama sosmed" />
                         </div>
                     </div>
                     <div class="form-group">
-                        <label for="g-instansi">Instansi</label>
+                        <label for="g-instansi">Instansi <span class="required">*</span></label>
                         <input id="g-instansi" v-model="form.instansi_pengirim" type="text"
                             placeholder="Nama instansi" />
                     </div>
@@ -135,9 +135,7 @@
                     </div>
                     <div class="form-group">
                         <div class="label-row">
-                            <label class="field-label">
-                                Kategori <span class="req">*</span>
-                            </label>
+                            <label class="field-label">Kategori <span class="required">*</span></label>
                         </div>
 
                         <div class="kategori-radio-grid">
@@ -150,30 +148,182 @@
                             </button>
                         </div>
                     </div>
+
                     <div class="form-group">
-                        <label for="g-isi">Isi Naskah <span class="required">*</span></label>
-                        <textarea id="g-isi" v-model="form.isi" rows="6"
-                            placeholder="Tulis atau tempel isi naskah di sini" required></textarea>
+                        <div class="editor-heading-row">
+                            <label class="field-label">
+                                Isi Naskah <span class="required">*</span>
+                            </label>
+
+                            <button type="button" class="btn-add-media" @click="openMediaModal">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <rect x="3" y="3" width="18" height="18" rx="2" />
+                                    <circle cx="8.5" cy="8.5" r="1.5" />
+                                    <polyline points="21 15 16 10 5 21" />
+                                </svg>
+                                Tambahkan Media
+                            </button>
+                        </div>
+
+                        <div class="rich-editor-shell">
+
+                            <!-- TOOLBAR -->
+                            <div class="editor-toolbar">
+
+                                <div class="heading-dropdown-wrap">
+                                    <button type="button" class="heading-trigger"
+                                        @click="showHeadingMenu = !showHeadingMenu">
+                                        <span>{{ currentHeadingLabel }}</span>
+                                        <span>&#9662;</span>
+                                    </button>
+
+                                    <div v-if="showHeadingMenu" class="heading-menu">
+                                        <button v-for="h in headingOptions" :key="h.tag" type="button"
+                                            class="heading-option" :class="h.previewClass" @click="applyHeading(h)">
+                                            {{ h.label }}
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <span class="toolbar-divider"></span>
+
+                                <button type="button" class="tool-btn" title="Bold" @click="execCmd('bold')">
+                                    <strong>B</strong>
+                                </button>
+
+                                <button type="button" class="tool-btn" title="Italic" @click="execCmd('italic')">
+                                    <em>I</em>
+                                </button>
+
+                                <button type="button" class="tool-btn" title="List tanpa numbering"
+                                    @click="execCmd('insertUnorderedList')">
+                                    &#8226;&#8801;
+                                </button>
+
+                                <button type="button" class="tool-btn" title="List numbering"
+                                    @click="execCmd('insertOrderedList')">
+                                    1&#8801;
+                                </button>
+
+                                <button type="button" class="tool-btn" title="Kutipan" @click="toggleBlockquote">
+                                    &#10078;
+                                </button>
+
+                                <button type="button" class="tool-btn" title="Rata Kiri"
+                                    @click="execCmd('justifyLeft')">
+                                    &#8676;
+                                </button>
+
+                                <button type="button" class="tool-btn" title="Rata Tengah"
+                                    @click="execCmd('justifyCenter')">
+                                    &#8596;
+                                </button>
+
+                                <button type="button" class="tool-btn" title="Rata Kanan"
+                                    @click="execCmd('justifyRight')">
+                                    &#8677;
+                                </button>
+
+                                <button type="button" class="tool-btn" title="Sisipkan Link" @click="promptInsertLink">
+                                    &#128279;
+                                </button>
+
+                                <span class="toolbar-divider"></span>
+
+                                <button type="button" class="tool-btn" title="Coretan"
+                                    @click="execCmd('strikeThrough')">
+                                    <s>ABE</s>
+                                </button>
+
+                                <button type="button" class="tool-btn" title="Garis mendatar"
+                                    @click="execCmd('insertHorizontalRule')">
+                                    &#8213;
+                                </button>
+
+                                <label class="tool-btn color-btn" title="Warna teks">
+                                    <span class="color-letter" :style="{ borderBottomColor: currentTextColor }">
+                                        A
+                                    </span>
+                                    <input v-model="currentTextColor" type="color" class="hidden-color-input"
+                                        @input="applyTextColor" />
+                                </label>
+
+                                <div class="special-char-wrap">
+                                    <button type="button" class="tool-btn" title="Karakter khusus"
+                                        @click="showSpecialChars = !showSpecialChars">
+                                        &Omega;
+                                    </button>
+
+                                    <div v-if="showSpecialChars" class="special-char-popover">
+                                        <button v-for="ch in specialCharacters" :key="ch" type="button"
+                                            class="char-cell" @click="insertSpecialChar(ch)">
+                                            {{ ch }}
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <button type="button" class="tool-btn" title="Persempit inden"
+                                    @click="execCmd('outdent')">
+                                    &#8672;
+                                </button>
+
+                                <button type="button" class="tool-btn" title="Perlebar inden"
+                                    @click="execCmd('indent')">
+                                    &#8674;
+                                </button>
+
+                                <button type="button" class="tool-btn" title="Undo" @click="execCmd('undo')">
+                                    &#8630;
+                                </button>
+
+                                <button type="button" class="tool-btn" title="Redo" @click="execCmd('redo')">
+                                    &#8631;
+                                </button>
+                            </div>
+
+                            <!-- AREA MENULIS -->
+                            <div ref="editorRef" class="editor-canvas" contenteditable="true"
+                                data-placeholder="Tulis atau tempel isi naskah di sini" @input="onEditorInput"
+                                @click="closeMenus"></div>
+
+                            <div class="editor-statusbar">
+                                Jumlah kata: {{ wordCount }}
+                            </div>
+
+                        </div>
                     </div>
+
                     <div class="form-group">
-                        <label for="g-file">Gambar Sampul</label>
+                        <label for="g-file">Gambar Sampul<span class="required">*</span></label>
 
-                        <div class="file-upload-zone" :class="{ 'has-file': selectedFileName }"
-                            @click="showMediaModal = true">
-                            <template v-if="selectedFilePreview">
-                                <img :src="selectedFilePreview" alt="Pratinjau gambar sampul" class="cover-preview" />
-                            </template>
+                        <div class="file-upload-zone" :class="{ 'has-file': selectedFilePreview }"
+                            @click="$refs.coverInput.click()">
 
-                            <template v-else>
+                            <template v-if="!selectedFilePreview">
                                 <span class="upload-icon">
                                     <i class="fas fa-cloud-upload-alt"></i>
                                 </span>
+
                                 <span>
                                     <strong>Klik untuk upload</strong> atau seret file ke sini
                                     <br />
                                     <small>JPG atau PNG, rasio 16:9</small>
                                 </span>
                             </template>
+
+                            <template v-else>
+                                <img :src="selectedFilePreview" alt="Pratinjau gambar sampul" class="cover-preview" />
+
+                                <p class="file-name">{{ selectedFileName }}</p>
+
+                                <button type="button" class="btn-remove-cover" @click.stop="removeCover">
+                                    Hapus gambar
+                                </button>
+                            </template>
+
+                            <input ref="coverInput" id="g-file" type="file" accept="image/png,image/jpeg,image/webp"
+                                hidden @change="onSelectCover" />
                         </div>
                     </div>
                 </div>
@@ -209,7 +359,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 import api from '@/api/index.js'
 import MediaUploadGuest from './MediaUploadGuest.vue'
 
@@ -247,6 +397,175 @@ const selectedFile = ref(null)
 const selectedFileName = ref('')
 const selectedFilePreview = ref('')
 const showMediaModal = ref(false)
+
+const editorRef = ref(null)
+
+const showHeadingMenu = ref(false)
+const showSpecialChars = ref(false)
+
+const currentBlockTag = ref('P')
+const currentHeadingLabel = ref('Paragraf')
+const currentTextColor = ref('#12263A')
+
+const headingOptions = [
+    { label: 'Paragraf', tag: 'P', previewClass: 'opt-p' },
+    { label: 'Heading 1', tag: 'H1', previewClass: 'opt-h1' },
+    { label: 'Heading 2', tag: 'H2', previewClass: 'opt-h2' },
+    { label: 'Heading 3', tag: 'H3', previewClass: 'opt-h3' },
+    { label: 'Heading 4', tag: 'H4', previewClass: 'opt-h4' },
+    { label: 'Heading 5', tag: 'H5', previewClass: 'opt-h5' },
+    { label: 'Heading 6', tag: 'H6', previewClass: 'opt-h6' },
+    { label: 'Preformatted', tag: 'PRE', previewClass: 'opt-pre' },
+]
+
+const specialCharacters = [
+    '©', '®', '™', '€', '£', '¥', '§', '¶',
+    '•', '—', '–', '“', '”', '‘', '’', '«',
+    '»', '±', '×', '÷', '≠', '≤', '≥', '∞',
+    'α', 'β', 'Δ', 'Ω', '←', '→', '↔', '✓',
+]
+
+// Menghitung jumlah kata
+const wordCount = computed(() => {
+    const plain = (form.value.isi || '')
+        .replace(/<[^>]*>/g, ' ')
+        .replace(/&nbsp;/g, ' ')
+        .trim()
+
+    if (!plain) return 0
+
+    return plain.split(/\s+/).length
+})
+
+
+const coverInput = ref(null)
+
+function onSelectCover(event) {
+    const file = event.target.files?.[0]
+
+    if (!file) return
+
+    if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
+        alert('Format gambar harus JPG, PNG, atau WEBP.')
+        event.target.value = ''
+        return
+    }
+
+    if (file.size > 2 * 1024 * 1024) {
+        alert('Ukuran gambar maksimal 2 MB.')
+        event.target.value = ''
+        return
+    }
+
+    if (selectedFilePreview.value) {
+        URL.revokeObjectURL(selectedFilePreview.value)
+    }
+
+    selectedFile.value = file
+    selectedFileName.value = file.name
+    selectedFilePreview.value = URL.createObjectURL(file)
+
+    coverMeta.value = {
+        alt: form.value.judul || '',
+        judul: form.value.judul || '',
+        keterangan: '',
+        deskripsi: '',
+    }
+}
+
+function removeCover() {
+    if (selectedFilePreview.value) {
+        URL.revokeObjectURL(selectedFilePreview.value)
+    }
+
+    selectedFile.value = null
+    selectedFileName.value = ''
+    selectedFilePreview.value = ''
+
+    if (coverInput.value) {
+        coverInput.value.value = ''
+    }
+}
+
+
+// Sinkronisasi isi editor dengan form
+function onEditorInput() {
+    if (editorRef.value) {
+        form.value.isi = editorRef.value.innerHTML
+    }
+}
+
+function closeMenus() {
+    showHeadingMenu.value = false
+    showSpecialChars.value = false
+}
+
+function execCmd(command, value = null) {
+    editorRef.value?.focus()
+
+    document.execCommand(command, false, value)
+
+    onEditorInput()
+}
+
+function applyHeading(option) {
+    currentBlockTag.value = option.tag
+    currentHeadingLabel.value = option.label
+
+    showHeadingMenu.value = false
+
+    editorRef.value?.focus()
+
+    document.execCommand(
+        'formatBlock',
+        false,
+        `<${option.tag}>`
+    )
+
+    onEditorInput()
+}
+
+function toggleBlockquote() {
+    editorRef.value?.focus()
+
+    document.execCommand(
+        'formatBlock',
+        false,
+        '<BLOCKQUOTE>'
+    )
+
+    onEditorInput()
+}
+
+function promptInsertLink() {
+    const url = window.prompt(
+        'Masukkan URL link:',
+        'https://'
+    )
+
+    if (url && url !== 'https://') {
+        execCmd('createLink', url)
+    }
+}
+
+function applyTextColor(event) {
+    currentTextColor.value = event.target.value
+
+    execCmd('foreColor', currentTextColor.value)
+}
+
+function insertSpecialChar(ch) {
+    showSpecialChars.value = false
+
+    execCmd('insertText', ch)
+}
+
+function openMediaModal() {
+    closeMenus()
+
+    showMediaModal.value = true
+}
+
 
 const coverMeta = ref({
     alt: '',
@@ -380,27 +699,40 @@ function resetForm() {
     error.value = ''
 }
 
+
 function handleMediaInsert(media) {
     if (!media?.file) return
 
-    if (selectedFilePreview.value) {
-        URL.revokeObjectURL(selectedFilePreview.value)
-    }
+    // Buat URL sementara untuk gambar
+    const imageUrl = URL.createObjectURL(media.file)
 
-    selectedFile.value = media.file
-    selectedFileName.value = media.file.name
-
-    selectedFilePreview.value = URL.createObjectURL(media.file)
-
-    coverMeta.value = {
-        alt: media.alt || '',
-        judul: media.judul || '',
-        keterangan: media.keterangan || '',
-        deskripsi: media.deskripsi || '',
-    }
-
+    // Tutup modal
     showMediaModal.value = false
+
+    // Masukkan gambar ke editor
+    editorRef.value?.focus()
+
+    const captionHtml = media.keterangan
+        ? `<figcaption>${media.keterangan}</figcaption>`
+        : ''
+
+    const html = `
+        <figure class="inserted-media">
+            <img
+                src="${imageUrl}"
+                alt="${media.alt || ''}"
+                title="${media.judul || ''}"
+            />
+            ${captionHtml}
+        </figure>
+        <p><br></p>
+    `
+
+    document.execCommand('insertHTML', false, html)
+
+    onEditorInput()
 }
+
 </script>
 
 <style scoped>
@@ -517,7 +849,7 @@ function handleMediaInsert(media) {
 
 .card-form {
     width: 100%;
-    max-width: 700px;
+    max-width: 650px;
     margin: 24px auto 0px;
     padding: 12px 16px;
     background: #dbfefc;
@@ -542,9 +874,11 @@ function handleMediaInsert(media) {
 }
 
 .form-container {
-    max-width: 760px;
+    width: 100%;
+    max-width: 700px;
     margin: 0 auto;
-    padding: 3rem 1.5rem;
+    padding: 2rem 1.5rem;
+    box-sizing: border-box;
 }
 
 .success-card {
@@ -685,6 +1019,8 @@ function handleMediaInsert(media) {
 }
 
 .naskah-form {
+    width: 100%;
+    box-sizing: border-box;
     background: #fff;
     border-radius: 16px;
     padding: 2.5rem;
@@ -986,6 +1322,289 @@ function handleMediaInsert(media) {
     animation: spin 0.7s linear infinite;
 }
 
+.editor-heading-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+    margin-bottom: 10px;
+}
+
+.editor-heading-row .field-label {
+    margin-bottom: 0;
+}
+
+.btn-add-media {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 10px 18px;
+    border: 1px solid #0f766e;
+    border-radius: 9px;
+    background: #f0fdfa;
+    color: #0f766e;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.rich-editor-shell {
+    border: 1px solid #dbe3ee;
+    border-radius: 12px;
+    background: #ffffff;
+    overflow: visible;
+}
+
+.editor-toolbar {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+    padding: 0.65rem 0.75rem;
+    background: #f4f7fa;
+    border-bottom: 1px solid #e2e8f0;
+    border-radius: 12px 12px 0 0;
+}
+
+.heading-dropdown-wrap {
+    position: relative;
+}
+
+.heading-trigger {
+    display: inline-flex;
+    align-items: center;
+    justify-content: space-between;
+    min-width: 135px;
+    padding: 0.36rem 0.7rem;
+    background: white;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    gap: 0.6rem;
+}
+
+.heading-menu {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    width: 210px;
+    background: white;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.14);
+    z-index: 60;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.heading-option {
+    text-align: left;
+    padding: 0.5rem 0.85rem;
+    background: none;
+    border: none;
+    border-bottom: 1px solid #f1f5f9;
+    cursor: pointer;
+    color: #172b43;
+}
+
+.heading-option:hover {
+    background: #eaf5f2;
+}
+
+.opt-p {
+    font-size: 0.9rem;
+}
+
+.opt-h1 {
+    font-size: 1.55rem;
+    font-weight: 800;
+}
+
+.opt-h2 {
+    font-size: 1.3rem;
+    font-weight: 700;
+}
+
+.opt-h3 {
+    font-size: 1.12rem;
+    font-weight: 700;
+}
+
+.opt-h4 {
+    font-size: 1rem;
+    font-weight: 700;
+}
+
+.opt-h5 {
+    font-size: 0.88rem;
+    font-weight: 700;
+}
+
+.opt-h6 {
+    font-size: 0.78rem;
+    font-weight: 700;
+}
+
+.opt-pre {
+    font-family: monospace;
+}
+
+.toolbar-divider {
+    width: 1px;
+    height: 22px;
+    background: #dbe3ee;
+    margin: 0 0.25rem;
+}
+
+.tool-btn {
+    min-width: 32px;
+    height: 32px;
+    padding: 0 0.45rem;
+    border: 1px solid transparent;
+    border-radius: 6px;
+    background: transparent;
+    color: #1e5f51;
+    font-size: 0.88rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+.tool-btn:hover {
+    background: #e2e8f0;
+    color: #172b43;
+}
+
+.color-btn {
+    position: relative;
+}
+
+.color-letter {
+    font-weight: 800;
+    border-bottom: 3px solid;
+    line-height: 1;
+}
+
+.hidden-color-input {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.special-char-wrap {
+    position: relative;
+}
+
+.special-char-popover {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    width: 240px;
+    background: white;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    padding: 0.5rem;
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
+    gap: 0.2rem;
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.14);
+    z-index: 60;
+}
+
+.char-cell {
+    height: 26px;
+    border: 1px solid #e2e8f0;
+    background: white;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.char-cell:hover {
+    background: #eaf5f2;
+}
+
+.editor-canvas {
+    min-height: 260px;
+    padding: 1.15rem 1.25rem;
+    font-size: 0.98rem;
+    line-height: 1.7;
+    color: #172b43;
+    outline: none;
+    overflow-wrap: anywhere;
+}
+
+.editor-canvas:empty::before {
+    content: attr(data-placeholder);
+    color: #94a3b8;
+    pointer-events: none;
+}
+
+.editor-canvas :deep(h1) {
+    font-size: 1.85rem;
+    font-weight: 800;
+}
+
+.editor-canvas :deep(h2) {
+    font-size: 1.45rem;
+    font-weight: 700;
+}
+
+.editor-canvas :deep(h3) {
+    font-size: 1.2rem;
+    font-weight: 700;
+}
+
+.editor-canvas :deep(blockquote) {
+    border-left: 4px solid #1e5f51;
+    padding-left: 1rem;
+    margin: 0.85rem 0;
+    color: #64748b;
+    font-style: italic;
+}
+
+.editor-canvas :deep(figure) {
+    margin: 1rem 0;
+    max-width: 100%;
+}
+
+.editor-canvas :deep(img) {
+    max-width: 360px;
+    height: auto;
+    border-radius: 8px;
+    display: block;
+}
+
+.editor-canvas :deep(figcaption) {
+    font-size: 0.84rem;
+    color: #64748b;
+    margin-top: 0.35rem;
+}
+
+.editor-statusbar {
+    padding: 0.45rem 1rem;
+    border-top: 1px solid #e2e8f0;
+    background: #f8fafc;
+    font-size: 0.78rem;
+    color: #64748b;
+    border-radius: 0 0 12px 12px;
+}
+
+/* Tombol hapus sampul */
+.btn-remove-cover {
+    margin-top: 10px;
+    padding: 7px 14px;
+    border: 1px solid #fca5a5;
+    border-radius: 7px;
+    background: #fee2e2;
+    color: #991b1b;
+    cursor: pointer;
+}
+
 @keyframes spin {
     to {
         transform: rotate(360deg);
@@ -1025,6 +1644,24 @@ function handleMediaInsert(media) {
     .btn-register {
         width: 100%;
         box-sizing: border-box;
+    }
+
+    .editor-toolbar {
+        padding: 0.5rem;
+        gap: 0.2rem;
+    }
+
+    .heading-trigger {
+        min-width: 110px;
+    }
+
+    .editor-canvas {
+        min-height: 220px;
+        padding: 1rem;
+    }
+
+    .editor-canvas :deep(img) {
+        max-width: 100%;
     }
 }
 </style>

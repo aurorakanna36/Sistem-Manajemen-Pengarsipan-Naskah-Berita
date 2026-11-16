@@ -1,12 +1,6 @@
 <template>
     <AdminLayout>
         <div class="detail-kontributor-page">
-            <div class="top-nav-bar">
-                <router-link to="/admin/kontributor" class="back-link">
-                    &larr; Kembali ke kelola kontributor
-                </router-link>
-            </div>
-
             <div v-if="loading" class="empty-state">Memuat profil kontributor...</div>
             <div v-else-if="!kontributor" class="empty-state">Data kontributor tidak ditemukan.</div>
             <div v-else class="content-body">
@@ -58,47 +52,17 @@
 
                         <div class="donut-wrap">
                             <svg class="donut-svg" viewBox="0 0 160 160">
-                                <circle
-                                    cx="80"
-                                    cy="80"
-                                    r="58"
-                                    fill="transparent"
-                                    stroke="var(--adm-border)"
-                                    stroke-width="18"
-                                />
-                                <circle
-                                    v-if="diterimaStroke.length > 0"
-                                    cx="80"
-                                    cy="80"
-                                    r="58"
-                                    fill="transparent"
-                                    stroke="#0F6B63"
-                                    stroke-width="18"
-                                    :stroke-dasharray="diterimaStroke"
-                                    :stroke-dashoffset="diterimaOffset"
-                                />
-                                <circle
-                                    v-if="ditolakStroke.length > 0"
-                                    cx="80"
-                                    cy="80"
-                                    r="58"
-                                    fill="transparent"
-                                    stroke="#EF4444"
-                                    stroke-width="18"
-                                    :stroke-dasharray="ditolakStroke"
-                                    :stroke-dashoffset="ditolakOffset"
-                                />
-                                <circle
-                                    v-if="direvisiStroke.length > 0"
-                                    cx="80"
-                                    cy="80"
-                                    r="58"
-                                    fill="transparent"
-                                    stroke="#F59E0B"
-                                    stroke-width="18"
-                                    :stroke-dasharray="direvisiStroke"
-                                    :stroke-dashoffset="direvisiOffset"
-                                />
+                                <circle cx="80" cy="80" r="58" fill="transparent" stroke="var(--adm-border)"
+                                    stroke-width="18" />
+                                <circle v-if="diterimaStroke.length > 0" cx="80" cy="80" r="58" fill="transparent"
+                                    stroke="#0F6B63" stroke-width="18" :stroke-dasharray="diterimaStroke"
+                                    :stroke-dashoffset="diterimaOffset" />
+                                <circle v-if="ditolakStroke.length > 0" cx="80" cy="80" r="58" fill="transparent"
+                                    stroke="#EF4444" stroke-width="18" :stroke-dasharray="ditolakStroke"
+                                    :stroke-dashoffset="ditolakOffset" />
+                                <circle v-if="direvisiStroke.length > 0" cx="80" cy="80" r="58" fill="transparent"
+                                    stroke="#F59E0B" stroke-width="18" :stroke-dasharray="direvisiStroke"
+                                    :stroke-dashoffset="direvisiOffset" />
                             </svg>
                             <div class="donut-center-text">
                                 <span class="donut-total">{{ stats.total_dikirim }}</span>
@@ -129,17 +93,10 @@
                         <h2 class="chart-header">Naskah dikirim per bulan</h2>
 
                         <div class="barchart-container">
-                            <div
-                                v-for="(col, idx) in monthlyData"
-                                :key="idx"
-                                class="bar-column"
-                            >
+                            <div v-for="(col, idx) in monthlyData" :key="idx" class="bar-column">
                                 <span class="bar-val">{{ col.count }}</span>
                                 <div class="bar-track">
-                                    <div
-                                        class="bar-fill"
-                                        :style="{ height: barHeight(col.count) }"
-                                    ></div>
+                                    <div class="bar-fill" :style="{ height: barHeight(col.count) }"></div>
                                 </div>
                                 <span class="bar-month">{{ col.month }}</span>
                             </div>
@@ -154,14 +111,11 @@
                         Kontributor belum mengirimkan naskah.
                     </div>
                     <div v-else class="naskah-cards-grid">
-                        <router-link
-                            v-for="item in kontributorNaskahs"
-                            :key="item.id"
-                            :to="`/admin/review-naskah/${item.id}`"
-                            class="naskah-card-link"
-                        >
+                        <router-link v-for="item in kontributorNaskahs" :key="item.id"
+                            :to="`/admin/review-naskah/${item.id}`" class="naskah-card-link">
                             <div class="naskah-thumbnail">
-                                <img v-if="item.gambar_sampul" :src="item.gambar_sampul" :alt="item.judul" style="width:100%;height:100%;object-fit:cover;" />
+                                <img v-if="item.gambar_sampul" :src="item.gambar_sampul" :alt="item.judul"
+                                    style="width:100%;height:100%;object-fit:cover;" />
                                 <span v-else>Gambar sampul</span>
                             </div>
                             <div class="naskah-card-content">
@@ -186,11 +140,12 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
-import { useRoute } from 'vue-router'
 import AdminLayout from './AdminLayout.vue'
 import api from '@/api/index.js'
+import { useRoute, useRouter } from 'vue-router'
 
 const route = useRoute()
+const router = useRouter()
 const loading = ref(true)
 
 const kontributor = ref(null)
@@ -335,7 +290,7 @@ async function fetchKontributorDetail() {
                 ditolak: accDitolak,
                 direvisi: accDirevisi
             }
-        } catch {}
+        } catch { }
     } finally {
         loading.value = false
     }
@@ -367,6 +322,11 @@ onMounted(() => {
     display: inline-flex;
     align-items: center;
     gap: 0.4rem;
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    font-family: inherit;
 }
 
 .back-link:hover {
@@ -458,11 +418,25 @@ onMounted(() => {
     color: var(--adm-text-main);
 }
 
-.num-diterima { color: var(--adm-teal); }
-.num-ditolak { color: #DC2626; }
-.num-direvisi { color: #D97706; }
-.num-ditolak { color: var(--adm-danger-text); }
-.num-direvisi { color: var(--adm-warning-text); }
+.num-diterima {
+    color: var(--adm-teal);
+}
+
+.num-ditolak {
+    color: #DC2626;
+}
+
+.num-direvisi {
+    color: #D97706;
+}
+
+.num-ditolak {
+    color: var(--adm-danger-text);
+}
+
+.num-direvisi {
+    color: var(--adm-warning-text);
+}
 
 .charts-row {
     display: grid;
@@ -543,9 +517,17 @@ onMounted(() => {
     border-radius: 50%;
 }
 
-.dot-diterima { background-color: var(--adm-teal); }
-.dot-ditolak { background-color: #EF4444; }
-.dot-direvisi { background-color: #F59E0B; }
+.dot-diterima {
+    background-color: var(--adm-teal);
+}
+
+.dot-ditolak {
+    background-color: #EF4444;
+}
+
+.dot-direvisi {
+    background-color: #F59E0B;
+}
 
 .legend-name {
     flex: 1;
@@ -728,9 +710,11 @@ onMounted(() => {
     .metrics-grid {
         grid-template-columns: repeat(2, 1fr);
     }
+
     .charts-row {
         grid-template-columns: 1fr;
     }
+
     .naskah-cards-grid {
         grid-template-columns: 1fr;
     }

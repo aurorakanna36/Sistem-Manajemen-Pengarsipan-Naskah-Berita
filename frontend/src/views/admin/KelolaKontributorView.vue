@@ -7,34 +7,25 @@
             </div>
 
             <div class="filter-pills-row">
-                <button 
-                    class="pill-btn" 
-                    :class="{ active: currentTab === 'kontributor' }"
-                    @click="currentTab = 'kontributor'"
-                >
+                <button class="pill-btn" :class="{ active: currentTab === 'kontributor' }"
+                    @click="currentTab = 'kontributor'">
                     Daftar kontributor ({{ totalKontributorCount }})
                 </button>
-                <button 
-                    class="pill-btn" 
-                    :class="{ active: currentTab === 'verifikasi' }"
-                    @click="currentTab = 'verifikasi'"
-                >
+                <button class="pill-btn" :class="{ active: currentTab === 'verifikasi' }"
+                    @click="currentTab = 'verifikasi'">
                     Perlu verifikasi ({{ pendingCount }})
                 </button>
             </div>
 
-            <section v-if="currentTab === 'verifikasi' || (currentTab === 'kontributor' && pendingUsers.length > 0)" class="panel-box">
+            <section v-if="currentTab === 'verifikasi' || (currentTab === 'kontributor' && pendingUsers.length > 0)"
+                class="panel-box">
                 <h2 class="section-title">Perlu verifikasi pendaftaran</h2>
-                
+
                 <div v-if="pendingUsers.length === 0" class="empty-state">
                     Tidak ada pendaftaran kontributor yang membutuhkan verifikasi.
                 </div>
                 <div v-else class="pending-cards-grid">
-                    <div 
-                        v-for="user in pendingUsers" 
-                        :key="user.id" 
-                        class="pending-card"
-                    >
+                    <div v-for="user in pendingUsers" :key="user.id" class="pending-card">
                         <div class="pending-card-header">
                             <div class="avatar-circle">
                                 {{ (user.nama_lengkap || user.name || 'K').charAt(0).toUpperCase() }}
@@ -48,18 +39,9 @@
                             {{ user.instansi || 'Umum' }} · Mendaftar {{ formatDate(user.created_at) }}
                         </div>
                         <div class="pending-btn-row">
-                            <button 
-                                class="btn-verify"
-                                @click="handleVerify(user.id, 'verified')"
-                            >
+                            <router-link :to="`/admin/verifikasi-kontributor/${user.id}`" class="btn-verify">
                                 Verifikasi
-                            </button>
-                            <button 
-                                class="btn-reject"
-                                @click="handleVerify(user.id, 'rejected')"
-                            >
-                                Tolak
-                            </button>
+                            </router-link>
                         </div>
                     </div>
                 </div>
@@ -69,12 +51,8 @@
                 <div class="table-header-row">
                     <h2 class="section-title">Daftar kontributor</h2>
                     <div class="search-wrap">
-                        <input 
-                            v-model="searchQuery" 
-                            type="text" 
-                            placeholder="Cari nama atau email"
-                            class="search-input"
-                        />
+                        <input v-model="searchQuery" type="text" placeholder="Cari nama atau email"
+                            class="search-input" />
                     </div>
                 </div>
 
@@ -109,26 +87,17 @@
                                 <td>{{ user.instansi || '-' }}</td>
                                 <td>{{ user.naskah_count ?? '-' }}</td>
                                 <td>
-                                    <span 
-                                        class="status-badge"
-                                        :class="statusClass(user.status_verifikasi)"
-                                    >
+                                    <span class="status-badge" :class="statusClass(user.status_verifikasi)">
                                         {{ statusLabel(user.status_verifikasi) }}
                                     </span>
                                 </td>
                                 <td class="text-right">
                                     <div class="actions-cell">
-                                        <router-link 
-                                            :to="`/admin/kontributor/${user.id}`" 
-                                            class="link-view"
-                                        >
+                                        <router-link :to="`/admin/kontributor/${user.id}`" class="link-view">
                                             Lihat
                                         </router-link>
-                                        <button 
-                                            class="btn-delete-icon" 
-                                            title="Hapus Kontributor"
-                                            @click="confirmDeleteUser(user)"
-                                        >
+                                        <button class="btn-delete-icon" title="Hapus Kontributor"
+                                            @click="confirmDeleteUser(user)">
                                             Hapus
                                         </button>
                                     </div>
@@ -392,9 +361,37 @@ onMounted(() => {
 }
 
 .pending-cards-grid {
-    display: grid;
+     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 1.25rem;
+
+    /* Scroll jika lebih dari 6 kontributor */
+    max-height: 460px;
+    overflow-y: auto;
+    overflow-x: hidden;
+
+    /* Posisi dan ukuran card tetap rapi */
+    align-content: start;
+    padding-right: 8px;
+    box-sizing: border-box;
+}
+
+.pending-cards-grid::-webkit-scrollbar {
+    width: 7px;
+}
+
+.pending-cards-grid::-webkit-scrollbar-track {
+    background: #f1f5f9;
+    border-radius: 10px;
+}
+
+.pending-cards-grid::-webkit-scrollbar-thumb {
+    background: #bcc8d4;
+    border-radius: 10px;
+}
+
+.pending-cards-grid::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
 }
 
 .pending-card {
@@ -464,7 +461,11 @@ onMounted(() => {
 }
 
 .btn-verify {
-    flex: 1;
+      flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
     padding: 0.5rem;
     background: var(--adm-teal);
     color: #ffffff;
@@ -472,6 +473,7 @@ onMounted(() => {
     border-radius: 8px;
     font-size: 0.85rem;
     font-weight: 600;
+    text-decoration: none;
     cursor: pointer;
     transition: background 0.2s;
 }
@@ -537,13 +539,37 @@ onMounted(() => {
 }
 
 .table-responsive {
+    max-height: 560px;
+    overflow-y: auto;
     overflow-x: auto;
+}
+
+.table-responsive::-webkit-scrollbar {
+    width: 7px;
+    height: 7px;
+}
+
+.table-responsive::-webkit-scrollbar-track {
+    background: #f1f5f9;
+    border-radius: 10px;
+}
+
+.table-responsive::-webkit-scrollbar-thumb {
+    background: #bcc8d4;
+    border-radius: 10px;
 }
 
 .adm-table {
     width: 100%;
     border-collapse: collapse;
     font-size: 0.9rem;
+}
+
+.adm-table thead {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    background: #ffffff;
 }
 
 .adm-table th {
@@ -553,6 +579,7 @@ onMounted(() => {
     font-weight: 600;
     border-bottom: 1px solid var(--adm-border);
     font-size: 0.85rem;
+    background: #ffffff;
 }
 
 .adm-table td {
@@ -791,4 +818,3 @@ onMounted(() => {
     }
 }
 </style>
-

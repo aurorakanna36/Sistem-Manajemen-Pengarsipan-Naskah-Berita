@@ -6,11 +6,6 @@
                     <h1 class="page-title">Notifikasi</h1>
                     <p class="page-subtitle">Kabar terbaru tentang naskah yang sudah kamu kirim.</p>
                 </div>
-
-                <div class="user-chip">
-                    <div class="user-avatar">{{ userInitial }}</div>
-                    <span class="user-name">{{ userName }}</span>
-                </div>
             </header>
 
             <div class="notif-toolbar">

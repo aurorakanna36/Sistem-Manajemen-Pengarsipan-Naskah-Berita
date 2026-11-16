@@ -1,124 +1,156 @@
 <template>
     <KontributorLayout>
         <div class="detail-naskah-page">
-            <div class="top-back-row">
-                <router-link to="/kontributor/dashboard" class="back-link">
-                    &larr; Kembali ke dashboard
-                </router-link>
-                <router-link to="/kontributor/naskah-saya" class="back-link secondary-link">
-                    Lihat semua naskah saya
-                </router-link>
-            </div>
 
+            <!-- LOADING -->
             <div v-if="loading" class="state-box">
                 <div class="spinner"></div>
                 <span>Memuat detail naskah...</span>
             </div>
 
+            <!-- DATA TIDAK DITEMUKAN -->
             <div v-else-if="!naskah" class="state-box">
                 <p>Data naskah tidak ditemukan.</p>
             </div>
 
+            <!-- DETAIL NASKAH -->
             <div v-else class="detail-grid">
+
+                <!-- KONTEN UTAMA -->
                 <article class="naskah-main-card">
+
+                    <!-- SAMPUL -->
                     <div class="sampul-banner">
-                        <img
-                            v-if="naskah.gambar_sampul"
-                            :src="naskah.gambar_sampul"
-                            :alt="naskah.judul"
-                            class="sampul-image"
-                        />
-                        <span v-else class="sampul-placeholder">Gambar sampul</span>
+                        <img v-if="naskah.gambar_sampul" :src="naskah.gambar_sampul"
+                            :alt="naskah.judul || 'Sampul naskah'" class="sampul-image" />
+
+                        <span v-else class="sampul-placeholder">
+                            Gambar sampul belum tersedia
+                        </span>
                     </div>
 
                     <div class="naskah-body-wrap">
+
+                        <!-- STATUS DAN KATEGORI -->
                         <div class="badges-wrap">
-                            <span class="status-pill" :class="badgeClass(naskah.status_naskah || naskah.status)">
-                                {{ labelStatus(naskah.status_naskah || naskah.status) }}
+                            <span class="status-pill" :class="badgeClass(currentStatus)">
+                                {{ labelStatus(currentStatus) }}
                             </span>
-                            <template v-if="naskah.kategoris && naskah.kategoris.length">
-                                <span
-                                    v-for="kat in naskah.kategoris"
-                                    :key="kat.id"
-                                    class="kat-pill"
-                                >
-                                    {{ kat.nama_kategori }}
+
+                            <template v-if="naskah.kategoris?.length">
+                                <span v-for="kategori in naskah.kategoris" :key="kategori.id" class="kat-pill">
+                                    {{ kategori.nama_kategori }}
                                 </span>
                             </template>
-                            <span v-else class="kat-pill">{{ naskah.kategori || 'Uncategorized' }}</span>
+
+                            <span v-else class="kat-pill">
+                                {{ naskah.kategori || 'Uncategorized' }}
+                            </span>
                         </div>
 
-                        <h1 class="naskah-title">{{ naskah.judul }}</h1>
+                        <!-- JUDUL -->
+                        <h1 class="naskah-title">
+                            {{ naskah.judul || 'Tanpa judul' }}
+                        </h1>
 
                         <p class="naskah-meta">
                             Dikirim {{ formatDate(naskah.waktu_kirim || naskah.created_at) }}
-                            <span v-if="naskah.kata_kunci"> · Kata kunci: <strong>{{ naskah.kata_kunci }}</strong></span>
                         </p>
 
-                        <div v-if="naskah.abstrak" class="section-block abstrak-box">
-                            <h2 class="section-heading">Abstrak</h2>
-                            <p class="abstrak-text">{{ naskah.abstrak }}</p>
-                        </div>
-
-                        <div class="section-block">
+                        <!-- ISI NASKAH -->
+                        <section class="section-block">
                             <h2 class="section-heading">Isi naskah</h2>
-                            <div
-                                v-if="naskah.isi"
-                                class="rich-article-content"
-                                v-html="naskah.isi"
-                            ></div>
-                            <p v-else class="empty-content">Isi naskah belum tersedia.</p>
-                        </div>
+
+                            <div v-if="naskah.isi" class="rich-article-content" v-html="naskah.isi"></div>
+
+                            <p v-else class="empty-content">
+                                Isi naskah belum tersedia.
+                            </p>
+                        </section>
+
                     </div>
                 </article>
 
+                <!-- SIDEBAR -->
                 <aside class="naskah-side-col">
-                    <div class="side-card">
-                        <h2 class="side-title">Status & Catatan Redaksi</h2>
+
+                    <!-- STATUS DAN CATATAN -->
+                    <section class="side-card">
+                        <h2 class="side-title">
+                            Status & Catatan Redaksi
+                        </h2>
+
                         <div class="side-status-row">
-                            <span class="side-label">Status saat ini:</span>
-                            <span class="status-pill" :class="badgeClass(naskah.status_naskah || naskah.status)">
-                                {{ labelStatus(naskah.status_naskah || naskah.status) }}
+                            <span class="side-label">
+                                Status saat ini:
+                            </span>
+
+                            <span class="status-pill" :class="badgeClass(currentStatus)">
+                                {{ labelStatus(currentStatus) }}
                             </span>
                         </div>
 
                         <div class="catatan-box">
-                            <span class="side-label">Catatan admin / redaksi:</span>
+                            <span class="side-label">
+                                Catatan admin / redaksi:
+                            </span>
+
                             <p class="catatan-text">
                                 {{ naskah.catatan_redaksi || 'Belum ada catatan dari tim redaksi.' }}
                             </p>
                         </div>
 
+                        <!-- LINK PUBLIKASI -->
                         <div v-if="naskah.publikasi?.url_berita" class="publikasi-box">
-                            <span class="side-label">Link Berita Terbit:</span>
-                            <a
-                                :href="naskah.publikasi.url_berita"
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                class="publikasi-link"
-                            >
+                            <span class="side-label">
+                                Link Berita Terbit:
+                            </span>
+
+                            <a :href="naskah.publikasi.url_berita" target="_blank" rel="noopener noreferrer"
+                                class="publikasi-link">
                                 {{ naskah.publikasi.url_berita }}
                             </a>
                         </div>
-                    </div>
+                    </section>
 
-                    <div v-if="naskah.riwayat_status && naskah.riwayat_status.length" class="side-card">
-                        <h2 class="side-title">Riwayat Status</h2>
+                    <!-- RIWAYAT STATUS -->
+                    <section v-if="naskah.riwayat_status?.length" class="side-card">
+                        <h2 class="side-title">
+                            Riwayat Status
+                        </h2>
+
                         <div class="timeline-list">
-                            <div
-                                v-for="log in naskah.riwayat_status"
-                                :key="log.id"
-                                class="timeline-item"
-                            >
-                                <span class="timeline-dot" :class="dotClass(log.status)"></span>
+                            <div v-for="log in naskah.riwayat_status" :key="log.id" class="timeline-item">
+                                <span class="timeline-dot" :class="badgeClass(log.status)"></span>
+
                                 <div class="timeline-info">
-                                    <div class="timeline-status">{{ labelStatus(log.status) }}</div>
-                                    <div class="timeline-note">{{ log.catatan || '-' }}</div>
-                                    <div class="timeline-date">{{ formatDate(log.waktu_status) }}</div>
+                                    <div class="timeline-status">
+                                        {{ labelStatus(log.status) }}
+                                    </div>
+
+                                    <div class="timeline-note">
+                                        {{ log.catatan || '-' }}
+                                    </div>
+
+                                    <div class="timeline-date">
+                                        {{ formatDate(log.waktu_status) }}
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    </section>
+
+                    <!-- AJUKAN REVISI -->
+                    <section v-if="['revisi', 'ditolak'].includes(normalizeStatus(currentStatus))" class="side-card">
+                        <h2 class="side-title">
+                            Revisi Naskah
+                        </h2>
+
+                        <router-link :to="`/kontributor/naskah/${naskah.id}/revisi`" class="btn-verify">
+                            + Ajukan Revisi
+                        </router-link>
+                    </section>
+
                 </aside>
             </div>
         </div>
@@ -126,80 +158,116 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import KontributorLayout from './KontributorLayout.vue'
 import api from '@/api/index.js'
 
 const route = useRoute()
+
 const loading = ref(true)
 const naskah = ref(null)
 
-onMounted(async () => {
+// STATUS NASKAH
+const currentStatus = computed(() => {
+    return naskah.value?.status_naskah ||
+        naskah.value?.status ||
+        ''
+})
+
+// AMBIL DETAIL NASKAH
+async function fetchNaskah() {
+    loading.value = true
+
     const id = route.params.id
+
     try {
-        const res = await api.kontributor.getNaskahDetail(id)
-        naskah.value = res.data?.naskah || null
-    } catch {
-        try {
-            const dash = await api.kontributor.dashboard()
-            const list = dash.data?.naskahs || []
-            naskah.value = list.find((n) => String(n.id) === String(id)) || null
-        } catch {
-            naskah.value = null
-        }
+        const response = await api.kontributor.getNaskahDetail(id)
+        naskah.value = response.data?.naskah || null
+    } catch (error) {
+        console.error('Gagal mengambil detail naskah:', error)
+        naskah.value = null
     } finally {
         loading.value = false
     }
-})
+}
 
+onMounted(fetchNaskah)
+
+// FORMAT TANGGAL
 function formatDate(dateStr) {
     if (!dateStr) return '-'
-    return new Date(dateStr).toLocaleDateString('id-ID', {
+
+    const date = new Date(dateStr)
+
+    if (Number.isNaN(date.getTime())) return '-'
+
+    return date.toLocaleDateString('id-ID', {
         day: 'numeric',
         month: 'short',
         year: 'numeric',
     })
 }
 
+// NORMALISASI STATUS
+function normalizeStatus(status) {
+    const value = String(status || '').toLowerCase()
+
+    const statusMap = {
+        pending: 'review',
+        perlu_direview: 'review',
+
+        approved: 'diterima',
+        diterima: 'diterima',
+
+        published: 'diterbitkan',
+        diterbitkan: 'diterbitkan',
+
+        rejected: 'ditolak',
+        ditolak: 'ditolak',
+
+        revision: 'revisi',
+        direvisi: 'revisi',
+    }
+
+    return statusMap[value] || value
+}
+
+// LABEL STATUS
 function labelStatus(status) {
-    const map = {
-        pending: 'Dalam review',
-        perlu_direview: 'Dalam review',
-        approved: 'Diterima',
+    const labels = {
+        review: 'Dalam review',
         diterima: 'Diterima',
-        published: 'Diterbitkan',
         diterbitkan: 'Diterbitkan',
-        rejected: 'Ditolak',
         ditolak: 'Ditolak',
-        revision: 'Perlu revisi',
-        direvisi: 'Perlu revisi',
+        revisi: 'Perlu revisi',
     }
-    return map[status] || status
+
+    const normalized = normalizeStatus(status)
+
+    return labels[normalized] || status || 'Tidak diketahui'
 }
 
+// CLASS STATUS
 function badgeClass(status) {
-    if (status === 'diterima' || status === 'diterbitkan' || status === 'approved' || status === 'published') {
-        return 'pill-diterima'
-    }
-    if (status === 'ditolak' || status === 'rejected') {
-        return 'pill-ditolak'
-    }
-    if (status === 'direvisi' || status === 'revision') {
-        return 'pill-revisi'
-    }
-    return 'pill-review'
-}
+    const normalized = normalizeStatus(status)
 
-function dotClass(status) {
-    if (status === 'diterima' || status === 'diterbitkan') return 'dot-diterima'
-    if (status === 'ditolak') return 'dot-ditolak'
-    if (status === 'direvisi') return 'dot-revisi'
-    return 'dot-review'
+    const classes = {
+        diterima: 'pill-diterima',
+        diterbitkan: 'pill-diterima',
+        ditolak: 'pill-ditolak',
+        revisi: 'pill-revisi',
+        review: 'pill-review',
+    }
+
+    return classes[normalized] || 'pill-review'
 }
 </script>
 
 <style scoped>
+/* =========================
+   LAYOUT UTAMA
+========================= */
 .detail-naskah-page {
     display: flex;
     flex-direction: column;
@@ -215,8 +283,8 @@ function dotClass(status) {
 
 .back-link {
     color: var(--ktr-teal);
-    font-weight: 600;
     font-size: 0.95rem;
+    font-weight: 600;
     text-decoration: none;
 }
 
@@ -224,32 +292,51 @@ function dotClass(status) {
     text-decoration: underline;
 }
 
+.back-button {
+    padding: 0;
+    border: none;
+    background: none;
+    cursor: pointer;
+    font-family: inherit;
+}
+
 .secondary-link {
     color: var(--ktr-text-muted);
     font-weight: 500;
 }
 
+/* =========================
+   GRID DETAIL
+========================= */
 .detail-grid {
     display: grid;
-    grid-template-columns: 1fr 340px;
+    grid-template-columns: minmax(0, 1fr) 340px;
     gap: 1.75rem;
-    align-items: flex-start;
+    align-items: start;
 }
 
-.naskah-main-card {
+.naskah-main-card,
+.side-card {
     background-color: var(--ktr-bg-card);
     border: 1px solid var(--ktr-border);
     border-radius: 14px;
+}
+
+.naskah-main-card {
+    min-width: 0;
     overflow: hidden;
 }
 
+/* =========================
+   SAMPUL
+========================= */
 .sampul-banner {
     height: 300px;
-    background-color: var(--ktr-border-soft);
     display: flex;
     align-items: center;
     justify-content: center;
     overflow: hidden;
+    background-color: var(--ktr-border-soft);
 }
 
 .sampul-image {
@@ -263,11 +350,14 @@ function dotClass(status) {
     font-weight: 500;
 }
 
+/* =========================
+   KONTEN NASKAH
+========================= */
 .naskah-body-wrap {
-    padding: 2rem 2.25rem;
     display: flex;
     flex-direction: column;
     gap: 1.35rem;
+    padding: 2rem 2.25rem;
 }
 
 .badges-wrap {
@@ -277,7 +367,8 @@ function dotClass(status) {
     gap: 0.55rem;
 }
 
-.status-pill {
+.status-pill,
+.kat-pill {
     display: inline-flex;
     align-items: center;
     padding: 0.34rem 0.85rem;
@@ -309,24 +400,21 @@ function dotClass(status) {
 .kat-pill {
     background-color: #F1F5F9;
     color: var(--ktr-text-muted);
-    padding: 0.34rem 0.85rem;
-    border-radius: 999px;
-    font-size: 0.8rem;
-    font-weight: 600;
 }
 
 .naskah-title {
+    margin: 0;
+    color: var(--ktr-text-main);
     font-size: 1.8rem;
     font-weight: 800;
-    color: var(--ktr-text-main);
-    margin: 0;
     line-height: 1.3;
+    overflow-wrap: anywhere;
 }
 
 .naskah-meta {
-    font-size: 0.9rem;
-    color: var(--ktr-text-muted);
     margin: 0;
+    color: var(--ktr-text-muted);
+    font-size: 0.9rem;
 }
 
 .section-block {
@@ -335,57 +423,50 @@ function dotClass(status) {
     gap: 0.55rem;
 }
 
-.abstrak-box {
-    background-color: #F8FAFC;
-    border-left: 4px solid var(--ktr-teal);
-    padding: 1rem 1.25rem;
-    border-radius: 0 10px 10px 0;
-}
-
 .section-heading {
+    margin: 0;
+    color: var(--ktr-text-muted);
     font-size: 0.85rem;
     font-weight: 700;
-    text-transform: uppercase;
     letter-spacing: 0.04em;
-    color: var(--ktr-text-muted);
-    margin: 0;
-}
-
-.abstrak-text {
-    margin: 0;
-    font-size: 0.96rem;
-    line-height: 1.6;
-    color: var(--ktr-text-main);
+    text-transform: uppercase;
 }
 
 .rich-article-content {
+    color: var(--ktr-text-main);
     font-size: 1rem;
     line-height: 1.75;
-    color: var(--ktr-text-main);
+    overflow-wrap: anywhere;
 }
 
+.empty-content {
+    color: var(--ktr-text-muted);
+    font-size: 0.9rem;
+}
+
+/* FORMAT ISI ARTIKEL */
 .rich-article-content :deep(h1) {
+    margin: 1.2rem 0 0.6rem;
     font-size: 1.85rem;
     font-weight: 800;
-    margin: 1.2rem 0 0.6rem;
 }
 
 .rich-article-content :deep(h2) {
+    margin: 1rem 0 0.5rem;
     font-size: 1.45rem;
     font-weight: 700;
-    margin: 1rem 0 0.5rem;
 }
 
 .rich-article-content :deep(h3) {
+    margin: 0.85rem 0 0.4rem;
     font-size: 1.2rem;
     font-weight: 700;
-    margin: 0.85rem 0 0.4rem;
 }
 
 .rich-article-content :deep(blockquote) {
-    border-left: 4px solid var(--ktr-teal);
-    padding-left: 1rem;
     margin: 1rem 0;
+    padding-left: 1rem;
+    border-left: 4px solid var(--ktr-teal);
     color: var(--ktr-text-muted);
     font-style: italic;
 }
@@ -393,8 +474,8 @@ function dotClass(status) {
 .rich-article-content :deep(img) {
     max-width: 100%;
     height: auto;
-    border-radius: 10px;
     margin: 0.75rem 0;
+    border-radius: 10px;
 }
 
 .rich-article-content :deep(figure) {
@@ -402,69 +483,82 @@ function dotClass(status) {
 }
 
 .rich-article-content :deep(figcaption) {
-    font-size: 0.85rem;
-    color: var(--ktr-text-muted);
     margin-top: 0.35rem;
+    color: var(--ktr-text-muted);
+    font-size: 0.85rem;
 }
 
+/* =========================
+   SIDEBAR
+========================= */
 .naskah-side-col {
     display: flex;
     flex-direction: column;
     gap: 1.25rem;
+    min-width: 0;
 }
 
 .side-card {
-    background-color: var(--ktr-bg-card);
-    border: 1px solid var(--ktr-border);
-    border-radius: 14px;
-    padding: 1.5rem;
     display: flex;
     flex-direction: column;
     gap: 1rem;
+    padding: 1.5rem;
 }
 
 .side-title {
+    margin: 0;
+    color: var(--ktr-text-main);
     font-size: 1.05rem;
     font-weight: 700;
-    color: var(--ktr-text-main);
-    margin: 0;
 }
 
 .side-status-row {
     display: flex;
     align-items: center;
     justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0.5rem;
 }
 
 .side-label {
+    color: var(--ktr-text-muted);
     font-size: 0.84rem;
     font-weight: 600;
-    color: var(--ktr-text-muted);
 }
 
 .catatan-box {
     display: flex;
     flex-direction: column;
     gap: 0.35rem;
-    background-color: #F8FAFC;
     padding: 0.9rem 1rem;
-    border-radius: 10px;
     border: 1px solid #E2E8F0;
+    border-radius: 10px;
+    background-color: #F8FAFC;
 }
 
 .catatan-text {
     margin: 0;
-    font-size: 0.9rem;
     color: var(--ktr-text-main);
+    font-size: 0.9rem;
     line-height: 1.5;
+    overflow-wrap: anywhere;
+}
+
+.publikasi-box {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
 }
 
 .publikasi-link {
     color: var(--ktr-teal);
     font-size: 0.88rem;
-    word-break: break-all;
+    overflow-wrap: anywhere;
 }
 
+/* =========================
+   RIWAYAT STATUS
+========================= */
 .timeline-list {
     display: flex;
     flex-direction: column;
@@ -480,50 +574,62 @@ function dotClass(status) {
 .timeline-dot {
     width: 10px;
     height: 10px;
-    border-radius: 50%;
     margin-top: 0.35rem;
     flex-shrink: 0;
+    border-radius: 50%;
 }
 
-.dot-diterima {
+.timeline-dot.pill-diterima {
     background-color: var(--ktr-success-accent);
 }
-.dot-ditolak {
-    background-color: var(--ktr-danger-accent);
-}
-.dot-revisi {
-    background-color: var(--ktr-warning-accent);
-}
-.dot-review {
+
+.timeline-dot.pill-review {
     background-color: var(--ktr-info-accent);
 }
 
+.timeline-dot.pill-revisi {
+    background-color: var(--ktr-warning-accent);
+}
+
+.timeline-dot.pill-ditolak {
+    background-color: var(--ktr-danger-accent);
+}
+
+.timeline-info {
+    min-width: 0;
+}
+
 .timeline-status {
+    color: var(--ktr-text-main);
     font-size: 0.88rem;
     font-weight: 700;
-    color: var(--ktr-text-main);
 }
 
 .timeline-note {
-    font-size: 0.84rem;
-    color: var(--ktr-text-muted);
     margin-top: 0.15rem;
+    color: var(--ktr-text-muted);
+    font-size: 0.84rem;
+    overflow-wrap: anywhere;
 }
 
 .timeline-date {
-    font-size: 0.76rem;
-    color: var(--ktr-text-light);
     margin-top: 0.15rem;
+    color: var(--ktr-text-light);
+    font-size: 0.76rem;
 }
 
+/* =========================
+   LOADING DAN EMPTY STATE
+========================= */
 .state-box {
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: 3.5rem 1.5rem;
     gap: 0.85rem;
+    padding: 3.5rem 1.5rem;
     color: var(--ktr-text-muted);
+    text-align: center;
 }
 
 .spinner {
@@ -535,15 +641,80 @@ function dotClass(status) {
     animation: spin 0.7s linear infinite;
 }
 
+.btn-verify {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    padding: 0.8rem 1rem;
+    background-color: var(--ktr-teal);
+    color: #ffffff;
+    border: none;
+    border-radius: 9px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.btn-verify:hover {
+    background-color: #087d78;
+    transform: translateY(-1px);
+}
+
 @keyframes spin {
     to {
         transform: rotate(360deg);
     }
 }
 
+/* =========================
+   RESPONSIVE
+========================= */
 @media (max-width: 980px) {
     .detail-grid {
         grid-template-columns: 1fr;
+    }
+
+    .naskah-side-col {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 640px) {
+    .top-back-row {
+        align-items: flex-start;
+    }
+
+    .back-link {
+        font-size: 0.85rem;
+    }
+
+    .detail-grid {
+        gap: 1rem;
+    }
+
+    .sampul-banner {
+        height: 210px;
+    }
+
+    .naskah-body-wrap {
+        padding: 1.25rem;
+        gap: 1rem;
+    }
+
+    .naskah-title {
+        font-size: 1.4rem;
+    }
+
+    .naskah-side-col {
+        display: flex;
+    }
+
+    .side-card {
+        padding: 1.2rem;
     }
 }
 </style>

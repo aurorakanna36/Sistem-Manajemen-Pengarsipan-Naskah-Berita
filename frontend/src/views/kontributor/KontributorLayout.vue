@@ -1,8 +1,10 @@
 <template>
     <div class="ktr-layout">
+        <!-- MOBILE SIDEBAR OVERLAY -->
         <button v-if="isMobileSidebarOpen" type="button" class="sidebar-overlay" aria-label="Tutup menu"
             @click="closeMobileSidebar"></button>
 
+        <!-- SIDEBAR -->
         <aside :class="[
             'ktr-sidebar',
             {
@@ -10,14 +12,15 @@
                 'mobile-open': isMobileSidebarOpen
             }
         ]">
+            <!-- SIDEBAR BRAND -->
             <div class="sidebar-brand">
                 <div v-if="!isSidebarCollapsed || isMobileSidebarOpen" class="brand-info">
                     <h2 class="brand-title">Harian Cakrawala</h2>
                     <span class="brand-sub">Kontributor</span>
                 </div>
 
-                <button type="button" class="toggle-sidebar" @click="toggleSidebar"
-                    :title="isMobileSidebarOpen ? 'Tutup menu' : 'Toggle sidebar'">
+                <button type="button" class="toggle-sidebar"
+                    :title="isMobileSidebarOpen ? 'Tutup menu' : 'Toggle sidebar'" @click="toggleSidebar">
                     <svg v-if="isSidebarCollapsed && !isMobileSidebarOpen" viewBox="0 0 24 24" width="21" height="21"
                         fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M4 6h16M4 12h16M4 18h16" />
@@ -30,6 +33,7 @@
                 </button>
             </div>
 
+            <!-- SIDEBAR NAVIGATION -->
             <nav class="sidebar-nav">
                 <router-link to="/kontributor/dashboard" class="nav-item"
                     :class="{ active: isRouteActive('/kontributor/dashboard') }" title="Dashboard"
@@ -37,6 +41,7 @@
                     <svg viewBox="0 0 24 24" class="menu-icon">
                         <path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1h-6v-7h-4v7H4a1 1 0 0 1-1-1z" />
                     </svg>
+
                     <span v-if="!isSidebarCollapsed || isMobileSidebarOpen">
                         Dashboard
                     </span>
@@ -49,6 +54,7 @@
                         <path d="M12 20h9" />
                         <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L8 18l-4 1 1-4z" />
                     </svg>
+
                     <span v-if="!isSidebarCollapsed || isMobileSidebarOpen">
                         Kirim Naskah
                     </span>
@@ -63,6 +69,7 @@
                         <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
                         <path d="M14 2v6h6M8 13h8M8 17h8" />
                     </svg>
+
                     <span v-if="!isSidebarCollapsed || isMobileSidebarOpen">
                         Naskah Saya
                     </span>
@@ -88,37 +95,83 @@
                         {{ displayUnreadCount }}
                     </span>
                 </router-link>
-
-                <button type="button" class="nav-item nav-logout" @click="handleLogout" title="Keluar">
-                    <svg viewBox="0 0 24 24" class="menu-icon">
-                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-                        <path d="m16 17 5-5-5-5" />
-                        <path d="M21 12H9" />
-                    </svg>
-                    <span v-if="!isSidebarCollapsed || isMobileSidebarOpen">
-                        Keluar
-                    </span>
-                </button>
             </nav>
         </aside>
 
-        <div class="ktr-main-wrap">
+        <!-- MAIN CONTENT WRAPPER -->
+        <div class="ktr-main-wrap" @click="closeProfileMenu">
+
+            <!-- TOPBAR -->
             <header class="ktr-topbar">
-                <button type="button" class="mobile-menu-button" aria-label="Buka menu" @click="openMobileSidebar">
-                    <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M4 6h16M4 12h16M4 18h16" />
+
+                <div class="topbar-left">
+                    <button type="button" class="mobile-menu-button" aria-label="Buka menu" @click="openMobileSidebar">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M4 6h16M4 12h16M4 18h16" />
+                        </svg>
+                    </button>
+                </div>
+
+                <!-- BACK BUTTON -->
+                <button @click="router.back()" class="back-link">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M19 12H5" />
+                        <path d="m12 19-7-7 7-7" />
                     </svg>
+                    <span>Kembali</span>
                 </button>
+
+                <!-- PROFILE -->
+                <div class="topbar-user-wrapper" @click.stop>
+                    <button type="button" class="topbar-user" :aria-expanded="isProfileMenuOpen"
+                        aria-label="Buka menu profil" @click="toggleProfileMenu">
+                        <div class="user-avatar">
+                            {{ userInitial }}
+                        </div>
+
+                        <span class="user-name">
+                            {{ userName }}
+                        </span>
+
+                        <svg class="profile-chevron" :class="{ rotated: isProfileMenuOpen }" viewBox="0 0 24 24">
+                            <path d="m6 9 6 6 6-6" />
+                        </svg>
+                    </button>
+
+                    <!-- PROFILE DROPDOWN -->
+                    <div v-if="isProfileMenuOpen" class="profile-dropdown">
+                        <div class="profile-dropdown-info">
+                            <div class="profile-avatar">
+                                {{ userInitial }}
+                            </div>
+
+                            <div class="profile-details">
+                                <span class="profile-name">
+                                    {{ userName }}
+                                </span>
+
+                                <button type="button" class="profile-logout" @click="handleLogout">
+                                    <svg viewBox="0 0 24 24">
+                                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                                        <path d="m16 17 5-5-5-5" />
+                                        <path d="M21 12H9" />
+                                    </svg>
+
+                                    <span>Logout</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </header>
 
+            <!-- PAGE CONTENT -->
             <main class="ktr-content">
                 <slot :userName="userName" :userInitial="userInitial" />
             </main>
         </div>
     </div>
 </template>
-
-
 
 <script setup>
 import {
@@ -132,15 +185,27 @@ import {
 import { useRoute, useRouter } from 'vue-router'
 import api from '@/api/index.js'
 
+// =====================================================
+// PROPS
+// =====================================================
+
 const props = defineProps({
     unreadCountOverride: {
         type: Number,
-        default: null,
-    },
+        default: null
+    }
 })
+
+// =====================================================
+// ROUTER
+// =====================================================
 
 const route = useRoute()
 const router = useRouter()
+
+// =====================================================
+// USER INFORMATION
+// =====================================================
 
 const userRaw = localStorage.getItem('user_info')
 const user = userRaw ? JSON.parse(userRaw) : null
@@ -153,8 +218,11 @@ const userInitial = computed(
     () => userName.value.charAt(0).toUpperCase() || 'K'
 )
 
-const isSidebarCollapsed = ref(false)
+// =====================================================
+// SIDEBAR STATE
+// =====================================================
 
+const isSidebarCollapsed = ref(false)
 const isMobileSidebarOpen = ref(false)
 
 function openMobileSidebar() {
@@ -174,18 +242,23 @@ function toggleSidebar() {
     isSidebarCollapsed.value = !isSidebarCollapsed.value
 }
 
-const fetchedUnreadCount = ref(0)
+// =====================================================
+// PROFILE DROPDOWN
+// =====================================================
 
-const displayUnreadCount = computed(() => {
-    if (
-        props.unreadCountOverride !== null &&
-        props.unreadCountOverride !== undefined
-    ) {
-        return props.unreadCountOverride
-    }
+const isProfileMenuOpen = ref(false)
 
-    return fetchedUnreadCount.value
-})
+function toggleProfileMenu() {
+    isProfileMenuOpen.value = !isProfileMenuOpen.value
+}
+
+function closeProfileMenu() {
+    isProfileMenuOpen.value = false
+}
+
+// =====================================================
+// ROUTE ACTIVE STATE
+// =====================================================
 
 function isRouteActive(path) {
     return route.path === path
@@ -195,6 +268,20 @@ function isRoutePrefix(prefix) {
     return route.path.startsWith(prefix)
 }
 
+// =====================================================
+// NOTIFICATION
+// =====================================================
+
+const fetchedUnreadCount = ref(0)
+
+const displayUnreadCount = computed(() => {
+    if (props.unreadCountOverride !== null) {
+        return props.unreadCountOverride
+    }
+
+    return fetchedUnreadCount.value
+})
+
 async function fetchUnreadCount() {
     try {
         const res = await api.kontributor.getNotifikasi()
@@ -203,26 +290,51 @@ async function fetchUnreadCount() {
             fetchedUnreadCount.value = res.data.unread_count
         }
     } catch {
-        // Ignore silent fetch errors
+        // Mengabaikan error pengambilan notifikasi
     }
 }
 
-function handleUnreadEvent(e) {
-    if (typeof e.detail === 'number') {
-        fetchedUnreadCount.value = e.detail
+function handleUnreadEvent(event) {
+    if (typeof event.detail === 'number') {
+        fetchedUnreadCount.value = event.detail
     } else {
         fetchUnreadCount()
     }
 }
 
+// Sinkronisasi jumlah notifikasi dari parent
 watch(
     () => props.unreadCountOverride,
-    (val) => {
-        if (typeof val === 'number') {
-            fetchedUnreadCount.value = val
+    (value) => {
+        if (typeof value === 'number') {
+            fetchedUnreadCount.value = value
         }
     }
 )
+
+// =====================================================
+// AUTHENTICATION
+// =====================================================
+
+async function handleLogout() {
+    closeMobileSidebar()
+    closeProfileMenu()
+
+    try {
+        await api.auth.logout()
+    } catch {
+        // Tetap lanjutkan logout lokal
+    }
+
+    localStorage.removeItem('auth_token')
+    localStorage.removeItem('user_info')
+
+    router.push({ name: 'login' })
+}
+
+// =====================================================
+// LIFECYCLE
+// =====================================================
 
 onMounted(() => {
     fetchUnreadCount()
@@ -239,27 +351,13 @@ onBeforeUnmount(() => {
         handleUnreadEvent
     )
 })
-
-// Logout
-async function handleLogout() {
-    closeMobileSidebar()
-
-    try {
-        await api.auth.logout()
-    } catch {
-        // Tetap lanjutkan proses logout lokal
-    }
-
-    localStorage.removeItem('auth_token')
-    localStorage.removeItem('user_info')
-
-    router.push({ name: 'login' })
-}
 </script>
 
-
-
 <style scoped>
+/* =====================================================
+   LAYOUT
+===================================================== */
+
 .ktr-layout {
     display: flex;
     min-height: 100vh;
@@ -268,18 +366,34 @@ async function handleLogout() {
     color: var(--ktr-text-main);
 }
 
+.ktr-main-wrap {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.ktr-content {
+    flex: 1;
+    padding: 2.25rem 2.75rem 3.5rem;
+}
+
+/* =====================================================
+   SIDEBAR
+===================================================== */
+
 .ktr-sidebar {
     width: 260px;
     flex: 0 0 260px;
-    min-height: 100vh;
     height: 100vh;
-    background: var(--ktr-green);
-    display: flex;
-    flex-direction: column;
+    min-height: 100vh;
     position: sticky;
     top: 0;
     overflow: hidden;
+    display: flex;
+    flex-direction: column;
     box-sizing: border-box;
+    background: var(--ktr-green);
     transition: width 0.3s ease, flex-basis 0.3s ease;
 }
 
@@ -287,6 +401,8 @@ async function handleLogout() {
     width: 80px;
     flex-basis: 80px;
 }
+
+/* Sidebar Brand */
 
 .sidebar-brand {
     min-height: 112px;
@@ -304,31 +420,31 @@ async function handleLogout() {
 }
 
 .brand-title {
+    margin: 0;
     color: var(--ktr-white);
     font-size: 19px;
     font-weight: 700;
-    margin: 0;
     letter-spacing: -0.3px;
 }
 
 .brand-sub {
     display: block;
+    margin-top: 5px;
     color: var(--ktr-border-soft);
     font-size: 13px;
-    margin-top: 5px;
 }
 
 .toggle-sidebar {
     width: 36px;
     height: 36px;
     min-width: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     border: none;
     border-radius: 9px;
     background: rgba(255, 255, 255, 0.12);
     color: var(--ktr-white);
-    display: flex;
-    align-items: center;
-    justify-content: center;
     cursor: pointer;
     transition: background 0.2s ease;
 }
@@ -336,6 +452,8 @@ async function handleLogout() {
 .toggle-sidebar:hover {
     background: var(--ktr-teal);
 }
+
+/* Sidebar Navigation */
 
 .sidebar-nav {
     display: flex;
@@ -353,12 +471,10 @@ async function handleLogout() {
     justify-content: flex-start;
     gap: 13px;
     box-sizing: border-box;
-
-    color: var(--ktr-border-soft);
-    background: transparent;
     border: none;
     border-radius: 9px;
-
+    background: transparent;
+    color: var(--ktr-border-soft);
     font-family: inherit;
     font-size: 14px;
     font-weight: 500;
@@ -366,7 +482,6 @@ async function handleLogout() {
     text-align: left;
     white-space: nowrap;
     cursor: pointer;
-
     transition: background 0.2s ease, color 0.2s ease;
 }
 
@@ -392,48 +507,7 @@ async function handleLogout() {
     stroke-linejoin: round;
 }
 
-.nav-item-notifikasi {
-    position: relative;
-}
-
-.notif-floating-badge {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-width: 22px;
-    height: 22px;
-    padding: 0 6px;
-    margin-left: auto;
-    border-radius: 999px;
-    font-size: 0.75rem;
-    font-weight: 700;
-    line-height: 1;
-    background-color: var(--ktr-green-muted);
-    color: var(--ktr-border-soft);
-    flex-shrink: 0;
-    transition: background-color 0.2s, color 0.2s;
-}
-
-.notif-floating-badge.has-unread {
-    background-color: #EF4444;
-    color: #FFFFFF;
-    box-shadow: 0 2px 6px rgba(239, 68, 68, 0.35);
-}
-
-.nav-item.active .notif-floating-badge.has-unread {
-    background-color: #FFFFFF;
-    color: var(--ktr-teal);
-}
-
-.nav-logout {
-    margin-top: 22px;
-    color: var(--ktr-border-soft);
-}
-
-.nav-logout:hover {
-    background: rgba(239, 68, 68, 0.15);
-    color: #FCA5A5;
-}
+/* Collapsed Sidebar */
 
 .ktr-sidebar.collapsed .sidebar-brand {
     padding: 20px 0;
@@ -450,8 +524,41 @@ async function handleLogout() {
     gap: 0;
 }
 
-.ktr-sidebar.collapsed .nav-logout {
-    margin-top: 22px;
+/* =====================================================
+   NOTIFICATION BADGE
+===================================================== */
+
+.nav-item-notifikasi {
+    position: relative;
+}
+
+.notif-floating-badge {
+    min-width: 22px;
+    height: 22px;
+    padding: 0 6px;
+    margin-left: auto;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    border-radius: 999px;
+    background-color: var(--ktr-green-muted);
+    color: var(--ktr-border-soft);
+    font-size: 0.75rem;
+    font-weight: 700;
+    line-height: 1;
+    transition: background-color 0.2s, color 0.2s;
+}
+
+.notif-floating-badge.has-unread {
+    background-color: #EF4444;
+    color: #FFFFFF;
+    box-shadow: 0 2px 6px rgba(239, 68, 68, 0.35);
+}
+
+.nav-item.active .notif-floating-badge.has-unread {
+    background-color: #FFFFFF;
+    color: var(--ktr-teal);
 }
 
 .ktr-sidebar.collapsed .notif-floating-badge {
@@ -461,36 +568,70 @@ async function handleLogout() {
     min-width: 16px;
     height: 16px;
     padding: 0 3px;
-    font-size: 10px;
     border: 2px solid var(--ktr-green);
+    font-size: 10px;
 }
 
-.ktr-main-wrap {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    min-width: 0;
-}
-
-.ktr-content {
-    flex: 1;
-    padding: 2.25rem 2.75rem 3.5rem;
-}
+/* =====================================================
+   TOPBAR
+===================================================== */
 
 .ktr-topbar {
-    display: none;
+    min-height: 72px;
+    padding: 0 2.5rem;
+    display: flex;
     align-items: center;
-    min-height: 62px;
-    padding: 0 20px;
-    background: var(--ktr-bg-page);
-    border-bottom: 1px solid var(--ktr-border-soft);
+    justify-content: space-between;
     box-sizing: border-box;
+    background: var(--ktr-bg-card, #ffffff);
+    border-bottom: 1px solid var(--ktr-border-soft);
 }
 
+.topbar-left {
+    display: flex;
+    align-items: center;
+}
+
+/* Back Button */
+
+.back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    border: none;
+    border-radius: 8px;
+    background: transparent;
+    color: #087d77;
+    font-family: inherit;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transform: translateX(-430px);
+    transition: all 0.2s ease;
+}
+
+.back-link svg {
+    width: 19px;
+    height: 19px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.back-link:hover {
+    background: #e6f4f1;
+    color: #065f59;
+}
+
+/* Mobile Menu Button */
+
 .mobile-menu-button {
+    display: none;
     width: 42px;
     height: 42px;
-    display: flex;
     align-items: center;
     justify-content: center;
     border: none;
@@ -500,18 +641,199 @@ async function handleLogout() {
     cursor: pointer;
 }
 
+.mobile-menu-button svg {
+    width: 24px;
+    height: 24px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+}
+
 .mobile-menu-button:hover {
     background: var(--ktr-green-hover);
 }
+
+/* =====================================================
+   USER PROFILE
+===================================================== */
+
+.topbar-user-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.topbar-user {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 7px 10px;
+    border: none;
+    border-radius: 10px;
+    background: transparent;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.topbar-user:hover {
+    background: #f1f5f9;
+}
+
+.user-avatar {
+    width: 38px;
+    height: 38px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: var(--ktr-green);
+    color: #fff;
+    font-size: 15px;
+    font-weight: 700;
+}
+
+.user-name {
+    max-width: 180px;
+    overflow: hidden;
+    color: var(--ktr-text-main);
+    font-size: 14px;
+    font-weight: 700;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.profile-chevron {
+    width: 16px;
+    height: 16px;
+    fill: none;
+    stroke: #64748b;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    transition: transform 0.2s ease;
+}
+
+.profile-chevron.rotated {
+    transform: rotate(180deg);
+}
+
+/* =====================================================
+   PROFILE DROPDOWN
+===================================================== */
+
+.profile-dropdown {
+    position: absolute;
+    top: calc(100% + 12px);
+    right: 0;
+    z-index: 1100;
+    width: 246px;
+    padding: 20px 22px;
+    box-sizing: border-box;
+    border: none;
+    border-radius: 24px;
+    background: #d9d9d9;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.10);
+    animation: profileDropdownIn 0.2s ease;
+}
+
+.profile-dropdown-info {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+}
+
+.profile-avatar {
+    width: 56px;
+    height: 60px;
+    min-width: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 18px;
+    background: #14283b;
+    color: #ffffff;
+    font-size: 15px;
+    font-weight: 700;
+}
+
+.profile-details {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 5px;
+}
+
+.profile-name {
+    max-width: 150px;
+    overflow: hidden;
+    color: #14283b;
+    font-size: 15px;
+    font-weight: 700;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.profile-logout {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    padding: 0;
+    border: none;
+    background: transparent;
+    color: #087f78;
+    font-family: inherit;
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+
+.profile-logout svg {
+    width: 19px;
+    height: 19px;
+    fill: none;
+    stroke: #222222;
+    stroke-width: 2.5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.profile-logout:hover {
+    color: #065f59;
+}
+
+.profile-logout:hover svg {
+    stroke: #065f59;
+}
+
+/* =====================================================
+   MOBILE OVERLAY
+===================================================== */
 
 .sidebar-overlay {
     display: none;
 }
 
+/* =====================================================
+   RESPONSIVE - TABLET
+===================================================== */
+
 @media (max-width: 960px) {
     .ktr-layout {
         flex-direction: row;
         min-height: 100vh;
+    }
+
+    .ktr-topbar {
+        min-height: 62px;
+        padding: 0 1.5rem;
+    }
+
+    .mobile-menu-button {
+        display: flex;
     }
 
     .ktr-sidebar,
@@ -520,6 +842,7 @@ async function handleLogout() {
         top: 0;
         left: 0;
         bottom: 0;
+        z-index: 1001;
 
         width: min(280px, 85vw);
         flex: 0 0 auto;
@@ -528,14 +851,11 @@ async function handleLogout() {
         height: 100dvh;
         min-height: 0;
 
-        overflow-y: auto;
         overflow-x: hidden;
-
-        z-index: 1001;
+        overflow-y: auto;
 
         transform: translateX(-100%);
         transition: transform 0.3s ease;
-
         box-shadow: none;
     }
 
@@ -565,25 +885,21 @@ async function handleLogout() {
         height: 22px;
         padding: 0 6px;
         margin-left: auto;
-        font-size: 0.75rem;
         border: none;
+        font-size: 0.75rem;
     }
 
     .sidebar-overlay {
-        display: block;
         position: fixed;
         inset: 0;
+        z-index: 1000;
+        display: block;
         width: 100%;
         height: 100%;
         padding: 0;
         border: none;
         background: rgba(0, 0, 0, 0.45);
-        z-index: 1000;
         cursor: pointer;
-    }
-
-    .ktr-topbar {
-        display: flex;
     }
 
     .ktr-main-wrap {
@@ -596,10 +912,43 @@ async function handleLogout() {
     }
 }
 
+/* =====================================================
+   RESPONSIVE - MOBILE
+===================================================== */
+
 @media (max-width: 600px) {
     .ktr-topbar {
         min-height: 58px;
-        padding: 0 15px;
+        padding: 0 1rem;
+    }
+
+    .mobile-menu-button {
+        width: 38px;
+        height: 38px;
+    }
+
+    .topbar-user {
+        gap: 6px;
+        padding: 5px;
+    }
+
+    .user-avatar {
+        width: 34px;
+        height: 34px;
+    }
+
+    .user-name {
+        max-width: 100px;
+        font-size: 12px;
+    }
+
+    .profile-dropdown {
+        width: 250px;
+        max-width: calc(100vw - 24px);
+    }
+
+    .profile-name {
+        max-width: 145px;
     }
 
     .ktr-content {
@@ -607,4 +956,19 @@ async function handleLogout() {
     }
 }
 
+/* =====================================================
+   ANIMATION
+===================================================== */
+
+@keyframes profileDropdownIn {
+    from {
+        opacity: 0;
+        transform: translateY(-8px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
 </style>

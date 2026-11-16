@@ -3,18 +3,8 @@
         <div class="dashboard-kontributor">
             <header class="page-topbar">
                 <div class="topbar-titles">
-                    <h1 class="page-title">Dashboard</h1>
-                    <p class="page-subtitle">Selamat datang, {{ userName }}</p>
-                </div>
-
-                <div class="topbar-actions">
-                    <router-link to="/kontributor/kirim-naskah" class="btn-kirim-baru">
-                        + Kirim naskah baru
-                    </router-link>
-                    <div class="user-chip">
-                        <div class="user-avatar">{{ userInitial }}</div>
-                        <span class="user-name">{{ userName }}</span>
-                    </div>
+                    <h1 class="page-title">Halo, {{ userName }}</h1>
+                    <p class="page-subtitle">Ringkasan naskah dan aktivitasmu</p>
                 </div>
             </header>
 
@@ -160,7 +150,7 @@
                             <div class="legend-item">
                                 <div class="legend-left">
                                     <span class="legend-dot legend-proses"></span>
-                                    <span class="legend-label">Dalam proses</span>
+                                    <span class="legend-label">Dalam proses (review dan revisi)</span>
                                 </div>
                                 <span class="legend-value">{{ dalamProsesPct }}%</span>
                             </div>
@@ -198,7 +188,7 @@ const stats = ref({
     dalam_proses: 0,
 })
 
-const recentNaskahs = computed(() => naskahs.value.slice(0, 8))
+const recentNaskahs = computed(() => naskahs.value)
 
 const circumference = 2 * Math.PI * 64 // ~402.12
 
@@ -503,6 +493,32 @@ function dotClass(status) {
 .activity-list {
     display: flex;
     flex-direction: column;
+
+    /* Scroll maksimal 5 aktivitas */
+    max-height: 350px;
+    overflow-y: auto;
+    overflow-x: hidden;
+
+    /* Ruang untuk scrollbar */
+    padding-right: 8px;
+}
+
+.activity-list::-webkit-scrollbar {
+    width: 7px;
+}
+
+.activity-list::-webkit-scrollbar-track {
+    background: #F1F5F9;
+    border-radius: 10px;
+}
+
+.activity-list::-webkit-scrollbar-thumb {
+    background: #BCC8D4;
+    border-radius: 10px;
+}
+
+.activity-list::-webkit-scrollbar-thumb:hover {
+    background: #94A3B8;
 }
 
 .activity-row {
