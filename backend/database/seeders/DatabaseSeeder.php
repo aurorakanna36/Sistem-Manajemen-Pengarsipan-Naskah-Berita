@@ -101,7 +101,7 @@ class DatabaseSeeder extends Seeder
             'nama_kontributor' => $kontributor->nama_lengkap,
             'judul' => 'Inovasi Teknologi Terkini di Era Digital 2026',
             'kata_kunci' => 'teknologi, digital, inovasi, AI',
-            'abstrak' => 'Perkembangan teknologi kecerdasan buatan dan infrastruktur digital mendorong transformasi layanan publik serta industri kreatif di Indonesia pada tahun 2026.',
+
             'isi' => '<h1>Inovasi Teknologi Terkini di Era Digital 2026</h1><p>Transformasi digital di Indonesia terus mengalami akselerasi pesat. Berbagai sektor mulai dari pendidikan hingga layanan publik kini mengadopsi sistem berbasis kecerdasan buatan.</p><h2>Dampak bagi Industri Kreatif</h2><p>Pelaku industri kreatif memanfaatkan perangkat analitik dan otomatisasi untuk meningkatkan produktivitas serta jangkauan audiens secara nasional.</p>',
             'kategori' => 'Teknologi, Nasional',
             'status_naskah' => 'diterbitkan',
@@ -141,7 +141,7 @@ class DatabaseSeeder extends Seeder
             'nama_kontributor' => $kontributor->nama_lengkap,
             'judul' => 'Strategi Pertumbuhan Ekonomi Kreatif Jawa Timur',
             'kata_kunci' => 'ekonomi kreatif, UMKM, Jawa Timur',
-            'abstrak' => 'Pertumbuhan UMKM dan ekonomi kreatif di Jawa Timur menunjukkan tren positif berkat kolaborasi digital dan dukungan pembiayaan daerah.',
+
             'isi' => '<h2>Pertumbuhan Ekonomi Kreatif</h2><p>Sektor ekonomi kreatif menjadi tulang punggung baru bagi perekonomian daerah di Jawa Timur dengan melibatkan ribuan pelaku UMKM.</p>',
             'kategori' => 'Ekonomi, Daerah',
             'status_naskah' => 'perlu_direview',
@@ -166,7 +166,7 @@ class DatabaseSeeder extends Seeder
             'nama_kontributor' => $kontributor->nama_lengkap,
             'judul' => 'Kajian Kebudayaan Tradisional Nusantara',
             'kata_kunci' => 'budaya, pendidikan, nusantara',
-            'abstrak' => 'Pelestarian kebudayaan tradisional melalui kurikulum pendidikan menjadi langkah strategis menjaga identitas generasi muda.',
+
             'isi' => '<p>Upaya pelestarian kebudayaan lokal memerlukan sinergi antara sekolah, keluarga, dan komunitas seni daerah.</p>',
             'kategori' => 'Pendidikan, Opini',
             'status_naskah' => 'ditolak',
@@ -199,7 +199,7 @@ class DatabaseSeeder extends Seeder
             'nama_kontributor' => $kontributor->nama_lengkap,
             'judul' => 'Transformasi Pendidikan Vokasi di Era Industri 5.0',
             'kata_kunci' => 'pendidikan vokasi, industri, teknologi',
-            'abstrak' => 'Pendidikan vokasi perlu menyelaraskan kurikulum praktik dengan kebutuhan industri modern agar lulusan siap kerja.',
+
             'isi' => '<h2>Kurikulum Berbasis Industri</h2><p>Sekolah vokasi dan politeknik mulai memperbarui laboratorium serta program magang terpadu bersama mitra industri.</p>',
             'kategori' => 'Pendidikan, Teknologi',
             'status_naskah' => 'direvisi',
@@ -232,7 +232,7 @@ class DatabaseSeeder extends Seeder
             'nama_guest' => $guest->nama,
             'judul' => 'Suara Warga: Pentingnya Penghijauan Jalur Pedestrian',
             'kata_kunci' => 'pedestrian, lingkungan, opini warga',
-            'abstrak' => 'Penghijauan jalur pejalan kaki di pusat kota sangat dibutuhkan untuk meningkatkan kenyamanan warga.',
+
             'isi' => '<p>Jalur pedestrian yang teduh akan mendorong masyarakat lebih gemar berjalan kaki dan menggunakan transportasi umum.</p>',
             'kategori' => 'Opini',
             'status_naskah' => 'perlu_direview',

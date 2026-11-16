@@ -59,7 +59,7 @@ const userInfo = computed(() => {
     return raw ? JSON.parse(raw) : null
 })
 const dashboardRoute = computed(() => {
-    if (userInfo.value?.role === 'admin') return '/admin/review-naskah'
+    if (userInfo.value?.role === 'admin') return '/admin/dashboard'
     return '/kontributor/dashboard'
 })
 
