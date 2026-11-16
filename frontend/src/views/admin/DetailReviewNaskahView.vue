@@ -10,7 +10,7 @@
                 <div class="naskah-main-panel">
                     <div class="naskah-header-image">
                         <figure v-if="coverImageUrl" class="sampul-figure">
-                            <<img v-if="coverImageUrl" :src="coverImageUrl" :alt="naskah.judul" class="sampul-img" />
+                            <img :src="coverImageUrl" :alt="naskah.judul" class="sampul-img" />
 
                             <figcaption v-if="naskah.gambar_sampul_keterangan">
                                 Keterangan: {{ naskah.gambar_sampul_keterangan }}
