@@ -146,9 +146,12 @@
                             </div>
 
                             <div class="profile-details">
-                                <span class="profile-name">
+                                <router-link :to="{
+                                    name: 'kontributor.profil',
+                                    params: { id: user.id }
+                                }" class="profile-name-link" @click="closeProfileMenu">
                                     {{ userName }}
-                                </span>
+                                </router-link>
 
                                 <button type="button" class="profile-logout" @click="handleLogout">
                                     <svg viewBox="0 0 24 24">
@@ -736,7 +739,7 @@ onBeforeUnmount(() => {
     top: calc(100% + 12px);
     right: 0;
     z-index: 1100;
-    width: 246px;
+    width: 260px;
     padding: 20px 22px;
     box-sizing: border-box;
     border: none;
@@ -782,6 +785,36 @@ onBeforeUnmount(() => {
     font-weight: 700;
     text-overflow: ellipsis;
     white-space: nowrap;
+}
+
+/* Profile Name Router Link */
+.profile-name-link {
+    display: inline-block;
+    max-width: 170px;
+    overflow: hidden;
+
+    color: #14283b;
+    font-family: inherit;
+    font-size: 15px;
+    font-weight: 700;
+
+    text-decoration: none;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+
+.profile-name-link:hover {
+    color: #087f78;
+    text-decoration: underline;
+}
+
+.profile-name-link:focus-visible {
+    outline: 2px solid #087f78;
+    outline-offset: 3px;
+    border-radius: 3px;
 }
 
 .profile-logout {
@@ -959,6 +992,11 @@ onBeforeUnmount(() => {
 
     .profile-name {
         max-width: 145px;
+    }
+
+    .profile-name-link {
+        max-width: 145px;
+        font-size: 14px;
     }
 
     .ktr-content {

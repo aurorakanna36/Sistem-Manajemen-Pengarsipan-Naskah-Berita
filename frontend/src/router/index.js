@@ -129,6 +129,15 @@ const routes = [
     component: RevisiNaskahKontributorView,
     meta: { requiresAuth: true, role: "kontributor" },
   },
+  {
+    path: '/kontributor/profil/:id',
+    name: 'kontributor.profil',
+    component: () => import('@/views/kontributor/ProfileKontributorView.vue'),
+    meta: {
+      requiresAuth: true,
+      role: 'kontributor'
+    }
+  },
 ];
 
 const router = createRouter({
