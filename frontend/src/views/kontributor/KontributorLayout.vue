@@ -577,11 +577,19 @@ onBeforeUnmount(() => {
 ===================================================== */
 
 .ktr-topbar {
+    position: sticky;
+    top: 0;
+    z-index: 999;
+
     min-height: 72px;
+    height: 72px;
+    flex-shrink: 0;
+
     padding: 0 2.5rem;
     display: flex;
     align-items: center;
     justify-content: space-between;
+
     box-sizing: border-box;
     background: var(--ktr-bg-card, #ffffff);
     border-bottom: 1px solid var(--ktr-border-soft);
@@ -829,6 +837,7 @@ onBeforeUnmount(() => {
 
     .ktr-topbar {
         min-height: 62px;
+        height: 62px;
         padding: 0 1.5rem;
     }
 
@@ -919,6 +928,7 @@ onBeforeUnmount(() => {
 @media (max-width: 600px) {
     .ktr-topbar {
         min-height: 58px;
+        height: 58px;
         padding: 0 1rem;
     }
 

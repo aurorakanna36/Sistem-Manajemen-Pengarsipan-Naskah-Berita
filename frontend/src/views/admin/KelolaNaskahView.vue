@@ -7,32 +7,18 @@
             </div>
 
             <div class="filter-pills-row">
-                <button 
-                    class="pill-btn" 
-                    :class="{ active: currentTab === 'all' }"
-                    @click="currentTab = 'all'"
-                >
+                <button class="pill-btn" :class="{ active: currentTab === 'all' }" @click="currentTab = 'all'">
                     Semua ({{ countAll }})
                 </button>
-                <button 
-                    class="pill-btn" 
-                    :class="{ active: currentTab === 'diterima' }"
-                    @click="currentTab = 'diterima'"
-                >
+                <button class="pill-btn" :class="{ active: currentTab === 'diterima' }"
+                    @click="currentTab = 'diterima'">
                     Diterima ({{ countDiterima }})
                 </button>
-                <button 
-                    class="pill-btn" 
-                    :class="{ active: currentTab === 'ditolak' }"
-                    @click="currentTab = 'ditolak'"
-                >
+                <button class="pill-btn" :class="{ active: currentTab === 'ditolak' }" @click="currentTab = 'ditolak'">
                     Ditolak ({{ countDitolak }})
                 </button>
-                <button 
-                    class="pill-btn" 
-                    :class="{ active: currentTab === 'perlu_direview' }"
-                    @click="currentTab = 'perlu_direview'"
-                >
+                <button class="pill-btn" :class="{ active: currentTab === 'perlu_direview' }"
+                    @click="currentTab = 'perlu_direview'">
                     Perlu review ({{ countPerluReview }})
                 </button>
             </div>
@@ -40,28 +26,15 @@
             <div class="filter-card">
                 <div class="filter-grid">
                     <div class="filter-field">
-                        <input 
-                            v-model="searchJudul" 
-                            type="text" 
-                            placeholder="Cari judul naskah"
-                            class="filter-input"
-                        />
+                        <input v-model="searchJudul" type="text" placeholder="Cari judul naskah" class="filter-input" />
                     </div>
                     <div class="filter-field">
-                        <input 
-                            v-model="searchKontributor" 
-                            type="text" 
-                            placeholder="Cari nama kontributor"
-                            class="filter-input"
-                        />
+                        <input v-model="searchKontributor" type="text" placeholder="Cari nama kontributor"
+                            class="filter-input" />
                     </div>
                     <div class="filter-field">
-                        <input 
-                            v-model="filterDate" 
-                            type="text" 
-                            placeholder="Tanggal (contoh: 2026-10)"
-                            class="filter-input"
-                        />
+                        <input v-model="filterDate" type="text" placeholder="Tanggal (contoh: 2026-10)"
+                            class="filter-input" />
                     </div>
                 </div>
             </div>
@@ -71,14 +44,16 @@
                 Tidak ada naskah yang cocok dengan filter yang dipilih.
             </div>
             <div v-else class="cards-grid">
-                <router-link 
-                    v-for="item in paginatedNaskahs" 
-                    :key="item.id"
-                    :to="`/admin/review-naskah/${item.id}`"
-                    class="naskah-card-item"
-                >
+                <router-link v-for="item in paginatedNaskahs" :key="item.id" :to="`/admin/review-naskah/${item.id}`"
+                    class="naskah-card-item">
                     <div class="card-thumb-area">
-                        <span>Gambar sampul</span>
+                        <img v-if="item.gambar_sampul" :src="getCoverImageUrl(item.gambar_sampul)"
+                            :alt="item.gambar_sampul_alt || item.judul" class="card-cover-image" @error="(event) => {
+                                console.error('Gagal memuat gambar:', item.gambar_sampul)
+                                event.target.style.display = 'none'
+                            }" />
+
+                        <span v-else>Gambar sampul belum tersedia</span>
                     </div>
 
                     <div class="card-body-content">
@@ -99,13 +74,8 @@
             </div>
 
             <div v-if="totalPages > 1" class="pagination-row">
-                <button 
-                    v-for="p in totalPages" 
-                    :key="p"
-                    class="page-btn"
-                    :class="{ active: currentPage === p }"
-                    @click="currentPage = p"
-                >
+                <button v-for="p in totalPages" :key="p" class="page-btn" :class="{ active: currentPage === p }"
+                    @click="currentPage = p">
                     {{ p }}
                 </button>
             </div>
@@ -161,6 +131,25 @@ function statusClass(status) {
     return 'badge-info'
 }
 
+function getCoverImageUrl(image) {
+    if (!image) return ''
+
+    // Jika URL sudah lengkap
+    if (image.startsWith('http://') || image.startsWith('https://')) {
+        return image
+    }
+
+    // Jika path masih berupa path relatif
+    const cleanPath = image.replace(/^\/+/, '')
+
+    // Jika hanya nama file
+    if (!cleanPath.includes('/')) {
+        return `http://localhost:8000/storage/sampul_naskah/${cleanPath}`
+    }
+
+    return `http://localhost:8000/storage/${cleanPath}`
+}
+
 const countAll = computed(() => allNaskahs.value.length)
 const countDiterima = computed(() => {
     return allNaskahs.value.filter(n => n.status_naskah === 'diterima' || n.status === 'approved' || n.status_naskah === 'diterbitkan').length
@@ -201,10 +190,16 @@ const paginatedNaskahs = computed(() => {
 
 async function fetchAllNaskahs() {
     loading.value = true
+
     try {
         const res = await api.admin.getNaskahs()
         allNaskahs.value = res.data.naskahs || res.data.data || []
-    } catch {
+
+        console.log('Semua naskah:', allNaskahs.value)
+        console.log('Gambar sampul:', allNaskahs.value.map(n => n.gambar_sampul))
+
+    } catch (error) {
+        console.error('Gagal mengambil naskah:', error)
         allNaskahs.value = []
     } finally {
         loading.value = false
@@ -323,7 +318,6 @@ onMounted(() => {
 
 .card-thumb-area {
     height: 160px;
-    background-color: #DDE5EC;
     background-color: var(--adm-border-soft);
     display: flex;
     align-items: center;
@@ -331,6 +325,15 @@ onMounted(() => {
     color: var(--adm-text-muted);
     font-size: 0.9rem;
     font-weight: 500;
+    overflow: hidden;
+    position: relative;
+}
+
+.card-cover-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
 }
 
 .card-body-content {
@@ -450,9 +453,9 @@ onMounted(() => {
     .filter-grid {
         grid-template-columns: 1fr;
     }
+
     .cards-grid {
         grid-template-columns: 1fr;
     }
 }
 </style>
-

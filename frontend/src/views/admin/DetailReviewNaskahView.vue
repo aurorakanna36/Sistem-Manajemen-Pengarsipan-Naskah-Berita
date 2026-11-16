@@ -9,16 +9,15 @@
             <div v-else class="review-grid">
                 <div class="naskah-main-panel">
                     <div class="naskah-header-image">
-                        <figure v-if="naskah.gambar_sampul" class="sampul-figure">
-                            <img :src="naskah.gambar_sampul" :alt="naskah.gambar_sampul_alt || naskah.judul"
-                                class="sampul-img" />
+                        <figure v-if="coverImageUrl" class="sampul-figure">
+                            <<img v-if="coverImageUrl" :src="coverImageUrl" :alt="naskah.judul" class="sampul-img" />
 
                             <figcaption v-if="naskah.gambar_sampul_keterangan">
                                 Keterangan: {{ naskah.gambar_sampul_keterangan }}
                             </figcaption>
                         </figure>
 
-                        <span v-else>Gambar sampul</span>
+                        <span v-else>Gambar sampul belum tersedia</span>
                     </div>
 
                     <div class="naskah-content-area">
@@ -195,6 +194,16 @@ const articleParagraphs = computed(() => {
         return ['Isi naskah belum dilampirkan secara teks langsung. Silakan unduh berkas naskah di bawah untuk membaca naskah selengkapnya.']
     }
     return text.split('\n\n').filter(p => p.trim())
+})
+
+const coverImageUrl = computed(() => {
+    const image = naskah.value?.gambar_sampul
+
+    if (!image) return ''
+
+    if (image.startsWith('http')) return image
+
+    return `http://localhost:8000/storage/${image.replace(/^\/+/, '')}`
 })
 
 function formatDate(dateStr) {
