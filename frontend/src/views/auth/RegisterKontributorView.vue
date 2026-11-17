@@ -373,9 +373,17 @@ async function handleRegister() {
         if (errors) {
             const firstKey = Object.keys(errors)[0]
             errorMessage.value = errors[firstKey][0]
+        } else if (error.response?.data?.message) {
+            const msg = error.response.data.message
+            if (msg.includes('The given data was invalid')) {
+                errorMessage.value = 'Data formulir yang Anda masukkan belum lengkap atau tidak valid.'
+            } else {
+                errorMessage.value = msg
+            }
+        } else if (error.message && error.message.includes('Network Error')) {
+            errorMessage.value = 'Gagal terhubung ke server. Periksa koneksi internet Anda.'
         } else {
-            errorMessage.value =
-                error.message || 'Terjadi kesalahan. Coba lagi.'
+            errorMessage.value = 'Terjadi kendala saat memproses pendaftaran. Silakan coba beberapa saat lagi.'
         }
 
         Swal.fire({
