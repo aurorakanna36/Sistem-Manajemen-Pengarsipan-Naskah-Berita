@@ -1,2 +1,5 @@
 *
 !.gitignore
+!administrasi/
+!media_naskah/
+!sampul_naskah/
