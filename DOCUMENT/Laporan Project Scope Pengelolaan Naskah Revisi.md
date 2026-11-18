@@ -1,3 +1,7 @@
+> Induk Dokumentasi: [[MOC - Harian Cakrawala]]
+
+---
+
 **LAPORAN PROJECT SCOPE**
 
 **SISTEM MANAJEMEN PENGARSIPAN NASKAH BERITA**

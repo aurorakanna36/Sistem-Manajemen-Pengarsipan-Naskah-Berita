@@ -1,4 +1,9 @@
 
+# 📌 Catatan Awal: Manajemen Berita
+Induk Dokumentasi: [[MOC - Harian Cakrawala]]
+
+---
+
 manajement berita : harian cakrawala (**case awal**) (**target general media**)
 ( mengetahui kontribtrutor yang menggunakan media)  ( membuat arisp) (notifikasi default naskah di arsip ( defaut = arsip), ( review), (diterbitkan ))
 ( megnethaui siapapengguna atau akun  yagn mengpload atau merepost berita tersbeut atau yang membuat artikel baru
