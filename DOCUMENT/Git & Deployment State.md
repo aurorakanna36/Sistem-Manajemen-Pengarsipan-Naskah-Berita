@@ -24,8 +24,10 @@ Dokumentasi status repositori git, branch aktif, commit terkini, serta prosedur 
 
 - **Branch Aktif**: `final`
 - **Branch Produksi**: `main` (sudah tersinkronisasi)
-- **Commit Terakhir**: `3044a88`
-- **Pesan Commit**: `fix(sampul): perbaiki bug placeholder muncul bersamaan dengan gambar sampul`
+- **Commit Terakhir**: `13b6612`
+- **Pesan Commit**: `merge: gabungkan perubahan dari branch update-baru ke final`
+- **Riwayat Penggabungan Terakhir**:
+  - Menggabungkan branch `origin/update-baru` (commit `7cc3b9d`: pembaruan halaman kirim naskah tamu & layout kontributor)
 - **Remote Origin**: `https://github.com/aurorakanna36/Sistem-Manajemen-Pengarsipan-Naskah-Berita`
 
 ---
