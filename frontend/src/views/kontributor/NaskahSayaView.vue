@@ -129,6 +129,7 @@
 import { ref, computed, onMounted, watch } from 'vue'
 import KontributorLayout from './KontributorLayout.vue'
 import api from '@/api/index.js'
+import { getCoverImageUrl } from '@/utils/imageUrl.js'
 
 // STATE
 const loading = ref(true)
@@ -324,33 +325,7 @@ onMounted(() => {
 
 // URL GAMBAR SAMPUL
 function coverUrl(item) {
-
-    const gambar =
-        item.gambar_sampul_url ||
-        item.gambar_sampul ||
-        item.cover_url ||
-        item.sampul ||
-        item.thumbnail
-
-    if (!gambar) return null
-
-    if (
-        gambar.startsWith('http://') ||
-        gambar.startsWith('https://') ||
-        gambar.startsWith('data:')
-    ) {
-        return gambar
-    }
-
-    const baseUrl = (
-        import.meta.env.VITE_APP_URL || 'http://localhost:8000'
-    ).replace(/\/$/, '')
-
-    const path = gambar
-        .replace(/^\/+/, '')
-        .replace(/^storage\//, '')
-
-    return `${baseUrl}/storage/${path}`
+    return getCoverImageUrl(item) || null
 }
 
 // JIKA GAMBAR TIDAK DITEMUKAN

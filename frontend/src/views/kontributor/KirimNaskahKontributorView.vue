@@ -316,18 +316,21 @@
                     </div>
                 </div>
 
-                <!-- Gambar Sampul (Berkas Naskah PDF/DOCX Dihapus) -->
+                <!-- Gambar Sampul -->
                 <div class="form-field">
                     <label class="field-label">Gambar sampul<span class="req">*</span></label>
 
                     <div
                         class="sampul-dropzone"
-                        :class="{ 'has-preview': sampulPreviewUrl }"
-                        @click="$refs.sampulInput.click()"
+                        :class="{ 'has-preview': sampulPreviewUrl, 'is-dragging': isDraggingSampul }"
+                        @click="triggerSampulSelect"
+                        @dragover.prevent="isDraggingSampul = true"
+                        @dragleave.prevent="isDraggingSampul = false"
+                        @drop.prevent="onDropSampul"
                     >
                         <template v-if="!sampulPreviewUrl">
-                            <span class="sampul-title">Klik untuk unggah gambar sampul</span>
-                            <span class="sampul-sub">PNG, JPG maksimal 2 MB</span>
+                            <span class="sampul-title">Klik atau seret gambar ke sini untuk unggah gambar sampul</span>
+                            <span class="sampul-sub">PNG, JPG, JPEG, WEBP maksimal 4 MB</span>
                         </template>
 
                         <div v-else class="sampul-preview-container" @click.stop>
@@ -345,7 +348,7 @@
                                     <button
                                         type="button"
                                         class="btn-sampul-action"
-                                        @click="$refs.sampulInput.click()"
+                                        @click="triggerSampulSelect"
                                     >
                                         Ganti gambar
                                     </button>
@@ -363,8 +366,9 @@
                         <input
                             ref="sampulInput"
                             type="file"
-                            accept="image/png,image/jpeg,image/webp"
+                            accept="image/png,image/jpeg,image/jpg,image/webp"
                             hidden
+                            @click.stop
                             @change="onSelectSampul"
                         />
                     </div>
@@ -467,9 +471,11 @@ const specialCharacters = [
 ]
 
 const showMediaModal = ref(false)
+const sampulInput = ref(null)
 const sampulFile = ref(null)
 const sampulFileName = ref('')
 const sampulPreviewUrl = ref('')
+const isDraggingSampul = ref(false)
 
 const submitting = ref(false)
 const errorMessage = ref('')
@@ -765,9 +771,34 @@ function handleEditorScroll() {
     }
 }
 
-function onSelectSampul(event) {
-    const file = event.target.files?.[0]
+function triggerSampulSelect() {
+    if (sampulInput.value) {
+        sampulInput.value.value = ''
+        sampulInput.value.click()
+    }
+}
+
+function processSampulFile(file) {
     if (!file) return
+    if (!file.type.startsWith('image/')) {
+        Swal.fire({
+            icon: 'warning',
+            title: 'Format Tidak Sesuai',
+            text: 'Silakan pilih file gambar (JPG, PNG, WEBP).',
+            confirmButtonColor: '#0d5c4d'
+        })
+        return
+    }
+    if (file.size > 4 * 1024 * 1024) {
+        Swal.fire({
+            icon: 'warning',
+            title: 'Ukuran Terlalu Besar',
+            text: 'Ukuran gambar maksimal adalah 4 MB.',
+            confirmButtonColor: '#0d5c4d'
+        })
+        return
+    }
+
     sampulFile.value = file
     sampulFileName.value = file.name
 
@@ -778,10 +809,24 @@ function onSelectSampul(event) {
     reader.readAsDataURL(file)
 }
 
+function onSelectSampul(event) {
+    const file = event.target.files?.[0]
+    processSampulFile(file)
+}
+
+function onDropSampul(event) {
+    isDraggingSampul.value = false
+    const file = event.dataTransfer?.files?.[0]
+    processSampulFile(file)
+}
+
 function removeSampul() {
     sampulFile.value = null
     sampulFileName.value = ''
     sampulPreviewUrl.value = ''
+    if (sampulInput.value) {
+        sampulInput.value.value = ''
+    }
 }
 
 function insertSampulToEditor() {
@@ -857,8 +902,8 @@ async function submitNaskah() {
         const fd = new FormData()
 
         fd.append('judul', form.judul)
-        fd.append('kata_kunci', form.kata_kunci)
-        fd.append('isi', form.isi)
+        fd.append('kata_kunci', form.kata_kunci || '')
+        fd.append('isi', form.isi || '')
 
         selectedKategoriIds.value.forEach((id) => {
             fd.append('kategori_ids[]', id)
@@ -1559,7 +1604,8 @@ async function submitNaskah() {
     transition: border-color 0.15s, background-color 0.15s;
 }
 
-.sampul-dropzone:hover {
+.sampul-dropzone:hover,
+.sampul-dropzone.is-dragging {
     border-color: var(--ktr-teal);
     background-color: #F0F9F6;
 }

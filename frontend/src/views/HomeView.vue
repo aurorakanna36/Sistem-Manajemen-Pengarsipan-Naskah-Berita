@@ -434,6 +434,7 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import api from '../api/index.js'
+import { getCoverImageUrl } from '@/utils/imageUrl.js'
 
 // State
 const posts = ref([])
@@ -578,12 +579,7 @@ function normalizeWpPost(item) {
 }
 
 function normalizeLocalNaskah(item) {
-    let img = ''
-    if (item.gambar_sampul) {
-        img = item.gambar_sampul.startsWith('http')
-            ? item.gambar_sampul
-            : `http://localhost:8000/storage/${item.gambar_sampul.replace(/^\/+/, '')}`
-    }
+    const img = getCoverImageUrl(item)
 
     return {
         id: item.id,

@@ -313,13 +313,15 @@
 
 <script setup>
 import { ref, reactive, computed, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import KontributorLayout from './KontributorLayout.vue'
 import MediaUploadModal from './MediaUploadModal.vue'
 import api from '@/api/index.js'
 import Swal from 'sweetalert2'
+import { getCoverImageUrl } from '@/utils/imageUrl.js'
 
 const router = useRouter()
+const route = useRoute()
 const userRaw = localStorage.getItem('user_info')
 const user = userRaw ? JSON.parse(userRaw) : null
 
@@ -411,6 +413,31 @@ onMounted(async () => {
         }
     } catch {
         // Use fallback 13 categories
+    }
+
+    const naskahId = route.params.id
+    if (naskahId) {
+        try {
+            const res = await api.kontributor.getNaskahDetail(naskahId)
+            const n = res.data?.naskah
+            if (n) {
+                form.judul = n.judul || ''
+                form.isi = n.isi || ''
+                if (editorRef.value) {
+                    editorRef.value.innerHTML = form.isi
+                }
+                if (n.kategoris && n.kategoris.length) {
+                    selectedKategoriIds.value = n.kategoris.map((k) => k.id)
+                }
+                const sampulUrl = getCoverImageUrl(n)
+                if (sampulUrl) {
+                    sampulPreviewUrl.value = sampulUrl
+                    sampulFileName.value = 'Gambar sampul tersimpan'
+                }
+            }
+        } catch (err) {
+            console.error('Gagal mengambil data naskah untuk revisi:', err)
+        }
     }
 })
 

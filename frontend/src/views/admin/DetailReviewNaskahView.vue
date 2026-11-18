@@ -10,14 +10,14 @@
                 <div class="naskah-main-panel">
                     <div class="naskah-header-image">
                         <figure v-if="coverImageUrl" class="sampul-figure">
-                            <img :src="coverImageUrl" :alt="naskah.judul" class="sampul-img" />
+                            <img :src="coverImageUrl" :alt="naskah.judul || 'Sampul naskah'" class="sampul-img" @error="handleSampulError" />
 
                             <figcaption v-if="naskah.gambar_sampul_keterangan">
                                 Keterangan: {{ naskah.gambar_sampul_keterangan }}
                             </figcaption>
                         </figure>
 
-                        <span v-else>Gambar sampul belum tersedia</span>
+                        <span v-else class="sampul-empty-text">Gambar sampul belum tersedia</span>
                     </div>
 
                     <div class="naskah-content-area">
@@ -144,10 +144,12 @@ import { useRoute, useRouter } from 'vue-router'
 import AdminLayout from './AdminLayout.vue'
 import api from '@/api/index.js'
 import Swal from 'sweetalert2'
+import { getCoverImageUrl } from '@/utils/imageUrl.js'
 
 const route = useRoute()
 const router = useRouter()
 const loading = ref(true)
+const imageLoadFailed = ref(false)
 
 const naskah = ref(null)
 const selectedDecision = ref('approved')
@@ -198,14 +200,13 @@ const articleParagraphs = computed(() => {
 })
 
 const coverImageUrl = computed(() => {
-    const image = naskah.value?.gambar_sampul
-
-    if (!image) return ''
-
-    if (image.startsWith('http')) return image
-
-    return `http://localhost:8000/storage/${image.replace(/^\/+/, '')}`
+    if (imageLoadFailed.value) return ''
+    return getCoverImageUrl(naskah.value)
 })
+
+function handleSampulError() {
+    imageLoadFailed.value = true
+}
 
 function formatDate(dateStr) {
     if (!dateStr) return '-'
@@ -242,6 +243,7 @@ function statusClass(status) {
 
 async function fetchNaskahDetail() {
     loading.value = true
+    imageLoadFailed.value = false
     const id = route.params.id
 
     try {

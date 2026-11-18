@@ -60,4 +60,39 @@ class Naskah extends Model
         return $this->belongsToMany(Kategori::class, 'naskah_kategori', 'id_naskah', 'id_kategori')
             ->withTimestamps();
     }
+
+    /**
+     * Helper statis untuk menormalkan URL gambar sampul.
+     * Membersihkan duplikasi storage/ dan mendukung fallback gambar pertama dari isi.
+     */
+    public static function resolveGambarSampulUrl(?string $gambarSampul, ?string $isi = null): ?string
+    {
+        if (empty($gambarSampul)) {
+            if (!empty($isi) && preg_match('/<img[^>]+src=["\']([^"\']+)["\']/i', $isi, $matches)) {
+                $gambarSampul = $matches[1];
+            } else {
+                return null;
+            }
+        }
+
+        // Jika sudah URL http/https lengkap atau data URL
+        if (preg_match('/^(https?:\/\/|data:)/i', $gambarSampul)) {
+            return preg_replace('/(\/storage)+\/storage\//', '/storage/', $gambarSampul);
+        }
+
+        $clean = ltrim($gambarSampul, '/');
+        if (str_starts_with($clean, 'storage/')) {
+            $clean = substr($clean, 8);
+        }
+        if (!str_contains($clean, '/')) {
+            $clean = 'sampul_naskah/' . $clean;
+        }
+
+        return asset('storage/' . $clean);
+    }
+
+    public function getGambarSampulUrlAttribute(): ?string
+    {
+        return self::resolveGambarSampulUrl($this->gambar_sampul, $this->isi);
+    }
 }

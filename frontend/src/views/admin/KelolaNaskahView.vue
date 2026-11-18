@@ -47,13 +47,12 @@
                 <router-link v-for="item in paginatedNaskahs" :key="item.id" :to="`/admin/review-naskah/${item.id}`"
                     class="naskah-card-item">
                     <div class="card-thumb-area">
-                        <img v-if="item.gambar_sampul" :src="getCoverImageUrl(item.gambar_sampul)"
-                            :alt="item.gambar_sampul_alt || item.judul" class="card-cover-image" @error="(event) => {
-                                console.error('Gagal memuat gambar:', item.gambar_sampul)
-                                event.target.style.display = 'none'
-                            }" />
-
-                        <span v-else>Gambar sampul belum tersedia</span>
+                        <img v-if="getCoverImageUrl(item) && !item._sampulError"
+                            :src="getCoverImageUrl(item)"
+                            :alt="item.gambar_sampul_alt || item.judul"
+                            class="card-cover-image"
+                            @error="handleCardImageError($event, item)" />
+                        <span v-else class="card-thumb-placeholder">Gambar sampul belum tersedia</span>
                     </div>
 
                     <div class="card-body-content">
@@ -87,6 +86,12 @@
 import { ref, computed, onMounted } from 'vue'
 import AdminLayout from './AdminLayout.vue'
 import api from '@/api/index.js'
+import { getCoverImageUrl } from '@/utils/imageUrl.js'
+
+function handleCardImageError(event, item) {
+    event.target.style.display = 'none'
+    if (item) item._sampulError = true
+}
 
 const loading = ref(true)
 const allNaskahs = ref([])
@@ -131,24 +136,6 @@ function statusClass(status) {
     return 'badge-info'
 }
 
-function getCoverImageUrl(image) {
-    if (!image) return ''
-
-    // Jika URL sudah lengkap
-    if (image.startsWith('http://') || image.startsWith('https://')) {
-        return image
-    }
-
-    // Jika path masih berupa path relatif
-    const cleanPath = image.replace(/^\/+/, '')
-
-    // Jika hanya nama file
-    if (!cleanPath.includes('/')) {
-        return `http://localhost:8000/storage/sampul_naskah/${cleanPath}`
-    }
-
-    return `http://localhost:8000/storage/${cleanPath}`
-}
 
 const countAll = computed(() => allNaskahs.value.length)
 const countDiterima = computed(() => {
@@ -327,6 +314,15 @@ onMounted(() => {
     font-weight: 500;
     overflow: hidden;
     position: relative;
+    text-align: center;
+    padding: 0 1rem;
+}
+
+.card-thumb-placeholder {
+    position: absolute;
+    z-index: 1;
+    font-size: 0.85rem;
+    color: var(--adm-text-muted);
 }
 
 .card-cover-image {
@@ -334,6 +330,8 @@ onMounted(() => {
     height: 100%;
     object-fit: cover;
     display: block;
+    position: relative;
+    z-index: 2;
 }
 
 .card-body-content {

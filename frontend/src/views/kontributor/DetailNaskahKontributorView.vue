@@ -21,9 +21,11 @@
 
                     <!-- SAMPUL -->
                     <div class="sampul-banner">
-                        <img v-if="naskah.gambar_sampul" :src="naskah.gambar_sampul"
-                            :alt="naskah.judul || 'Sampul naskah'" class="sampul-image" />
-
+                        <img v-if="getCoverImageUrl(naskah) && !sampulError"
+                            :src="getCoverImageUrl(naskah)"
+                            :alt="naskah.judul || 'Sampul naskah'"
+                            class="sampul-image"
+                            @error="sampulError = true" />
                         <span v-else class="sampul-placeholder">
                             Gambar sampul belum tersedia
                         </span>
@@ -162,11 +164,13 @@ import { ref, computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import KontributorLayout from './KontributorLayout.vue'
 import api from '@/api/index.js'
+import { getCoverImageUrl } from '@/utils/imageUrl.js'
 
 const route = useRoute()
 
 const loading = ref(true)
 const naskah = ref(null)
+const sampulError = ref(false)
 
 // STATUS NASKAH
 const currentStatus = computed(() => {

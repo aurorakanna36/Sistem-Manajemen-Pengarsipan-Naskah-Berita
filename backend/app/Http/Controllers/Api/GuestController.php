@@ -26,6 +26,7 @@ class GuestController extends Controller
             'sosial_media' => ['nullable', 'string', 'max:50'],
             'judul' => ['required', 'string'],
             'kategori' => ['nullable', 'string', 'max:30'],
+            'gambar_sampul' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp,gif', 'max:4096'],
             'file' => ['nullable', 'file', 'mimes:pdf,doc,docx', 'max:10240'],
             'berkas_naskah' => ['nullable', 'file', 'mimes:pdf,doc,docx', 'max:10240'],
         ]);
@@ -50,11 +51,17 @@ class GuestController extends Controller
             $filePath = $request->file('berkas_naskah')->store('naskah_files', 'public');
         }
 
+        $gambarSampulPath = null;
+        if ($request->hasFile('gambar_sampul')) {
+            $gambarSampulPath = $request->file('gambar_sampul')->store('sampul_naskah', 'public');
+        }
+
         $naskah = Naskah::create([
             'id_guest' => $guest->id,
             'nama_guest' => $guest->nama,
             'judul' => $validated['judul'],
             'kategori' => $kategori,
+            'gambar_sampul' => $gambarSampulPath,
             'file_path' => $filePath,
             'status_naskah' => 'perlu_direview',
             'waktu_kirim' => now(),

@@ -14,6 +14,11 @@ api.interceptors.request.use((config) => {
     if (token) {
         config.headers.Authorization = `Bearer ${token}`
     }
+    // Jika mengirim FormData, hapus Content-Type agar browser otomatis
+    // menyertakan multipart/form-data beserta boundary yang valid
+    if (config.data instanceof FormData) {
+        delete config.headers['Content-Type']
+    }
     return config
 })
 

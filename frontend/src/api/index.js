@@ -4,9 +4,7 @@ const api = {
   auth: {
     login: (data) => http.post("/auth/login", data),
     register: (formData) =>
-      http.post("/auth/register-kontributor", formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      }),
+      http.post("/auth/register-kontributor", formData),
     me: () => http.get("/auth/me"),
     logout: () => http.post("/auth/logout"),
   },
@@ -17,9 +15,7 @@ const api = {
 
   guest: {
     kirimNaskah: (formData) =>
-      http.post("/guest/kirim-naskah", formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      }),
+      http.post("/guest/kirim-naskah", formData),
   },
 
   kontributor: {
@@ -28,13 +24,9 @@ const api = {
     getNaskahs: () => http.get("/kontributor/naskah"),
     getNaskahDetail: (id) => http.get(`/kontributor/naskah/${id}`),
     storeNaskah: (formData) =>
-      http.post("/kontributor/naskah", formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      }),
+      http.post("/kontributor/naskah", formData),
     uploadMedia: (formData) =>
-      http.post("/kontributor/media", formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      }),
+      http.post("/kontributor/media", formData),
     getNotifikasi: () => http.get("/kontributor/notifikasi"),
     markNotifikasiRead: (id) => http.post(`/kontributor/notifikasi/${id}/read`),
     markAllNotifikasiRead: () => http.post("/kontributor/notifikasi/read-all"),
