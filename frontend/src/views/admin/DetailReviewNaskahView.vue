@@ -143,6 +143,7 @@ import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import AdminLayout from './AdminLayout.vue'
 import api from '@/api/index.js'
+import Swal from 'sweetalert2'
 
 const route = useRoute()
 const router = useRouter()
@@ -280,15 +281,29 @@ async function submitDecision() {
 
     savingDecision.value = true
     try {
-        await api.admin.decideNaskah(naskah.value.id, {
+        const res = await api.admin.decideNaskah(naskah.value.id, {
             action: selectedDecision.value,
             status: selectedDecision.value,
             catatan: decisionNote.value,
             url_berita: urlBerita.value,
         })
-        router.push({ name: 'admin.review' })
+
+        await Swal.fire({
+            icon: 'success',
+            title: 'Keputusan Tersimpan',
+            text: res.data?.message || 'Keputusan editorial naskah berhasil disimpan.',
+            confirmButtonColor: '#1e5f51',
+        })
+
+        router.push({ name: 'admin.kelola.naskah' })
     } catch (err) {
         decisionError.value = err.response?.data?.message || 'Gagal menyimpan keputusan editorial.'
+        Swal.fire({
+            icon: 'error',
+            title: 'Gagal Menyimpan',
+            text: decisionError.value,
+            confirmButtonColor: '#1e5f51',
+        })
     } finally {
         savingDecision.value = false
     }
