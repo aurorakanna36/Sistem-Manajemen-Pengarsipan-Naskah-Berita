@@ -23,7 +23,7 @@ Route::prefix('auth')->group(function () {
 Route::post('/guest/kirim-naskah', [GuestController::class, 'store']);
 
 Route::middleware('auth:sanctum')->group(function () {
-    Route::prefix('kontributor')->group(function () {
+    Route::prefix('kontributor')->middleware('kontributor.verified')->group(function () {
         Route::get('/dashboard', [KontributorController::class, 'dashboard']);
         Route::get('/kategoris', [KontributorController::class, 'kategoris']);
         Route::get('/naskah', [KontributorController::class, 'indexNaskah']);
@@ -35,7 +35,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/notifikasi/{id}/read', [KontributorController::class, 'markNotifikasiRead']);
     });
 
-    Route::prefix('admin')->group(function () {
+    Route::prefix('admin')->middleware('role.admin')->group(function () {
         // Dashboard
         Route::get('/dashboard', [AdminReviewController::class, 'dashboard']);
 

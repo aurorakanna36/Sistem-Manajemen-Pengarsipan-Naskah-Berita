@@ -150,21 +150,42 @@ router.beforeEach((to, from, next) => {
   const userRaw = localStorage.getItem("user_info");
   const user = userRaw ? JSON.parse(userRaw) : null;
 
+  // 1. Jika rute khusus tamu (login / register) tetapi user sudah login
+  if (to.meta.guestOnly && token) {
+    if (user?.role === "admin") {
+      return next({ name: "admin.dashboard" });
+    }
+    if (user?.role === "kontributor") {
+      if (user?.status_verifikasi === "diverifikasi" || user?.status_verifikasi === "verified") {
+        return next({ name: "kontributor.dashboard" });
+      }
+      return next({ name: "kontributor.pending" });
+    }
+    return next({ name: "home" });
+  }
+
+  // 2. Jika rute butuh login tetapi belum ada token
   if (to.meta.requiresAuth && !token) {
     return next({ name: "login" });
   }
 
+  // 3. Jika rute memiliki batasan role tertentu
   if (to.meta.role && user?.role !== to.meta.role) {
     if (user?.role === "admin") return next({ name: "admin.dashboard" });
-    if (user?.role === "kontributor")
-      return next({ name: "kontributor.dashboard" });
+    if (user?.role === "kontributor") {
+      return (user?.status_verifikasi === "diverifikasi" || user?.status_verifikasi === "verified")
+        ? next({ name: "kontributor.dashboard" })
+        : next({ name: "kontributor.pending" });
+    }
     return next({ name: "home" });
   }
 
-  if (to.meta.guestOnly && token) {
-    if (user?.role === "admin") return next({ name: "admin.dashboard" });
-    if (user?.role === "kontributor")
-      return next({ name: "kontributor.dashboard" });
+  // 4. GATE KONTRIBUTOR: Cegah akses dashboard/kirim naskah jika status masih pending/belum terverifikasi
+  if (token && user?.role === "kontributor" && to.path.startsWith("/kontributor")) {
+    const isVerified = user?.status_verifikasi === "diverifikasi" || user?.status_verifikasi === "verified";
+    if (!isVerified && to.name !== "kontributor.pending") {
+      return next({ name: "kontributor.pending" });
+    }
   }
 
   next();

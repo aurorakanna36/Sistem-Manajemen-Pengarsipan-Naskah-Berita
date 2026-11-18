@@ -27,7 +27,10 @@
                     <span>Akun aktif & dapat login</span>
                 </div>
             </div>
-            <button class="btn-logout" @click="handleLogout">Keluar</button>
+            <div class="pending-actions">
+                <button class="btn-home" @click="goHome">Kembali ke Beranda</button>
+                <button class="btn-logout" @click="handleLogout">Keluar</button>
+            </div>
         </div>
     </div>
 </template>
@@ -37,6 +40,10 @@ import { useRouter } from 'vue-router'
 import api from '../../api/index.js'
 
 const router = useRouter()
+
+function goHome() {
+    router.push({ name: 'home' })
+}
 
 async function handleLogout() {
     try {
@@ -126,6 +133,29 @@ async function handleLogout() {
     border-radius: 50%;
     background: currentColor;
     flex-shrink: 0;
+}
+
+.pending-actions {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.btn-home {
+    padding: 0.65rem 1.5rem;
+    border: none;
+    border-radius: 8px;
+    background: #0d5c4d;
+    color: white;
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.btn-home:hover {
+    background: #094338;
 }
 
 .btn-logout {

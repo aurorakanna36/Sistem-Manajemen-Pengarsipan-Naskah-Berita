@@ -444,11 +444,27 @@ const selectedCategory = ref('')
 const headlineIndex = ref(0)
 
 // Auth status
-const isLoggedIn = computed(() => !!localStorage.getItem('auth_token'))
 const userInfo = computed(() => {
     const raw = localStorage.getItem('user_info')
     return raw ? JSON.parse(raw) : null
 })
+
+const isLoggedIn = computed(() => {
+    const token = localStorage.getItem('auth_token')
+    if (!token) return false
+
+    // Jika user adalah kontributor namun belum diverifikasi (status pending/rejected),
+    // jangan anggap logged in di navbar agar tombol tetap LOGIN & DAFTAR
+    if (userInfo.value?.role === 'kontributor') {
+        const status = userInfo.value?.status_verifikasi
+        if (status !== 'diverifikasi' && status !== 'verified') {
+            return false
+        }
+    }
+
+    return true
+})
+
 const dashboardRoute = computed(() => {
     if (userInfo.value?.role === 'admin') return '/admin/dashboard'
     return '/kontributor/dashboard'
