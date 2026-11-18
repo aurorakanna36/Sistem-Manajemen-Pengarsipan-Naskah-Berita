@@ -225,6 +225,11 @@
                                     &#8677;
                                 </button>
 
+                                <button type="button" class="tool-btn" title="Rata Kanan Kiri (Justify)"
+                                    @click="execCmd('justifyFull')">
+                                    &#8801;
+                                </button>
+
                                 <button type="button" class="tool-btn" title="Sisipkan Link" @click="promptInsertLink">
                                     &#128279;
                                 </button>

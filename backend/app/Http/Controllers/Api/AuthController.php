@@ -78,6 +78,19 @@ class AuthController extends Controller
             'foto_identitas' => ['nullable', 'file', 'mimes:pdf,jpg,jpeg,png,webp', 'max:5120'],
             'ktp' => ['nullable', 'file', 'mimes:pdf,jpg,jpeg,png,webp', 'max:5120'],
             'tanda_tangan' => ['nullable'],
+        ], [
+            'email.required' => 'Alamat email wajib diisi.',
+            'email.email' => 'Format alamat email tidak valid.',
+            'email.unique' => 'Alamat email ini sudah terdaftar. Silakan gunakan email lain atau masuk ke akun Anda.',
+            'password.required' => 'Kata sandi wajib diisi.',
+            'password.confirmed' => 'Konfirmasi kata sandi tidak cocok.',
+            'password.min' => 'Kata sandi minimal harus terdiri dari 8 karakter.',
+            'file.max' => 'Ukuran file surat administrasi maksimal 5MB.',
+            'surat_administrasi.max' => 'Ukuran file surat administrasi maksimal 5MB.',
+            'foto_identitas.max' => 'Ukuran file foto identitas/KTP maksimal 5MB.',
+            'ktp.max' => 'Ukuran file KTP maksimal 5MB.',
+            'foto_identitas.mimes' => 'Format file identitas harus berupa PDF, JPG, JPEG, PNG, atau WEBP.',
+            'ktp.mimes' => 'Format file KTP harus berupa PDF, JPG, JPEG, PNG, atau WEBP.',
         ]);
 
         $namaLengkap = $validated['nama_lengkap'] ?? $validated['name'] ?? '';

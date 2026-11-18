@@ -26,12 +26,13 @@
                             type="text"
                             placeholder="Search Text"
                             class="search-input"
+                            @keyup.enter="handleSearch"
                         />
                         <button
                             v-if="searchQuery"
                             type="button"
                             class="btn-clear-search"
-                            @click="searchQuery = ''"
+                            @click="clearSearch"
                             title="Hapus pencarian"
                         >
                             &times;
@@ -42,7 +43,7 @@
                 <!-- AUTH / ACTION BUTTONS -->
                 <div class="header-actions">
                     <template v-if="!isLoggedIn">
-                        <router-link to="/login" class="btn-action-outline">Masuk</router-link>
+                        <router-link to="/login" class="btn-action-outline">LOGIN</router-link>
                         <router-link to="/daftar-kontributor" class="btn-action-solid">Daftar</router-link>
                     </template>
                     <template v-else>
@@ -61,7 +62,7 @@
                     type="button"
                     class="category-link"
                     :class="{ active: selectedCategory === '' }"
-                    @click="selectedCategory = ''"
+                    @click="resetToAll"
                 >
                     SEMUA
                 </button>
@@ -463,6 +464,20 @@ const availableCategories = [
     'Opini',
 ]
 
+// Mapping Nama Kategori ke ID Kategori WordPress Harian Cakrawala
+const WP_CATEGORY_MAP = {
+    'nasional': 26,
+    'daerah': 28,
+    'pendidikan': 27,
+    'bisnis': 30,
+    'ekonomi': 32,
+    'teknologi': 31,
+    'opini': 29,
+    'olahraga': 5,
+    'otomotif': 6,
+    'kriminal': 4,
+}
+
 // Popular Topics
 const popularTopics = [
     'TAG BERITA',
@@ -474,16 +489,54 @@ const popularTopics = [
 ]
 
 function setCategory(cat) {
+    // Jika sudah di kategori yang sama, tetap di kategori tersebut (jangan kembali ke Semua)
     if (selectedCategory.value.toLowerCase() === cat.toLowerCase()) {
-        selectedCategory.value = ''
-    } else {
-        selectedCategory.value = cat
+        return
     }
+    selectedCategory.value = cat
+    searchQuery.value = ''
+    fetchNews()
+}
+
+function resetToAll() {
+    selectedCategory.value = ''
+    searchQuery.value = ''
+    fetchNews()
+}
+
+function handleSearch() {
+    selectedCategory.value = ''
+    fetchNews()
+}
+
+function clearSearch() {
+    searchQuery.value = ''
+    fetchNews()
 }
 
 function filterByTopic(topic) {
     const clean = topic.replace('#', '').trim()
-    searchQuery.value = clean
+    const cleanLower = clean.toLowerCase()
+
+    // Cek apakah ada mapping kategori langsung untuk topik ini
+    if (cleanLower.includes('olahraga')) {
+        selectedCategory.value = 'Olahraga'
+        searchQuery.value = ''
+    } else if (cleanLower.includes('otomotif')) {
+        selectedCategory.value = 'Otomotif'
+        searchQuery.value = ''
+    } else if (cleanLower.includes('kejahatan') || cleanLower.includes('kriminal')) {
+        selectedCategory.value = 'Kriminal'
+        searchQuery.value = ''
+    } else if (cleanLower.includes('pendidikan')) {
+        selectedCategory.value = 'Pendidikan'
+        searchQuery.value = ''
+    } else {
+        selectedCategory.value = ''
+        searchQuery.value = clean
+    }
+
+    fetchNews()
 }
 
 // Helpers
@@ -544,44 +597,47 @@ function normalizeLocalNaskah(item) {
     }
 }
 
-// Fetching
+// Fetching dinamis dari WordPress API
 async function fetchNews() {
     loading.value = true
     try {
-        const wpRes = await fetch(
-            'https://hariancakrawala.com/wp-json/wp/v2/posts?_embed=true&per_page=15',
-            { headers: { Accept: 'application/json' } }
-        )
+        let url = 'https://hariancakrawala.com/wp-json/wp/v2/posts?_embed=true&per_page=15'
+
+        const catKey = selectedCategory.value.trim().toLowerCase()
+        if (catKey && WP_CATEGORY_MAP[catKey]) {
+            url += `&categories=${WP_CATEGORY_MAP[catKey]}`
+        }
+
+        if (searchQuery.value.trim()) {
+            url += `&search=${encodeURIComponent(searchQuery.value.trim())}`
+        }
+
+        const wpRes = await fetch(url, { headers: { Accept: 'application/json' } })
         if (!wpRes.ok) throw new Error('WP API response not OK')
         const rawPosts = await wpRes.json()
-        if (Array.isArray(rawPosts) && rawPosts.length > 0) {
+        if (Array.isArray(rawPosts)) {
             posts.value = rawPosts.map(normalizeWpPost)
             return
         }
     } catch (err) {
         console.warn('Gagal memuat berita dari WP API, menggunakan data naskah lokal:', err)
+    } finally {
+        loading.value = false
     }
 
-    // Fallback: Local API
+    // Fallback: Local API jika WP API gagal
     try {
         const localRes = await api.public.getBerita()
         const localData = localRes.data?.data || []
         posts.value = localData.map(normalizeLocalNaskah)
     } catch {
         posts.value = []
-    } finally {
-        loading.value = false
     }
 }
 
-// Filtered Posts
+// Filtered Posts: jika API sudah menyaring, list langsung digunakan atau difilter tambahan jika ada pencarian lokal
 const filteredPosts = computed(() => {
     let list = posts.value
-
-    if (selectedCategory.value) {
-        const target = selectedCategory.value.toLowerCase()
-        list = list.filter(p => p.category && p.category.toLowerCase().includes(target))
-    }
 
     if (searchQuery.value.trim()) {
         const q = searchQuery.value.trim().toLowerCase()

@@ -138,6 +138,9 @@
                             <button type="button" class="tool-btn" title="Rata Kanan" @click="execCmd('justifyRight')">
                                 &#8677;
                             </button>
+                            <button type="button" class="tool-btn" title="Rata Kanan Kiri (Justify)" @click="execCmd('justifyFull')">
+                                &#8801;
+                            </button>
 
                             <!-- Sisipkan Link -->
                             <button type="button" class="tool-btn" title="Sisipkan Link" @click="promptInsertLink">
