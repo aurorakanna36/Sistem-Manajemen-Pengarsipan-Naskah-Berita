@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Mail\StatusNaskahGuestMail;
 use App\Models\Naskah;
 use App\Models\Publikasi;
 use App\Models\Review;
@@ -10,6 +11,8 @@ use App\Models\RiwayatStatus;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 
 class AdminReviewController extends Controller
 {
@@ -335,10 +338,39 @@ class AdminReviewController extends Controller
             $message = "Naskah '{$naskah->judul}' telah ditolak.";
         }
 
+        // Kirim notifikasi email jika naskah dikirim oleh Guest
+        $naskah->load('guest');
+        $guest = $naskah->guest;
+        $guestEmail = $guest?->email;
+        $isGuest = !empty($naskah->id_guest) || !empty($guest);
+        $emailSent = false;
+        $emailError = null;
+
+        if ($isGuest && !empty($guestEmail) && filter_var($guestEmail, FILTER_VALIDATE_EMAIL)) {
+            try {
+                Mail::to($guestEmail)->send(new StatusNaskahGuestMail(
+                    $naskah,
+                    $guest,
+                    $naskah->status_naskah,
+                    $catatan,
+                    $request->input('url_berita')
+                ));
+                $emailSent = true;
+            } catch (\Throwable $e) {
+                Log::warning("Gagal mengirim email status naskah ke guest {$guestEmail}: " . $e->getMessage());
+                $emailError = $e->getMessage();
+            }
+        }
+
         return response()->json([
             'status' => 'success',
             'message' => $message,
             'status_naskah' => $naskah->status_naskah,
+            'is_guest' => $isGuest,
+            'email_sent' => $emailSent,
+            'recipient_email' => $guestEmail,
+            'recipient_name' => $guest?->nama ?? $naskah->nama_guest,
+            'email_error' => $emailError,
         ]);
     }
 

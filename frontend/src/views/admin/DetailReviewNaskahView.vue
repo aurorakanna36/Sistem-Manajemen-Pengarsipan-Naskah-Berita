@@ -290,11 +290,36 @@ async function submitDecision() {
             url_berita: urlBerita.value,
         })
 
+        const baseMessage = res.data?.message || 'Keputusan editorial naskah berhasil disimpan.'
+        let popupHtml = `<p style="margin: 0 0 12px; font-size: 1rem; color: #334155;">${baseMessage}</p>`
+
+        if (res.data?.is_guest && res.data?.recipient_email) {
+            if (res.data?.email_sent) {
+                popupHtml += `
+                    <div style="background: #e6f5f2; border: 1px solid #99d5ca; border-radius: 8px; padding: 12px 14px; text-align: left; font-size: 0.88rem; color: #0d5c4d;">
+                        <div style="display: flex; align-items: center; gap: 8px; font-weight: 700; margin-bottom: 4px;">
+                            <span>&#9993; Notifikasi Email Terkirim</span>
+                        </div>
+                        Pemberitahuan pembaruan status naskah telah dikirimkan ke alamat Gmail guest:
+                        <div style="margin-top: 4px; font-weight: 600; color: #094338;">${res.data.recipient_email}</div>
+                    </div>
+                `
+            } else {
+                popupHtml += `
+                    <div style="background: #fffbeb; border: 1px solid #fde68a; border-radius: 8px; padding: 12px 14px; text-align: left; font-size: 0.88rem; color: #92400e;">
+                        <div style="font-weight: 700; margin-bottom: 4px;">&#9888; Notifikasi Email</div>
+                        Naskah guest terdeteksi (${res.data.recipient_email}), namun pengiriman email mengalami kendala atau sedang dalam antrean.
+                    </div>
+                `
+            }
+        }
+
         await Swal.fire({
             icon: 'success',
             title: 'Keputusan Tersimpan',
-            text: res.data?.message || 'Keputusan editorial naskah berhasil disimpan.',
+            html: popupHtml,
             confirmButtonColor: '#1e5f51',
+            confirmButtonText: 'Mengerti'
         })
 
         router.push({ name: 'admin.kelola.naskah' })
