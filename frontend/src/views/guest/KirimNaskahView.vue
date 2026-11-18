@@ -288,9 +288,97 @@
                             </div>
 
                             <!-- AREA MENULIS -->
-                            <div ref="editorRef" class="editor-canvas" contenteditable="true"
-                                data-placeholder="Tulis atau tempel isi naskah di sini" @input="onEditorInput"
-                                @click="closeMenus"></div>
+                            <div class="editor-canvas-wrapper" ref="canvasWrapperRef">
+                                <div ref="editorRef" class="editor-canvas" contenteditable="true"
+                                    data-placeholder="Tulis atau tempel isi naskah di sini" @input="onEditorInput"
+                                    @click="handleEditorClick"></div>
+
+                                <!-- Overlay: Resize Handles & Floating Toolbar untuk Gambar Terpilih -->
+                                <div
+                                    v-if="selectedImage && imageOverlay.visible"
+                                    class="img-interactive-overlay"
+                                    :style="{
+                                        top: imageOverlay.top + 'px',
+                                        left: imageOverlay.left + 'px',
+                                        width: imageOverlay.width + 'px',
+                                        height: imageOverlay.height + 'px'
+                                    }"
+                                >
+                                    <!-- 4 Handle Sudut -->
+                                    <div class="resize-handle handle-nw" @mousedown.prevent.stop="startImageResize($event, 'nw')"></div>
+                                    <div class="resize-handle handle-ne" @mousedown.prevent.stop="startImageResize($event, 'ne')"></div>
+                                    <div class="resize-handle handle-sw" @mousedown.prevent.stop="startImageResize($event, 'sw')"></div>
+                                    <div class="resize-handle handle-se" @mousedown.prevent.stop="startImageResize($event, 'se')"></div>
+
+                                    <!-- Floating Alignment Toolbar -->
+                                    <div class="img-float-toolbar" @mousedown.stop @click.stop>
+                                        <button
+                                            type="button"
+                                            class="img-tb-btn"
+                                            :class="{ active: currentImageAlignment === 'align-left' }"
+                                            title="Rata Kiri (Float Left)"
+                                            @click="setImageAlignment('align-left')"
+                                        >
+                                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <line x1="3" y1="6" x2="21" y2="6"></line>
+                                                <line x1="3" y1="12" x2="11" y2="12"></line>
+                                                <line x1="3" y1="18" x2="17" y2="18"></line>
+                                            </svg>
+                                        </button>
+                                        <button
+                                            type="button"
+                                            class="img-tb-btn"
+                                            :class="{ active: currentImageAlignment === 'align-center' }"
+                                            title="Rata Tengah"
+                                            @click="setImageAlignment('align-center')"
+                                        >
+                                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <line x1="3" y1="6" x2="21" y2="6"></line>
+                                                <line x1="6" y1="12" x2="18" y2="12"></line>
+                                                <line x1="4" y1="18" x2="20" y2="18"></line>
+                                            </svg>
+                                        </button>
+                                        <button
+                                            type="button"
+                                            class="img-tb-btn"
+                                            :class="{ active: currentImageAlignment === 'align-right' }"
+                                            title="Rata Kanan (Float Right)"
+                                            @click="setImageAlignment('align-right')"
+                                        >
+                                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <line x1="3" y1="6" x2="21" y2="6"></line>
+                                                <line x1="13" y1="12" x2="21" y2="12"></line>
+                                                <line x1="7" y1="18" x2="21" y2="18"></line>
+                                            </svg>
+                                        </button>
+                                        <button
+                                            type="button"
+                                            class="img-tb-btn"
+                                            :class="{ active: currentImageAlignment === 'align-full' }"
+                                            title="Lebar Penuh (100%)"
+                                            @click="setImageAlignment('align-full')"
+                                        >
+                                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <line x1="2" y1="6" x2="22" y2="6"></line>
+                                                <line x1="2" y1="12" x2="22" y2="12"></line>
+                                                <line x1="2" y1="18" x2="22" y2="18"></line>
+                                            </svg>
+                                        </button>
+                                        <span class="img-tb-divider"></span>
+                                        <button
+                                            type="button"
+                                            class="img-tb-btn btn-delete-img"
+                                            title="Hapus Gambar"
+                                            @click="deleteActiveImage"
+                                        >
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <line x1="18" y1="6" x2="6" y2="18"></line>
+                                                <line x1="6" y1="6" x2="18" y2="18"></line>
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
 
                             <div class="editor-statusbar">
                                 Jumlah kata: {{ wordCount }}
@@ -322,9 +410,15 @@
 
                                 <p class="file-name">{{ selectedFileName }}</p>
 
-                                <button type="button" class="btn-remove-cover" @click.stop="removeCover">
-                                    Hapus gambar
-                                </button>
+                                <div class="cover-preview-actions">
+                                    <button type="button" class="btn-sampul-insert" @click.stop="insertSampulToEditor">
+                                        Sisipkan juga ke isi naskah
+                                    </button>
+
+                                    <button type="button" class="btn-remove-cover" @click.stop="removeCover">
+                                        Hapus gambar
+                                    </button>
+                                </div>
                             </template>
 
                             <input ref="coverInput" id="g-file" type="file" accept="image/png,image/jpeg,image/webp"
@@ -706,9 +800,7 @@ function resetForm() {
 
 
 function handleMediaInsert(media) {
-    if (!media?.file) return
-
-    const imageUrl = URL.createObjectURL(media.file)
+    if (!media?.url) return
 
     showMediaModal.value = false
     editorRef.value?.focus()
@@ -717,10 +809,21 @@ function handleMediaInsert(media) {
         ? `<figcaption>${media.keterangan}</figcaption>`
         : ''
 
-    const html = `<figure class="inserted-media align-center"><img src="${imageUrl}" alt="${media.alt || ''}" title="${media.judul || ''}" style="width: 320px; max-width: 100%; height: auto; display: block; margin-left: auto; margin-right: auto;" />${captionHtml}</figure><p><br></p>`
+    const html = `<figure class="inserted-media align-center"><img src="${media.url}" alt="${media.alt || ''}" title="${media.judul || ''}" style="width: 320px; max-width: 100%; height: auto; display: block; margin-left: auto; margin-right: auto;" />${captionHtml}</figure><p><br></p>`
 
     document.execCommand('insertHTML', false, html)
     onEditorInput()
+}
+
+function insertSampulToEditor() {
+    if (!selectedFilePreview.value) return
+
+    handleMediaInsert({
+        url: selectedFilePreview.value,
+        alt: form.value.judul || selectedFileName.value,
+        judul: form.value.judul || selectedFileName.value,
+        keterangan: form.value.judul || '',
+    })
 }
 
 // ==========================================
@@ -894,6 +997,22 @@ function handleEditorScroll() {
         updateOverlayPosition()
     }
 }
+
+onMounted(() => {
+    if (editorRef.value) {
+        editorRef.value.addEventListener('scroll', handleEditorScroll)
+    }
+    window.addEventListener('resize', handleEditorScroll)
+})
+
+onBeforeUnmount(() => {
+    if (editorRef.value) {
+        editorRef.value.removeEventListener('scroll', handleEditorScroll)
+    }
+    window.removeEventListener('resize', handleEditorScroll)
+    window.removeEventListener('mousemove', onImageResizing)
+    window.removeEventListener('mouseup', stopImageResize)
+})
 
 </script>
 
@@ -1886,6 +2005,27 @@ function handleEditorScroll() {
     background: #fee2e2;
     color: #991b1b;
     cursor: pointer;
+}
+
+/* Tombol sisip sampul ke isi naskah */
+.cover-preview-actions {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+}
+
+.btn-sampul-insert {
+    margin-top: 10px;
+    padding: 7px 14px;
+    border: 1px solid #1e5f51;
+    border-radius: 7px;
+    background: #f0fdfa;
+    color: #1e5f51;
+    cursor: pointer;
+}
+
+.btn-sampul-insert:hover {
+    background: #e6f5f2;
 }
 
 @keyframes spin {

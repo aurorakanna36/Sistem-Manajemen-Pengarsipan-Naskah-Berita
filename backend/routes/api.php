@@ -21,6 +21,7 @@ Route::prefix('auth')->group(function () {
 });
 
 Route::post('/guest/kirim-naskah', [GuestController::class, 'store']);
+Route::post('/guest/media', [GuestController::class, 'uploadMedia']);
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::prefix('kontributor')->middleware('kontributor.verified')->group(function () {

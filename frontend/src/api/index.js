@@ -16,6 +16,7 @@ const api = {
   guest: {
     kirimNaskah: (formData) =>
       http.post("/guest/kirim-naskah", formData),
+    uploadMedia: (formData) => http.post("/guest/media", formData),
   },
 
   kontributor: {

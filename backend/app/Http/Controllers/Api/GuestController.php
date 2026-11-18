@@ -84,4 +84,34 @@ class GuestController extends Controller
             ],
         ], 201);
     }
+
+    public function uploadMedia(Request $request)
+    {
+        $request->validate([
+            'file' => ['required', 'image', 'mimes:jpg,jpeg,png,webp,gif', 'max:5120'],
+            'alt' => ['nullable', 'string', 'max:255'],
+            'judul' => ['nullable', 'string', 'max:255'],
+            'keterangan' => ['nullable', 'string'],
+            'deskripsi' => ['nullable', 'string'],
+        ]);
+
+        $file = $request->file('file');
+        $path = $file->store('media_naskah', 'public');
+        $url = asset('storage/' . $path);
+
+        return response()->json([
+            'status' => 'success',
+            'media' => [
+                'url' => $url,
+                'path' => $path,
+                'filename' => $file->getClientOriginalName(),
+                'size' => $file->getSize(),
+                'mime_type' => $file->getMimeType(),
+                'alt' => $request->input('alt', ''),
+                'judul' => $request->input('judul', pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME)),
+                'keterangan' => $request->input('keterangan', ''),
+                'deskripsi' => $request->input('deskripsi', ''),
+            ],
+        ], 201);
+    }
 }

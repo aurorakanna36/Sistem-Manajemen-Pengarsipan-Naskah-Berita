@@ -103,13 +103,13 @@
                         <div class="detail-row">
                             <label>URL Berkas</label>
                             <input
-                                :value="previewUrl"
+                                :value="uploadedUrl || previewUrl"
                                 type="text"
                                 readonly
                                 class="readonly-url"
                             />
                             <button
-                                v-if="previewUrl"
+                                v-if="uploadedUrl || previewUrl"
                                 type="button"
                                 class="btn-copy-url"
                                 @click="copyUrl"
@@ -126,7 +126,7 @@
                 <button
                     type="button"
                     class="btn-insert-post"
-                    :disabled="!selectedFile || uploading"
+                    :disabled="!previewUrl || uploading"
                     @click="handleInsert"
                 >
                     Sisipkan ke dalam pos
@@ -139,6 +139,7 @@
 
 <script setup>
 import { ref, reactive } from 'vue'
+import api from '@/api/index.js'
 
 defineProps({
     visible: {
@@ -150,6 +151,7 @@ defineProps({
 const emit = defineEmits(['close', 'insert'])
 
 const previewUrl = ref('')
+const uploadedUrl = ref('')
 const selectedFile = ref(null)
 const uploading = ref(false)
 const copied = ref(false)
@@ -168,7 +170,7 @@ const meta = reactive({
 })
 
 // Memilih gambar
-function onSelectFile(event) {
+async function onSelectFile(event) {
     const file = event.target.files?.[0]
     if (!file) return
 
@@ -216,14 +218,37 @@ function onSelectFile(event) {
     }
 
     reader.readAsDataURL(file)
+
+    // Unggah ke server agar URL permanen (bukan blob lokal)
+    uploading.value = true
+    try {
+        const fd = new FormData()
+        fd.append('file', file)
+        fd.append('alt', meta.alt)
+        fd.append('judul', meta.judul)
+        fd.append('keterangan', meta.keterangan)
+        fd.append('deskripsi', meta.deskripsi)
+
+        const res = await api.guest.uploadMedia(fd)
+
+        if (res.data?.media?.url) {
+            uploadedUrl.value = res.data.media.url
+        }
+    } catch {
+        // Fallback ke Data URL bila backend storage tidak tersedia
+        uploadedUrl.value = ''
+    } finally {
+        uploading.value = false
+    }
 }
 
 // Salin URL preview
 async function copyUrl() {
-    if (!previewUrl.value) return
+    const url = uploadedUrl.value || previewUrl.value
+    if (!url) return
 
     try {
-        await navigator.clipboard.writeText(previewUrl.value)
+        await navigator.clipboard.writeText(url)
         copied.value = true
 
         setTimeout(() => {
@@ -236,10 +261,11 @@ async function copyUrl() {
 
 // Mengirim file ke KirimNaskahView.vue
 function handleInsert() {
-    if (!selectedFile.value || !previewUrl.value) return
+    const src = uploadedUrl.value || previewUrl.value
+    if (!src) return
 
     emit('insert', {
-        file: selectedFile.value,
+        url: src,
         alt: meta.alt || meta.judul || 'Gambar sampul',
         judul: meta.judul,
         keterangan: meta.keterangan,
@@ -252,6 +278,7 @@ function handleInsert() {
 // Reset data modal
 function resetMedia() {
     previewUrl.value = ''
+    uploadedUrl.value = ''
     selectedFile.value = null
     copied.value = false
 
