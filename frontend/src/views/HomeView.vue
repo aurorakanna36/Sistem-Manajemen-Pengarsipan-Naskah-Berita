@@ -621,17 +621,17 @@ async function fetchNews() {
         }
     } catch (err) {
         console.warn('Gagal memuat berita dari WP API, menggunakan data naskah lokal:', err)
+    } finally {
+        loading.value = false
     }
 
-    // Fallback: Local API
+    // Fallback: Local API jika WP API gagal
     try {
         const localRes = await api.public.getBerita()
         const localData = localRes.data?.data || []
         posts.value = localData.map(normalizeLocalNaskah)
     } catch {
         posts.value = []
-    } finally {
-        loading.value = false
     }
 }
 
