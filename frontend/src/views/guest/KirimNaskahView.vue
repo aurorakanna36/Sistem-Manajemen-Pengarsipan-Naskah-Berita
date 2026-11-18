@@ -364,7 +364,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
+import { ref, reactive, computed, onMounted, onBeforeUnmount } from 'vue'
 import api from '@/api/index.js'
 import MediaUploadGuest from './MediaUploadGuest.vue'
 
@@ -404,7 +404,7 @@ const selectedFilePreview = ref('')
 const showMediaModal = ref(false)
 
 const editorRef = ref(null)
-
+const canvasWrapperRef = ref(null)
 const showHeadingMenu = ref(false)
 const showSpecialChars = ref(false)
 
@@ -708,34 +708,191 @@ function resetForm() {
 function handleMediaInsert(media) {
     if (!media?.file) return
 
-    // Buat URL sementara untuk gambar
     const imageUrl = URL.createObjectURL(media.file)
 
-    // Tutup modal
     showMediaModal.value = false
-
-    // Masukkan gambar ke editor
     editorRef.value?.focus()
 
     const captionHtml = media.keterangan
         ? `<figcaption>${media.keterangan}</figcaption>`
         : ''
 
-    const html = `
-        <figure class="inserted-media">
-            <img
-                src="${imageUrl}"
-                alt="${media.alt || ''}"
-                title="${media.judul || ''}"
-            />
-            ${captionHtml}
-        </figure>
-        <p><br></p>
-    `
+    const html = `<figure class="inserted-media align-center"><img src="${imageUrl}" alt="${media.alt || ''}" title="${media.judul || ''}" style="width: 320px; max-width: 100%; height: auto; display: block; margin-left: auto; margin-right: auto;" />${captionHtml}</figure><p><br></p>`
 
     document.execCommand('insertHTML', false, html)
+    onEditorInput()
+}
+
+// ==========================================
+// KONTROL GAMBAR INTERAKTIF (RESIZE & ALIGN)
+// ==========================================
+const selectedImage = ref(null)
+const imageOverlay = reactive({
+    visible: false,
+    top: 0,
+    left: 0,
+    width: 0,
+    height: 0,
+})
+const currentImageAlignment = ref('align-center')
+
+let isResizingImage = false
+let resizeStart = { x: 0, y: 0, width: 0, height: 0, handle: '' }
+
+function handleEditorClick(e) {
+    closeMenus()
+    const target = e.target
+    if (target && target.tagName === 'IMG') {
+        selectImage(target)
+    } else {
+        deselectImage()
+    }
+}
+
+function selectImage(imgEl) {
+    selectedImage.value = imgEl
+    detectImageAlignment(imgEl)
+    updateOverlayPosition()
+}
+
+function deselectImage() {
+    selectedImage.value = null
+    imageOverlay.visible = false
+}
+
+function detectImageAlignment(imgEl) {
+    const parentFigure = imgEl.closest('figure')
+    const target = parentFigure || imgEl
+
+    if (target.classList.contains('align-left')) {
+        currentImageAlignment.value = 'align-left'
+    } else if (target.classList.contains('align-right')) {
+        currentImageAlignment.value = 'align-right'
+    } else if (target.classList.contains('align-full')) {
+        currentImageAlignment.value = 'align-full'
+    } else {
+        currentImageAlignment.value = 'align-center'
+    }
+}
+
+function updateOverlayPosition() {
+    if (!selectedImage.value || !canvasWrapperRef.value) {
+        imageOverlay.visible = false
+        return
+    }
+
+    const wrapperBox = canvasWrapperRef.value.getBoundingClientRect()
+    const imgBox = selectedImage.value.getBoundingClientRect()
+
+    imageOverlay.top = imgBox.top - wrapperBox.top
+    imageOverlay.left = imgBox.left - wrapperBox.left
+    imageOverlay.width = imgBox.width
+    imageOverlay.height = imgBox.height
+    imageOverlay.visible = true
+}
+
+function setImageAlignment(alignment) {
+    if (!selectedImage.value) return
+    const img = selectedImage.value
+    const parentFigure = img.closest('figure')
+    const target = parentFigure || img
+
+    target.classList.remove('align-left', 'align-center', 'align-right', 'align-full')
+    target.classList.add(alignment)
+    currentImageAlignment.value = alignment
+
+    const currentWidth = img.style.width || '320px'
+
+    if (alignment === 'align-full') {
+        img.style.width = '100%'
+        img.style.height = 'auto'
+        img.style.display = 'block'
+        img.style.marginLeft = ''
+        img.style.marginRight = ''
+    } else if (alignment === 'align-center') {
+        img.style.width = currentWidth
+        img.style.height = 'auto'
+        img.style.display = 'block'
+        img.style.marginLeft = 'auto'
+        img.style.marginRight = 'auto'
+    } else {
+        img.style.width = currentWidth
+        img.style.height = 'auto'
+        img.style.display = 'block'
+        img.style.marginLeft = ''
+        img.style.marginRight = ''
+    }
 
     onEditorInput()
+    setTimeout(() => {
+        updateOverlayPosition()
+    }, 30)
+}
+
+function deleteActiveImage() {
+    if (!selectedImage.value) return
+    const img = selectedImage.value
+    const parentFigure = img.closest('figure')
+    const toRemove = parentFigure || img
+    toRemove.remove()
+    deselectImage()
+    onEditorInput()
+}
+
+function startImageResize(e, handle) {
+    if (!selectedImage.value) return
+    isResizingImage = true
+    const img = selectedImage.value
+
+    resizeStart = {
+        x: e.clientX,
+        y: e.clientY,
+        width: img.offsetWidth,
+        height: img.offsetHeight,
+        aspectRatio: img.offsetWidth / (img.offsetHeight || 1),
+        handle,
+    }
+
+    window.addEventListener('mousemove', onImageResizing)
+    window.addEventListener('mouseup', stopImageResize)
+}
+
+function onImageResizing(e) {
+    if (!isResizingImage || !selectedImage.value) return
+
+    const dx = e.clientX - resizeStart.x
+    const handle = resizeStart.handle
+    let newWidth = resizeStart.width
+
+    if (handle === 'se' || handle === 'ne') {
+        newWidth = resizeStart.width + dx
+    } else if (handle === 'sw' || handle === 'nw') {
+        newWidth = resizeStart.width - dx
+    }
+
+    const maxEditorWidth = editorRef.value ? editorRef.value.clientWidth : 800
+    newWidth = Math.max(100, Math.min(newWidth, maxEditorWidth))
+
+    const img = selectedImage.value
+    img.style.width = `${Math.round(newWidth)}px`
+    img.style.height = 'auto'
+
+    updateOverlayPosition()
+}
+
+function stopImageResize() {
+    if (!isResizingImage) return
+    isResizingImage = false
+    window.removeEventListener('mousemove', onImageResizing)
+    window.removeEventListener('mouseup', stopImageResize)
+    onEditorInput()
+    updateOverlayPosition()
+}
+
+function handleEditorScroll() {
+    if (selectedImage.value) {
+        updateOverlayPosition()
+    }
 }
 
 </script>
@@ -1533,7 +1690,14 @@ function handleMediaInsert(media) {
     background: #eaf5f2;
 }
 
+.editor-canvas-wrapper {
+    position: relative;
+    width: 100%;
+    overflow: visible;
+}
+
 .editor-canvas {
+    display: flow-root;
     min-height: 260px;
     padding: 1.15rem 1.25rem;
     font-size: 0.98rem;
@@ -1543,54 +1707,168 @@ function handleMediaInsert(media) {
     overflow-wrap: anywhere;
 }
 
-.editor-canvas:empty::before {
-    content: attr(data-placeholder);
-    color: #94a3b8;
-    pointer-events: none;
-}
-
-.editor-canvas :deep(h1) {
-    font-size: 1.85rem;
-    font-weight: 800;
-}
-
-.editor-canvas :deep(h2) {
-    font-size: 1.45rem;
-    font-weight: 700;
-}
-
-.editor-canvas :deep(h3) {
-    font-size: 1.2rem;
-    font-weight: 700;
-}
-
-.editor-canvas :deep(blockquote) {
-    border-left: 4px solid #1e5f51;
-    padding-left: 1rem;
-    margin: 0.85rem 0;
-    color: #64748b;
-    font-style: italic;
+.editor-canvas::after {
+    content: "";
+    display: table;
+    clear: both;
 }
 
 .editor-canvas :deep(figure) {
     margin: 1rem 0;
+    display: block;
     max-width: 100%;
+    clear: both;
+}
+
+.editor-canvas :deep(figure.align-left) {
+    float: left;
+    width: auto;
+    margin: 0.5rem 1.25rem 1rem 0;
+    clear: none;
+}
+
+.editor-canvas :deep(figure.align-right) {
+    float: right;
+    width: auto;
+    margin: 0.5rem 0 1rem 1.25rem;
+    clear: none;
+}
+
+.editor-canvas :deep(figure.align-center) {
+    display: block;
+    width: fit-content;
+    max-width: 100%;
+    margin: 1.25rem auto;
+    float: none;
+    clear: both;
+    text-align: center;
+}
+
+.editor-canvas :deep(figure.align-full) {
+    display: block;
+    width: 100%;
+    margin: 1.25rem 0;
+    float: none;
+    clear: both;
+}
+
+.editor-canvas :deep(figure.align-full img) {
+    width: 100% !important;
+    max-width: 100% !important;
+    height: auto !important;
 }
 
 .editor-canvas :deep(img) {
-    max-width: 360px;
+    max-width: 100%;          /* sebelumnya 360px, hapus */
     height: auto;
     border-radius: 8px;
     display: block;
+    cursor: pointer;
+    transition: outline 0.15s ease;
+}
+
+.editor-canvas :deep(img:hover) {
+    outline: 2px dashed rgba(15, 107, 99, 0.4);
+    outline-offset: 2px;
 }
 
 .editor-canvas :deep(figcaption) {
     font-size: 0.84rem;
     color: #64748b;
     margin-top: 0.35rem;
+    text-align: center;
 }
 
+/* Overlay resize + floating toolbar */
+.img-interactive-overlay {
+    position: absolute;
+    box-sizing: border-box;
+    border: 2px solid #1e5f51;
+    pointer-events: none;
+    z-index: 50;
+    border-radius: 4px;
+}
+
+.resize-handle {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    background: #fff;
+    border: 2px solid #1e5f51;
+    border-radius: 2px;
+    pointer-events: auto;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+    z-index: 52;
+}
+
+.handle-nw { top: -5px; left: -5px; cursor: nwse-resize; }
+.handle-ne { top: -5px; right: -5px; cursor: nesw-resize; }
+.handle-sw { bottom: -5px; left: -5px; cursor: nesw-resize; }
+.handle-se { bottom: -5px; right: -5px; cursor: nwse-resize; }
+
+.img-float-toolbar {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: #fff;
+    border: 1px solid #cbd5e1;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+    border-radius: 8px;
+    padding: 4px 6px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    pointer-events: auto;
+    z-index: 55;
+    white-space: nowrap;
+}
+
+.img-float-toolbar::before {
+    content: "";
+    position: absolute;
+    top: -6px;
+    left: 50%;
+    transform: translateX(-50%);
+    border-width: 0 6px 6px 6px;
+    border-style: solid;
+    border-color: transparent transparent #fff transparent;
+}
+
+.img-tb-btn {
+    background: transparent;
+    border: none;
+    color: #172b43;
+    width: 30px;
+    height: 30px;
+    border-radius: 6px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background-color 0.15s, color 0.15s;
+}
+
+.img-tb-btn:hover { background: #f1f5f9; color: #1e5f51; }
+.img-tb-btn.active { background: #e6f5f2; color: #1e5f51; font-weight: 700; }
+
+.img-tb-divider {
+    width: 1px;
+    height: 18px;
+    background: #e2e8f0;
+    margin: 0 2px;
+}
+
+.btn-delete-img { color: #dc2626; }
+.btn-delete-img:hover { background: #fee2e2; color: #991b1b; }
+
 .editor-statusbar {
+    clear: both;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    position: relative;
+    z-index: 10;
     padding: 0.45rem 1rem;
     border-top: 1px solid #e2e8f0;
     background: #f8fafc;

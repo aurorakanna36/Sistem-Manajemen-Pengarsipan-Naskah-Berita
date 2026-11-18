@@ -598,14 +598,16 @@ onBeforeUnmount(() => {
 
     min-height: 72px;
     height: 72px;
-    flex-shrink: 0;
+    padding: 0 1rem;
 
-    padding: 0 2.5rem;
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: flex-start;
+    gap: 30px;
 
+    flex-shrink: 0;
     box-sizing: border-box;
+
     background: var(--ktr-bg-card, #ffffff);
     border-bottom: 1px solid var(--ktr-border-soft);
 }
@@ -621,16 +623,23 @@ onBeforeUnmount(() => {
     display: inline-flex;
     align-items: center;
     gap: 8px;
+
     padding: 8px 12px;
+    margin-left: -10px;
+
     border: none;
     border-radius: 8px;
     background: transparent;
+
     color: #087d77;
     font-family: inherit;
     font-size: 0.9rem;
     font-weight: 600;
+
     cursor: pointer;
-    transform: translateX(-430px);
+    transform: none;
+    flex-shrink: 0;
+
     transition: all 0.2s ease;
 }
 
@@ -685,6 +694,7 @@ onBeforeUnmount(() => {
     position: relative;
     display: flex;
     align-items: center;
+    margin-left: auto;
 }
 
 .topbar-user {
