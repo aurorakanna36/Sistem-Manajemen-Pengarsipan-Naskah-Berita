@@ -179,6 +179,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import api from '@/api/index.js'
+import { getCoverImageUrl } from '@/utils/imageUrl.js'
 
 const router = useRouter()
 const userRaw = localStorage.getItem('user_info')
@@ -268,8 +269,7 @@ function labelStatus(status) {
 }
 
 function fileUrl(path) {
-    if (!path) return '#'
-    return path.startsWith('http') ? path : `http://localhost:8000/storage/${path}`
+    return getCoverImageUrl(path) || '#'
 }
 </script>
 

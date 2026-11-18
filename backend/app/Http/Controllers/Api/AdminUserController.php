@@ -57,8 +57,8 @@ class AdminUserController extends Controller
             'phone_number'      => $u->nomor_whatsapp,
             'instansi'          => $u->instansi,
             'status_verifikasi' => $u->status_verifikasi,
-            'file_path'         => $u->file_path ? asset('storage/' . $u->file_path) : null,
-            'surat_administrasi'=> $u->file_path ? asset('storage/' . $u->file_path) : null,
+            'file_path'         => $u->file_path ?: null,
+            'surat_administrasi'=> $u->file_path ?: null,
             'created_at'        => $u->created_at ? $u->created_at->toDateTimeString() : null,
         ]);
 
@@ -220,7 +220,7 @@ class AdminUserController extends Controller
             'kategoris'     => $n->kategoris->map(fn($k) => ['id' => $k->id, 'nama_kategori' => $k->nama_kategori, 'slug' => $k->slug])->values(),
             'status_naskah' => $n->status_naskah,
             'waktu_kirim'   => $n->waktu_kirim ? $n->waktu_kirim->toDateTimeString() : null,
-            'file_path'     => $n->file_path ? asset('storage/' . $n->file_path) : null,
+            'file_path'     => $n->file_path ?: null,
         ])->values();
 
         $suggestedSlug = Str::slug($user->nama_lengkap, '.') ?: ('kontributor.' . $user->id);
@@ -237,9 +237,9 @@ class AdminUserController extends Controller
                 'nomor_whatsapp'    => $user->nomor_whatsapp,
                 'instansi'          => $user->instansi,
                 'status_verifikasi' => $user->status_verifikasi,
-                'file_path'         => $user->file_path ? asset('storage/' . $user->file_path) : null,
-                'foto_identitas'    => $user->foto_identitas ? asset('storage/' . $user->foto_identitas) : null,
-                'tanda_tangan'      => $user->tanda_tangan ? asset('storage/' . $user->tanda_tangan) : null,
+                'file_path'         => $user->file_path ?: null,
+                'foto_identitas'    => $user->foto_identitas ?: null,
+                'tanda_tangan'      => $user->tanda_tangan ?: null,
                 'created_at'        => $user->created_at ? $user->created_at->toDateTimeString() : null,
             ],
             'stats'            => $stats,

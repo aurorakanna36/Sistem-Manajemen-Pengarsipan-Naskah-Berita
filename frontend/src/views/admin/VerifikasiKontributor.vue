@@ -283,6 +283,7 @@ import AdminLayout from './AdminLayout.vue'
 import api from '@/api/index.js'
 import { useRoute, useRouter } from 'vue-router'
 import Swal from 'sweetalert2'
+import { getCoverImageUrl } from '@/utils/imageUrl.js'
 
 const route = useRoute()
 const router = useRouter()
@@ -307,30 +308,24 @@ const generatedEmail = computed(() => {
     return `${slug || 'kontributor'}@cakrawala.id`
 })
 
-// Sesuaikan nama field dengan respons API Laravel kamu.
-const ktpUrl = computed(() => {
-    const path = kontributor.value.foto_identitas ||
-        kontributor.value.dokumen_ktp ||
-        kontributor.value.ktp ||
-        kontributor.value.foto_ktp
+// Resolusi URL dokumen lewat util bersama (mendukung path relatif & full URL)
+const ktpUrl = computed(() => getCoverImageUrl(
+    kontributor.value.foto_identitas ||
+    kontributor.value.dokumen_ktp ||
+    kontributor.value.ktp ||
+    kontributor.value.foto_ktp
+))
 
-    return path ? (path.startsWith('http') ? path : `/storage/${path}`) : ''
-})
+const suratAdministrasiUrl = computed(() => getCoverImageUrl(
+    kontributor.value.file_path ||
+    kontributor.value.surat_administrasi ||
+    kontributor.value.dokumen_administrasi
+))
 
-const suratAdministrasiUrl = computed(() => {
-    const path = kontributor.value.file_path ||
-        kontributor.value.surat_administrasi ||
-        kontributor.value.dokumen_administrasi
-
-    return path ? (path.startsWith('http') ? path : `/storage/${path}`) : ''
-})
-
-const signatureUrl = computed(() => {
-    const path = kontributor.value.tanda_tangan ||
-        kontributor.value.ttd_digital
-
-    return path ? (path.startsWith('http') ? path : `/storage/${path}`) : ''
-})
+const signatureUrl = computed(() => getCoverImageUrl(
+    kontributor.value.tanda_tangan ||
+    kontributor.value.ttd_digital
+))
 
 const allChecksComplete = computed(() => {
     return Object.values(checks.value).every(Boolean)

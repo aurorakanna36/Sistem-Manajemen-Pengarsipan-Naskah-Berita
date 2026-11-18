@@ -49,7 +49,7 @@ project_magang_monitoring_media/
 
 ## 2. Persyaratan Sistem
 
-- PHP >= 8.2 dengan ekstensi `pdo_mysql`, `mbstring`, `openssl`, `tokenizer`, `xml`, `ctype`, `json`.
+- PHP >= 8.3 dengan ekstensi `pdo_mysql`, `mbstring`, `openssl`, `tokenizer`, `xml`, `ctype`, `json`.
 - Composer >= 2.0
 - Node.js >= 18.0 & npm >= 9.0
 - MySQL Server (via Laragon, XAMPP, atau instalasi mandiri MySQL).
@@ -64,7 +64,10 @@ project_magang_monitoring_media/
    ```bash
    cd backend
    ```
-2. Pastikan file `.env` sudah sesuai dengan pengaturan database MySQL Anda:
+2. Salin template environment lalu sesuaikan dengan pengaturan database MySQL Anda:
+   ```bash
+   cp .env.example .env
+   ```
    ```env
    DB_CONNECTION=mysql
    DB_HOST=127.0.0.1
@@ -73,11 +76,14 @@ project_magang_monitoring_media/
    DB_USERNAME=root
    DB_PASSWORD=
    ```
-3. Pasang dependensi dan jalankan migrasi data (bila belum):
+3. Pasang dependensi dan siapkan aplikasi:
    ```bash
    composer install
+   php artisan key:generate
    php artisan migrate:fresh --seed
+   php artisan storage:link
    ```
+   > ⚠️ `php artisan storage:link` **wajib** dijalankan — tanpa symlink ini, semua file gambar/dokumen di `storage/app/public/` tidak bisa diakses lewat `/storage/` (404), apalagi setelah download ZIP karena symlink tidak ikut terkompres.
 4. Jalankan development server backend:
    ```bash
    php artisan serve
@@ -90,11 +96,16 @@ project_magang_monitoring_media/
    ```bash
    cd frontend
    ```
-2. Pasang dependensi Node.js (hanya pada pertama kali):
+2. Salin template environment (agar URL gambar & API mengarah ke backend Anda):
+   ```bash
+   cp .env.example .env
+   ```
+   Pastikan `VITE_APP_URL` sama dengan URL backend di atas, misal `http://localhost:8000`.
+3. Pasang dependensi Node.js (hanya pada pertama kali):
    ```bash
    npm install
    ```
-3. Jalankan development server frontend:
+4. Jalankan development server frontend:
    ```bash
    npm run dev
    ```
