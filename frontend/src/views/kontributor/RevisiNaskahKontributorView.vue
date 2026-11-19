@@ -791,6 +791,31 @@ function handleInsertMediaToEditor(media) {
 function onSelectSampul(event) {
     const file = event.target.files?.[0]
     if (!file) return
+
+    if (!file.type.startsWith('image/')) {
+        Swal.fire({
+            icon: 'warning',
+            title: 'Format Tidak Sesuai',
+            text: 'Silakan pilih file gambar (JPG, PNG, WEBP).',
+            confirmButtonText: 'Mengerti',
+            confirmButtonColor: '#0d5c4d'
+        })
+        event.target.value = ''
+        return
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+        Swal.fire({
+            icon: 'warning',
+            title: 'Ukuran Terlalu Besar',
+            text: 'Ukuran gambar maksimal adalah 5 MB.',
+            confirmButtonText: 'Mengerti',
+            confirmButtonColor: '#0d5c4d'
+        })
+        event.target.value = ''
+        return
+    }
+
     sampulFile.value = file
     sampulFileName.value = file.name
 

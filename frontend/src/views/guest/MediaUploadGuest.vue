@@ -140,6 +140,7 @@
 <script setup>
 import { ref, reactive } from 'vue'
 import api from '@/api/index.js'
+import Swal from 'sweetalert2'
 
 defineProps({
     visible: {
@@ -178,16 +179,29 @@ async function onSelectFile(event) {
         'image/jpeg',
         'image/png',
         'image/webp',
+        'image/gif',
     ]
 
     if (!allowedTypes.includes(file.type)) {
-        alert('Format gambar harus JPG, PNG, atau WEBP.')
+        Swal.fire({
+            icon: 'warning',
+            title: 'Format Tidak Sesuai',
+            text: 'Format gambar harus JPG, PNG, WEBP, atau GIF.',
+            confirmButtonText: 'Mengerti',
+            confirmButtonColor: '#0d5c4d'
+        })
         event.target.value = ''
         return
     }
 
     if (file.size > 5 * 1024 * 1024) {
-        alert('Ukuran gambar maksimal 5 MB.')
+        Swal.fire({
+            icon: 'warning',
+            title: 'Ukuran Terlalu Besar',
+            text: 'Ukuran gambar maksimal adalah 5 MB.',
+            confirmButtonText: 'Mengerti',
+            confirmButtonColor: '#0d5c4d'
+        })
         event.target.value = ''
         return
     }
