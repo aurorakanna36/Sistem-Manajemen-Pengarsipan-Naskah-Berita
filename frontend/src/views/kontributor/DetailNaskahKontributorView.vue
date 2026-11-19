@@ -63,7 +63,7 @@
                         <section class="section-block">
                             <h2 class="section-heading">Isi naskah</h2>
 
-                            <div v-if="naskah.isi" class="rich-article-content" v-html="naskah.isi"></div>
+                            <div v-if="naskah.isi" class="rich-article-content" v-html="renderedIsiContent"></div>
 
                             <p v-else class="empty-content">
                                 Isi naskah belum tersedia.
@@ -170,6 +170,27 @@ const route = useRoute()
 
 const loading = ref(true)
 const naskah = ref(null)
+
+const renderedIsiContent = computed(() => {
+    const raw = naskah.value?.isi || ''
+    if (!raw) return ''
+
+    const baseUrl = (import.meta.env.VITE_APP_URL || 'http://localhost:8000').replace(/\/$/, '')
+
+    return raw.replace(/<img([^>]+)src=["']([^"']+)["']([^>]*)>/gi, (match, prefix, src, suffix) => {
+        if (src.startsWith('data:') || src.startsWith('blob:')) {
+            return match
+        }
+        if (src.startsWith('/storage/')) {
+            return `<img${prefix}src="${baseUrl}${src}"${suffix}>`
+        }
+        if (src.includes('/storage/')) {
+            const storagePath = src.substring(src.indexOf('/storage/'))
+            return `<img${prefix}src="${baseUrl}${storagePath}"${suffix}>`
+        }
+        return match
+    })
+})
 const sampulError = ref(false)
 
 // STATUS NASKAH
@@ -484,6 +505,44 @@ function badgeClass(status) {
 
 .rich-article-content :deep(figure) {
     margin: 1.25rem 0;
+}
+
+.rich-article-content :deep(figure.align-left) {
+    float: left;
+    width: auto;
+    margin: 0.5rem 1.25rem 1rem 0;
+    clear: none;
+}
+
+.rich-article-content :deep(figure.align-right) {
+    float: right;
+    width: auto;
+    margin: 0.5rem 0 1rem 1.25rem;
+    clear: none;
+}
+
+.rich-article-content :deep(figure.align-center) {
+    display: block;
+    width: fit-content;
+    max-width: 100%;
+    margin: 1.25rem auto;
+    float: none;
+    clear: both;
+    text-align: center;
+}
+
+.rich-article-content :deep(figure.align-full) {
+    display: block;
+    width: 100%;
+    margin: 1.25rem 0;
+    float: none;
+    clear: both;
+}
+
+.rich-article-content :deep(figure.align-full img) {
+    width: 100% !important;
+    max-width: 100% !important;
+    height: auto !important;
 }
 
 .rich-article-content :deep(figcaption) {

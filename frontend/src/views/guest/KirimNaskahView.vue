@@ -556,13 +556,18 @@ function onSelectCover(event) {
         return
     }
 
-    if (selectedFilePreview.value) {
+    if (selectedFilePreview.value && selectedFilePreview.value.startsWith('blob:')) {
         URL.revokeObjectURL(selectedFilePreview.value)
     }
 
     selectedFile.value = file
     selectedFileName.value = file.name
-    selectedFilePreview.value = URL.createObjectURL(file)
+
+    const reader = new FileReader()
+    reader.onload = (e) => {
+        selectedFilePreview.value = e.target?.result || ''
+    }
+    reader.readAsDataURL(file)
 
     coverMeta.value = {
         alt: form.value.judul || '',
@@ -573,7 +578,7 @@ function onSelectCover(event) {
 }
 
 function removeCover() {
-    if (selectedFilePreview.value) {
+    if (selectedFilePreview.value && selectedFilePreview.value.startsWith('blob:')) {
         URL.revokeObjectURL(selectedFilePreview.value)
     }
 
@@ -680,6 +685,11 @@ const tanggalKirim = ref('')
 
 
 async function handleSubmit() {
+    onEditorInput()
+    if (!form.value.isi && editorRef.value) {
+        form.value.isi = editorRef.value.innerHTML
+    }
+
     if (selectedKategoriIds.value.length === 0) {
         error.value = 'Silakan pilih minimal satu kategori naskah.'
         return

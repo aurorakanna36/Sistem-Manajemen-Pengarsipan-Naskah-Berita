@@ -42,7 +42,7 @@
                         <div class="content-section">
                             <h2 class="section-label">Isi naskah</h2>
                             <div v-if="isHtmlContent" class="article-paragraphs rich-html-body"
-                                v-html="naskah.isi || naskah.isi_naskah"></div>
+                                v-html="renderedIsiContent"></div>
                             <div v-else class="article-paragraphs">
                                 <p v-for="(p, i) in articleParagraphs" :key="i">
                                     {{ p }}
@@ -189,6 +189,27 @@ const fileName = computed(() => {
 const isHtmlContent = computed(() => {
     const text = naskah.value?.isi || naskah.value?.isi_naskah || ''
     return /<[a-z][\s\S]*>/i.test(text)
+})
+
+const renderedIsiContent = computed(() => {
+    const raw = naskah.value?.isi || naskah.value?.isi_naskah || ''
+    if (!raw) return ''
+
+    const baseUrl = (import.meta.env.VITE_APP_URL || 'http://localhost:8000').replace(/\/$/, '')
+
+    return raw.replace(/<img([^>]+)src=["']([^"']+)["']([^>]*)>/gi, (match, prefix, src, suffix) => {
+        if (src.startsWith('data:') || src.startsWith('blob:')) {
+            return match
+        }
+        if (src.startsWith('/storage/')) {
+            return `<img${prefix}src="${baseUrl}${src}"${suffix}>`
+        }
+        if (src.includes('/storage/')) {
+            const storagePath = src.substring(src.indexOf('/storage/'))
+            return `<img${prefix}src="${baseUrl}${storagePath}"${suffix}>`
+        }
+        return match
+    })
 })
 
 const articleParagraphs = computed(() => {
@@ -418,6 +439,44 @@ onMounted(() => {
 .rich-html-body :deep(figure) {
     margin: 1.5rem 0;
     text-align: center;
+}
+
+.rich-html-body :deep(figure.align-left) {
+    float: left;
+    width: auto;
+    margin: 0.5rem 1.25rem 1rem 0;
+    clear: none;
+}
+
+.rich-html-body :deep(figure.align-right) {
+    float: right;
+    width: auto;
+    margin: 0.5rem 0 1rem 1.25rem;
+    clear: none;
+}
+
+.rich-html-body :deep(figure.align-center) {
+    display: block;
+    width: fit-content;
+    max-width: 100%;
+    margin: 1.25rem auto;
+    float: none;
+    clear: both;
+    text-align: center;
+}
+
+.rich-html-body :deep(figure.align-full) {
+    display: block;
+    width: 100%;
+    margin: 1.25rem 0;
+    float: none;
+    clear: both;
+}
+
+.rich-html-body :deep(figure.align-full img) {
+    width: 100% !important;
+    max-width: 100% !important;
+    height: auto !important;
 }
 
 .rich-html-body :deep(figure img) {
