@@ -110,8 +110,8 @@
                                     </div>
 
                                     <div v-if="ktpUrl" class="document-actions">
-                                        <a :href="ktpUrl" target="_blank">Lihat</a>
-                                        <a :href="ktpUrl" download>Unduh</a>
+                                        <a :href="ktpUrl" target="_blank" rel="noopener noreferrer">Lihat</a>
+                                        <button type="button" class="btn-action-link" @click="downloadDocument(ktpUrl, 'ktp')">Unduh</button>
                                     </div>
                                 </div>
                             </div>
@@ -141,8 +141,8 @@
                                     </div>
 
                                     <div v-if="suratAdministrasiUrl" class="document-actions">
-                                        <a :href="suratAdministrasiUrl" target="_blank">Lihat</a>
-                                        <a :href="suratAdministrasiUrl" download>Unduh</a>
+                                        <a :href="suratAdministrasiUrl" target="_blank" rel="noopener noreferrer">Lihat</a>
+                                        <button type="button" class="btn-action-link" @click="downloadDocument(suratAdministrasiUrl, 'surat_administrasi')">Unduh</button>
                                     </div>
                                 </div>
                             </div>
@@ -333,6 +333,127 @@ const allChecksComplete = computed(() => {
 
 function isImage(url) {
     return /\.(jpg|jpeg|png|webp|gif)(\?.*)?$/i.test(url)
+}
+
+async function downloadDocument(url, typeName = 'dokumen') {
+    const contributorId = kontributor.value?.id || route.params.id
+
+    const personName = (kontributor.value?.nama_lengkap || kontributor.value?.name || 'kontributor')
+        .toLowerCase()
+        .trim()
+        .replace(/[^a-z0-9]/g, '_')
+
+    // Jika berupa data URL atau blob URL lokal
+    if (url && (url.startsWith('data:') || url.startsWith('blob:'))) {
+        const a = document.createElement('a')
+        a.href = url
+        a.download = `${typeName}_${personName}.png`
+        document.body.appendChild(a)
+        a.click()
+        document.body.removeChild(a)
+        return
+    }
+
+    // Unduh lewat backend API yang terotentikasi & CORS-enabled
+    if (contributorId) {
+        Swal.fire({
+            title: 'Mengunduh Dokumen...',
+            text: 'Mohon tunggu sebentar',
+            allowOutsideClick: false,
+            didOpen: () => {
+                Swal.showLoading()
+            }
+        })
+
+        try {
+            const res = await api.admin.downloadKontributorDocument(contributorId, typeName)
+
+            const mimeType = res.headers['content-type'] || 'application/octet-stream'
+            const blob = new Blob([res.data], { type: mimeType })
+            const blobUrl = window.URL.createObjectURL(blob)
+
+            let ext = ''
+            if (mimeType.includes('pdf')) ext = '.pdf'
+            else if (mimeType.includes('jpeg') || mimeType.includes('jpg')) ext = '.jpg'
+            else if (mimeType.includes('png')) ext = '.png'
+            else if (mimeType.includes('webp')) ext = '.webp'
+
+            if (!ext && url) {
+                const cleanUrl = url.split('?')[0]
+                const match = cleanUrl.match(/\.([a-zA-Z0-9]+)$/)
+                if (match) ext = `.${match[1]}`
+            }
+
+            const filename = `${typeName}_${personName}${ext || '.jpg'}`
+
+            const a = document.createElement('a')
+            a.href = blobUrl
+            a.download = filename
+            document.body.appendChild(a)
+            a.click()
+            document.body.removeChild(a)
+            window.URL.revokeObjectURL(blobUrl)
+
+            Swal.close()
+            return
+        } catch (err) {
+            Swal.close()
+            console.warn('API download document failed, trying direct fetch fallback:', err)
+
+            let errorMsg = 'Dokumen fisik tidak ditemukan di server atau gagal diunduh.'
+            if (err.response?.data instanceof Blob) {
+                try {
+                    const text = await err.response.data.text()
+                    const parsed = JSON.parse(text)
+                    if (parsed?.message) errorMsg = parsed.message
+                } catch (_) {}
+            } else if (err.response?.data?.message) {
+                errorMsg = err.response.data.message
+            }
+
+            // Jika error 404, tampilkan popup peringatan, jangan redirect/buka tab baru!
+            if (err.response?.status === 404) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Dokumen Tidak Ditemukan',
+                    text: errorMsg,
+                    confirmButtonColor: '#087d77'
+                })
+                return
+            }
+        }
+    }
+
+    // Jika fallback diperlukan tapi jangan pernah buka tab baru (_blank)!
+    if (url) {
+        try {
+            const response = await fetch(url)
+            if (!response.ok) throw new Error('Fetch failed')
+            const blob = await response.blob()
+            const blobUrl = window.URL.createObjectURL(blob)
+
+            let ext = ''
+            const cleanUrl = url.split('?')[0]
+            const match = cleanUrl.match(/\.([a-zA-Z0-9]+)$/)
+            if (match) ext = `.${match[1]}`
+
+            const filename = `${typeName}_${personName}${ext || '.jpg'}`
+            const a = document.createElement('a')
+            a.href = blobUrl
+            a.download = filename
+            document.body.appendChild(a)
+            a.click()
+            document.body.removeChild(a)
+            window.URL.revokeObjectURL(blobUrl)
+        } catch (e) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Gagal Mengunduh',
+                text: 'Dokumen tidak dapat diunduh langsung. Silakan gunakan tombol "Lihat" untuk memeriksa file.',
+                confirmButtonColor: '#087d77'
+            })
+        }
+    }
 }
 
 function formatDate(dateStr) {
@@ -757,6 +878,22 @@ onMounted(() => {
 }
 
 .document-actions a:hover {
+    text-decoration: underline;
+}
+
+.btn-action-link {
+    background: none;
+    border: none;
+    padding: 0;
+    color: #087d77;
+    font-size: 0.68rem;
+    font-weight: 700;
+    text-decoration: none;
+    cursor: pointer;
+    font-family: inherit;
+}
+
+.btn-action-link:hover {
     text-decoration: underline;
 }
 

@@ -10,8 +10,10 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class AdminUserController extends Controller
@@ -245,6 +247,80 @@ class AdminUserController extends Controller
             'stats'            => $stats,
             'naskah_per_bulan' => $months,
             'naskahs'          => $naskahList,
+        ]);
+    }
+
+    /**
+     * Download dokumen pendaftaran kontributor (KTP, Surat Administrasi, Tanda Tangan).
+     */
+    public function downloadDocument(Request $request, $id)
+    {
+        $type = $request->query('type', 'ktp');
+        $user = User::where('role', 'kontributor')->findOrFail($id);
+
+        $rawPath = null;
+        $prefix = 'dokumen';
+
+        if (in_array($type, ['ktp', 'foto_identitas'])) {
+            $rawPath = $user->foto_identitas;
+            $prefix = 'ktp';
+        } elseif (in_array($type, ['surat_administrasi', 'file_path'])) {
+            $rawPath = $user->file_path;
+            $prefix = 'surat_administrasi';
+        } elseif (in_array($type, ['tanda_tangan', 'ttd'])) {
+            $rawPath = $user->tanda_tangan;
+            $prefix = 'tanda_tangan';
+        }
+
+        if (!$rawPath) {
+            return response()->json(['message' => 'Dokumen belum diunggah oleh kontributor.'], 404);
+        }
+
+        $safeName = Str::slug($user->nama_lengkap, '_') ?: 'kontributor';
+
+        // Jika path berupa URL eksternal http/https
+        if (Str::startsWith($rawPath, ['http://', 'https://'])) {
+            try {
+                $response = Http::timeout(15)->get($rawPath);
+                if ($response->successful()) {
+                    $ext = pathinfo(parse_url($rawPath, PHP_URL_PATH), PATHINFO_EXTENSION) ?: 'jpg';
+                    $downloadName = "{$prefix}_{$safeName}.{$ext}";
+                    return response()->streamDownload(function () use ($response) {
+                        echo $response->body();
+                    }, $downloadName, [
+                        'Content-Type' => $response->header('Content-Type') ?: 'application/octet-stream',
+                        'Access-Control-Expose-Headers' => 'Content-Disposition, Content-Type',
+                    ]);
+                }
+            } catch (\Exception $e) {
+                Log::error("Gagal mendownload dokumen eksternal: " . $e->getMessage());
+            }
+        }
+
+        // Bersihkan path jika tersimpan dengan prefix /storage/ atau storage/ atau public/
+        $cleanPath = preg_replace('#^(public/|/public/|storage/|/storage/)+#', '', $rawPath);
+
+        // Cari path absolut dokumen
+        $fullPath = null;
+        if (Storage::disk('public')->exists($cleanPath)) {
+            $fullPath = Storage::disk('public')->path($cleanPath);
+        } elseif (file_exists(public_path('storage/' . $cleanPath))) {
+            $fullPath = public_path('storage/' . $cleanPath);
+        } elseif (file_exists(storage_path('app/public/' . $cleanPath))) {
+            $fullPath = storage_path('app/public/' . $cleanPath);
+        } elseif (file_exists(public_path($cleanPath))) {
+            $fullPath = public_path($cleanPath);
+        }
+
+        if (!$fullPath || !file_exists($fullPath)) {
+            return response()->json(['message' => 'File fisik tidak ditemukan pada server.'], 404);
+        }
+
+        $extension = strtolower(pathinfo($fullPath, PATHINFO_EXTENSION));
+        $downloadName = "{$prefix}_{$safeName}" . ($extension ? ".{$extension}" : '');
+
+        return response()->download($fullPath, $downloadName, [
+            'Access-Control-Expose-Headers' => 'Content-Disposition, Content-Type',
         ]);
     }
 

@@ -51,6 +51,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/users/{id}/verify', [AdminUserController::class, 'verify']);
         Route::delete('/users/{id}', [AdminUserController::class, 'destroy']);
         Route::get('/kontributor/{id}', [AdminUserController::class, 'showKontributor']);
+        Route::get('/kontributor/{id}/download-document', [AdminUserController::class, 'downloadDocument']);
 
         // Admin account management
         Route::get('/admins', [AdminUserController::class, 'listAdmins']);

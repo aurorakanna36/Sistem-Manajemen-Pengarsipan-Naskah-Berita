@@ -584,13 +584,14 @@ onMounted(() => {
 }
 
 .article-paragraphs {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
+    display: flow-root; /* establish BFC to allow floats */
     font-size: 0.95rem;
-    color: #334155;
     color: var(--adm-text-main);
     line-height: 1.75;
+    margin: 0;
+}
+.article-paragraphs > * + * {
+    margin-top: 1rem; /* emulate gap between paragraphs/elements */
 }
 
 .file-attachment-bar {

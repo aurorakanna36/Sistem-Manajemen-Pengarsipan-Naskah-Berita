@@ -44,6 +44,11 @@ const api = {
     verifyUser: (id, data) => http.post(`/admin/users/${id}/verify`, data),
     deleteUser: (id) => http.delete(`/admin/users/${id}`),
     getKontributorDetail: (id) => http.get(`/admin/kontributor/${id}`),
+    downloadKontributorDocument: (id, type) =>
+      http.get(`/admin/kontributor/${id}/download-document`, {
+        params: { type },
+        responseType: 'blob',
+      }),
     getAdmins: () => http.get("/admin/admins"),
     createAdmin: (data) => http.post("/admin/admins", data),
     updateAdmin: (id, data) => http.put(`/admin/admins/${id}`, data),
