@@ -346,23 +346,31 @@ async function handleRegister() {
         }
 
         // KIRIM KE LARAVEL
-        const response = await api.auth.register(formData)
+        await api.auth.register(formData)
 
-        const { token, user } = response.data
-
-        localStorage.setItem('auth_token', token)
-        localStorage.setItem('user_info', JSON.stringify(user))
+        // Bersihkan token/user session lama jika ada agar tidak dalam kondisi login pending
+        localStorage.removeItem('auth_token')
+        localStorage.removeItem('user_info')
 
         await Swal.fire({
             icon: 'success',
-            title: 'Pendaftaran Berhasil!',
-            text: 'Terima kasih telah mendaftar sebagai kontributor Harian Cakrawala. Status verifikasi akan dikabarkan melalui email.',
-            confirmButtonText: 'Mengerti',
+            title: 'Pendaftaran Berhasil Dikirim!',
+            html: `
+                <div style="text-align: center; color: #334155; font-size: 0.95rem; line-height: 1.6;">
+                    <p style="margin-bottom: 0.75rem;">
+                        Pendaftaran akun kontributor Anda telah berhasil kami terima dan saat ini <strong>sedang ditinjau oleh tim redaksi</strong>.
+                    </p>
+                    <div style="background-color: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 0.85rem; margin-top: 0.5rem; color: #166534; font-size: 0.88rem;">
+                        📩 <strong>PENTING:</strong> Silakan <strong>cek berkala kotak masuk (atau folder spam) Gmail Anda</strong> untuk informasi kelanjutan status persetujuan akun Anda.
+                    </div>
+                </div>
+            `,
+            confirmButtonText: 'Ke Halaman Masuk',
             confirmButtonColor: '#0d5c4d',
             allowOutsideClick: false
         })
 
-        router.push({ name: 'kontributor.pending' })
+        router.push({ name: 'login' })
 
     } catch (error) {
 
