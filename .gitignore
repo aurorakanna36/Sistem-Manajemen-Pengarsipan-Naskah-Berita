@@ -1,0 +1,44 @@
+# =====================
+# BACKEND (Laravel)
+# =====================
+*.log
+.DS_Store
+.env
+.env.backup
+.env.production
+.phpactor.json
+.phpunit.result.cache
+.phpunit.cache
+/backend/.codex
+/backend/.cursor/
+/backend/.idea
+/backend/.nova
+/backend/.vscode
+/backend/.zed
+/backend/auth.json
+/backend/node_modules
+/backend/public/build
+/backend/public/fonts-manifest.dev.json
+/backend/public/hot
+/backend/public/storage
+/backend/storage/*.key
+/backend/storage/pail
+/backend/vendor
+/backend/_ide_helper.php
+/backend/Homestead.json
+/backend/Homestead.yaml
+
+# =====================
+# FRONTEND (Vue / Vite)
+# =====================
+/frontend/node_modules
+/frontend/dist
+/frontend/dist-ssr
+/frontend/*.local
+
+# =====================
+# Lain-lain
+# =====================
+Thumbs.db
+.obsidian
+*.gitignore copy
