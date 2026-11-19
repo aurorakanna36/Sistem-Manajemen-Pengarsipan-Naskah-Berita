@@ -137,6 +137,9 @@
                                     <div class="timeline-date">
                                         {{ formatDate(log.waktu_status) }}
                                     </div>
+                                    <div v-if="formatTime(log.waktu_status)" class="timeline-time">
+                                        {{ formatTime(log.waktu_status) }} WIB
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -232,6 +235,21 @@ function formatDate(dateStr) {
         month: 'short',
         year: 'numeric',
     })
+}
+
+// FORMAT WAKTU (JAM : MENIT)
+function formatTime(dateStr) {
+    if (!dateStr) return ''
+
+    const date = new Date(dateStr)
+
+    if (Number.isNaN(date.getTime())) return ''
+
+    return date.toLocaleTimeString('id-ID', {
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false,
+    }).replace('.', ':')
 }
 
 // NORMALISASI STATUS
@@ -679,6 +697,13 @@ function badgeClass(status) {
     margin-top: 0.15rem;
     color: var(--ktr-text-light);
     font-size: 0.76rem;
+}
+
+.timeline-time {
+    margin-top: 0.05rem;
+    color: var(--ktr-text-muted);
+    font-size: 0.74rem;
+    font-weight: 500;
 }
 
 /* =========================
