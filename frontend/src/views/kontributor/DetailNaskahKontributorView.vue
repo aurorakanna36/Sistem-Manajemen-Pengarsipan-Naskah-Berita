@@ -733,6 +733,21 @@ function badgeClass(status) {
 }
 
 /* =========================
+   LINK STYLING IN ARTICLE
+========================= */
+.rich-article-content :deep(a) {
+    color: #1a56db;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    cursor: pointer;
+    font-weight: 500;
+    word-break: break-all;
+}
+.rich-article-content :deep(a:hover) {
+    color: #1e4fc2;
+}
+
+/* =========================
    RESPONSIVE
 ========================= */
 @media (max-width: 980px) {

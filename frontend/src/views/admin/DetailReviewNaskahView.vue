@@ -835,6 +835,18 @@ onMounted(() => {
     color: var(--adm-text-muted);
 }
 
+.rich-html-body :deep(a) {
+    color: #1a56db;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    cursor: pointer;
+    font-weight: 500;
+    word-break: break-all;
+}
+.rich-html-body :deep(a:hover) {
+    color: #1e4fc2;
+}
+
 @media (max-width: 950px) {
     .review-grid {
         grid-template-columns: 1fr;

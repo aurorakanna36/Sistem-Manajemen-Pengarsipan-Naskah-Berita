@@ -216,9 +216,71 @@
                                 </div>
 
                                 <!-- Area Isi Naskah ContentEditable -->
-                                <div ref="editorRef" class="editor-canvas" contenteditable="true"
-                                    data-placeholder="Tulis isi naskah lengkap di sini..." @input="onEditorInput"
-                                    @click="closeMenus"></div>
+                                <div class="editor-canvas-wrapper" ref="canvasWrapperRef">
+                                    <div ref="editorRef" class="editor-canvas" contenteditable="true"
+                                        data-placeholder="Tulis isi naskah lengkap di sini..." @input="onEditorInput"
+                                        @click="handleEditorClick"></div>
+
+                                    <!-- Floating Link Popover -->
+                                    <div
+                                        v-if="linkPopover.visible"
+                                        class="floating-link-popover"
+                                        :class="{ 'is-below': linkPopover.isBelow }"
+                                        :style="{ top: linkPopover.top + 'px', left: linkPopover.left + 'px' }"
+                                        @mousedown.stop
+                                        @click.stop
+                                    >
+                                        <div class="popover-caret" :style="{ left: linkPopover.arrowLeft + 'px' }"></div>
+
+                                        <!-- Mode Insert / Edit -->
+                                        <div v-if="linkPopover.mode === 'insert' || linkPopover.mode === 'edit'" class="popover-edit-body">
+                                            <span class="popover-title">Tempelkan URL atau ketik untuk mencari</span>
+                                            <div class="popover-input-row">
+                                                <input
+                                                    ref="linkInputRef"
+                                                    v-model="linkPopover.url"
+                                                    type="text"
+                                                    placeholder="https://..."
+                                                    class="link-url-input"
+                                                    @keydown.enter.prevent="applyLink"
+                                                    @keydown.esc="closeLinkPopover"
+                                                />
+                                                <button type="button" class="btn-link-submit" title="Terapkan link (Enter)" @click="applyLink">
+                                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                                                        <polyline points="9 10 4 15 9 20"></polyline>
+                                                        <path d="M20 4v7a4 4 0 0 1-4 4H4"></path>
+                                                    </svg>
+                                                </button>
+                                                <button
+                                                    type="button"
+                                                    class="btn-link-gear"
+                                                    :class="{ active: linkPopover.openInNewTab }"
+                                                    title="Toggle buka di tab baru"
+                                                    @click="linkPopover.openInNewTab = !linkPopover.openInNewTab"
+                                                >
+                                                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                        <circle cx="12" cy="12" r="3"></circle>
+                                                        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                                                    </svg>
+                                                </button>
+                                            </div>
+                                            <div v-if="linkPopover.openInNewTab" class="tab-notice">&#10003; Akan terbuka di tab baru</div>
+                                        </div>
+
+                                        <!-- Mode Preview (saat link diklik) -->
+                                        <div v-else class="popover-preview-body">
+                                            <div class="preview-url-row">
+                                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
+                                                <span class="preview-url-text" :title="linkPopover.url">{{ linkPopover.url }}</span>
+                                            </div>
+                                            <div class="preview-actions">
+                                                <button type="button" class="btn-action-sm btn-open" @click="openActiveLink">Buka &#8599;</button>
+                                                <button type="button" class="btn-action-sm btn-edit" @click="switchToEditMode">Ubah</button>
+                                                <button type="button" class="btn-action-sm btn-unlink" @click="unlinkActiveLink">Hapus</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
 
                                 <div class="editor-statusbar">
                                     <span>Jumlah kata: {{ wordCount }}</span>
@@ -312,7 +374,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted } from 'vue'
+import { ref, reactive, computed, onMounted, nextTick } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import KontributorLayout from './KontributorLayout.vue'
 import MediaUploadModal from './MediaUploadModal.vue'
@@ -362,11 +424,29 @@ const naskah = ref({
 const currentStatus = ref('revisi')
 
 const editorRef = ref(null)
+const canvasWrapperRef = ref(null)
+const linkInputRef = ref(null)
 const showHeadingMenu = ref(false)
 const showSpecialChars = ref(false)
 const currentBlockTag = ref('P')
 const currentHeadingLabel = ref('Paragraf')
 const currentTextColor = ref('#12263A')
+
+// ==========================================
+// FLOATING LINK POPOVER STATE
+// ==========================================
+const linkPopover = reactive({
+    visible: false,
+    mode: 'insert', // 'insert' | 'edit' | 'preview'
+    url: '',
+    openInNewTab: true,
+    top: 0,
+    left: 0,
+    arrowLeft: 180,
+    isBelow: false,
+    activeLinkEl: null,
+})
+let savedLinkRange = null
 
 const headingOptions = [
     { label: 'Paragraf', tag: 'P', previewClass: 'opt-p' },
@@ -482,6 +562,7 @@ function toggleKategori(id) {
 function closeMenus() {
     showHeadingMenu.value = false
     showSpecialChars.value = false
+    closeLinkPopover()
 }
 
 function onEditorInput() {
@@ -512,10 +593,152 @@ function toggleBlockquote() {
 }
 
 function promptInsertLink() {
-    const url = window.prompt('Masukkan URL link (contoh: https://cakrawala.com):', 'https://')
-    if (url && url !== 'https://') {
-        execCmd('createLink', url)
+    const sel = window.getSelection()
+    if (!sel || sel.rangeCount === 0 || sel.isCollapsed) return
+
+    savedLinkRange = sel.getRangeAt(0).cloneRange()
+
+    // Periksa jika seleksi sudah ada di dalam link
+    const range = savedLinkRange
+    const container = range.commonAncestorContainer
+    const existingLink = (container.nodeType === 3 ? container.parentElement : container).closest('a')
+
+    if (existingLink) {
+        linkPopover.url = existingLink.getAttribute('href') || existingLink.href || ''
+        linkPopover.activeLinkEl = existingLink
+        linkPopover.mode = 'edit'
+    } else {
+        linkPopover.url = ''
+        linkPopover.activeLinkEl = null
+        linkPopover.mode = 'insert'
     }
+
+    // Hitung posisi dari rect seleksi
+    const rect = range.getBoundingClientRect()
+    updateLinkPopoverPosition(rect)
+
+    linkPopover.visible = true
+    nextTick(() => {
+        linkInputRef.value?.focus()
+    })
+}
+
+function updateLinkPopoverPosition(rect) {
+    if (!canvasWrapperRef.value) return
+    const wrapperRect = canvasWrapperRef.value.getBoundingClientRect()
+    const popoverWidth = 360
+    const popoverHeight = 95
+
+    let top = rect.top - wrapperRect.top - popoverHeight - 12
+    let left = rect.left - wrapperRect.left + (rect.width / 2) - (popoverWidth / 2)
+    let isBelow = false
+
+    if (top < 8) {
+        top = rect.bottom - wrapperRect.top + 12
+        isBelow = true
+    }
+
+    const maxLeft = wrapperRect.width - popoverWidth - 8
+    left = Math.max(8, Math.min(left, maxLeft))
+
+    const rawArrow = (rect.left - wrapperRect.left + (rect.width / 2)) - left
+    linkPopover.top = top
+    linkPopover.left = left
+    linkPopover.arrowLeft = Math.max(16, Math.min(rawArrow, popoverWidth - 28))
+    linkPopover.isBelow = isBelow
+}
+
+function applyLink() {
+    let url = linkPopover.url.trim()
+    if (!url) return
+
+    if (!/^https?:\/\//i.test(url) && !url.startsWith('mailto:')) {
+        url = 'https://' + url
+    }
+
+    const sel = window.getSelection()
+    if (savedLinkRange) {
+        sel.removeAllRanges()
+        sel.addRange(savedLinkRange)
+    }
+
+    document.execCommand('createLink', false, url)
+
+    // Set target="_blank" dan rel pada link yang baru dibuat
+    const newLink = sel.anchorNode?.parentElement?.closest('a')
+    if (newLink) {
+        newLink.setAttribute('href', url)
+        if (linkPopover.openInNewTab) {
+            newLink.setAttribute('target', '_blank')
+            newLink.setAttribute('rel', 'noopener noreferrer')
+        }
+    }
+
+    // Juga update activeLinkEl jika mode edit
+    if (linkPopover.activeLinkEl) {
+        linkPopover.activeLinkEl.setAttribute('href', url)
+        if (linkPopover.openInNewTab) {
+            linkPopover.activeLinkEl.setAttribute('target', '_blank')
+            linkPopover.activeLinkEl.setAttribute('rel', 'noopener noreferrer')
+        }
+    }
+
+    onEditorInput()
+    closeLinkPopover()
+}
+
+function closeLinkPopover() {
+    linkPopover.visible = false
+    linkPopover.activeLinkEl = null
+    savedLinkRange = null
+}
+
+function openActiveLink() {
+    if (linkPopover.url) {
+        window.open(linkPopover.url, '_blank', 'noopener,noreferrer')
+    }
+}
+
+function switchToEditMode() {
+    linkPopover.mode = 'edit'
+    nextTick(() => {
+        linkInputRef.value?.focus()
+    })
+}
+
+function unlinkActiveLink() {
+    if (linkPopover.activeLinkEl) {
+        const sel = window.getSelection()
+        const range = document.createRange()
+        range.selectNodeContents(linkPopover.activeLinkEl)
+        sel.removeAllRanges()
+        sel.addRange(range)
+    }
+    document.execCommand('unlink', false, null)
+    onEditorInput()
+    closeLinkPopover()
+}
+
+function handleEditorClick(e) {
+    // Deteksi klik pada elemen <a> di dalam editor
+    const linkEl = e.target.closest('a')
+    if (linkEl && editorRef.value?.contains(linkEl)) {
+        e.preventDefault()
+        linkPopover.url = linkEl.getAttribute('href') || linkEl.href || ''
+        linkPopover.activeLinkEl = linkEl
+        linkPopover.mode = 'preview'
+        const rect = linkEl.getBoundingClientRect()
+        updateLinkPopoverPosition(rect)
+        linkPopover.visible = true
+        return
+    }
+
+    // Tutup link popover jika klik di luar area popover
+    if (linkPopover.visible) {
+        closeLinkPopover()
+    }
+
+    closeMenus()
 }
 
 function applyTextColor(e) {
@@ -1650,4 +1873,170 @@ async function submitNaskah() {
         align-self: flex-end;
     }
 }
+
+.editor-canvas-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+/* ===== LINK STYLING IN EDITOR ===== */
+.editor-canvas :deep(a) {
+    color: #1a56db;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: color 0.15s;
+}
+.editor-canvas :deep(a:hover) {
+    color: #1e4fc2;
+}
+
+/* ===== FLOATING LINK POPOVER ===== */
+.floating-link-popover {
+    position: absolute;
+    z-index: 200;
+    background: #fff;
+    border: 1px solid #cbd5e1;
+    border-radius: 10px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.13), 0 2px 8px rgba(0,0,0,0.08);
+    width: 360px;
+    max-width: calc(100% - 16px);
+    padding: 10px 12px;
+}
+
+.floating-link-popover .popover-caret {
+    position: absolute;
+    bottom: -7px;
+    width: 14px;
+    height: 7px;
+    overflow: hidden;
+}
+.floating-link-popover .popover-caret::before {
+    content: '';
+    position: absolute;
+    top: -7px;
+    left: 0;
+    width: 14px;
+    height: 14px;
+    background: #fff;
+    border: 1px solid #cbd5e1;
+    transform: rotate(45deg);
+    transform-origin: center;
+}
+
+.floating-link-popover.is-below .popover-caret {
+    bottom: auto;
+    top: -7px;
+    transform: scaleY(-1);
+}
+
+.popover-title {
+    display: block;
+    font-size: 0.75rem;
+    color: #64748b;
+    margin-bottom: 7px;
+    font-weight: 500;
+}
+
+.popover-input-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.link-url-input {
+    flex: 1;
+    padding: 6px 10px;
+    border: 1.5px solid #3b82f6;
+    border-radius: 6px;
+    font-size: 0.875rem;
+    outline: none;
+    color: #1e293b;
+    background: #f8fafc;
+    transition: border-color 0.15s;
+}
+.link-url-input:focus {
+    border-color: #2563eb;
+    background: #fff;
+}
+
+.btn-link-submit {
+    width: 32px;
+    height: 32px;
+    border-radius: 7px;
+    border: none;
+    background: #2563eb;
+    color: #fff;
+    font-size: 1rem;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: background 0.15s;
+}
+.btn-link-submit:hover { background: #1d4ed8; }
+
+.btn-link-gear {
+    width: 32px;
+    height: 32px;
+    border-radius: 7px;
+    border: 1px solid #e2e8f0;
+    background: #f8fafc;
+    color: #64748b;
+    font-size: 1rem;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: background 0.15s, color 0.15s;
+}
+.btn-link-gear:hover, .btn-link-gear.active { background: #dbeafe; color: #2563eb; border-color: #93c5fd; }
+
+.tab-notice {
+    font-size: 0.72rem;
+    color: #2563eb;
+    margin-top: 5px;
+}
+
+/* Preview mode */
+.popover-preview-body { display: flex; flex-direction: column; gap: 8px; }
+
+.preview-url-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    overflow: hidden;
+}
+.preview-url-text {
+    font-size: 0.82rem;
+    color: #1a56db;
+    text-decoration: underline;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    flex: 1;
+}
+
+.preview-actions {
+    display: flex;
+    gap: 6px;
+}
+.btn-action-sm {
+    padding: 4px 10px;
+    font-size: 0.78rem;
+    border-radius: 5px;
+    border: 1px solid #e2e8f0;
+    background: #f8fafc;
+    cursor: pointer;
+    transition: background 0.12s;
+}
+.btn-open { color: #2563eb; border-color: #bfdbfe; }
+.btn-open:hover { background: #dbeafe; }
+.btn-edit { color: #374151; }
+.btn-edit:hover { background: #f1f5f9; }
+.btn-unlink { color: #dc2626; border-color: #fecaca; }
+.btn-unlink:hover { background: #fee2e2; }
 </style>
