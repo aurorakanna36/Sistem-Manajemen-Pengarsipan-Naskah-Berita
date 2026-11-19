@@ -711,19 +711,37 @@ function applyLink() {
 
     document.execCommand('createLink', false, url)
 
-    // Set target="_blank" dan rel pada link yang baru dibuat
-    const newLink = sel.anchorNode?.parentElement?.closest('a')
-    if (newLink) {
-        newLink.setAttribute('href', url)
-        if (linkPopover.openInNewTab) {
-            newLink.setAttribute('target', '_blank')
-            newLink.setAttribute('rel', 'noopener noreferrer')
+    // Cari elemen <a> yang baru dibuat atau yang ada di seleksi
+    let links = []
+    if (savedLinkRange) {
+        const container = savedLinkRange.commonAncestorContainer
+        const parent = container.nodeType === 3 ? container.parentElement : container
+        if (parent) {
+            links = parent.tagName === 'A' ? [parent] : Array.from(parent.querySelectorAll('a'))
         }
     }
+    const anchorLink = sel.anchorNode?.parentElement?.closest('a')
+    if (anchorLink && !links.includes(anchorLink)) {
+        links.push(anchorLink)
+    }
+
+    links.forEach(a => {
+        a.setAttribute('href', url)
+        a.style.color = '#1a56db'
+        a.style.textDecoration = 'underline'
+        a.style.cursor = 'pointer'
+        if (linkPopover.openInNewTab) {
+            a.setAttribute('target', '_blank')
+            a.setAttribute('rel', 'noopener noreferrer')
+        }
+    })
 
     // Juga update activeLinkEl jika mode edit
     if (linkPopover.activeLinkEl) {
         linkPopover.activeLinkEl.setAttribute('href', url)
+        linkPopover.activeLinkEl.style.color = '#1a56db'
+        linkPopover.activeLinkEl.style.textDecoration = 'underline'
+        linkPopover.activeLinkEl.style.cursor = 'pointer'
         if (linkPopover.openInNewTab) {
             linkPopover.activeLinkEl.setAttribute('target', '_blank')
             linkPopover.activeLinkEl.setAttribute('rel', 'noopener noreferrer')
@@ -1933,16 +1951,18 @@ async function submitNaskah() {
 }
 
 /* ===== LINK STYLING IN EDITOR ===== */
-.editor-canvas :deep(a) {
-    color: #1a56db;
-    text-decoration: underline;
-    text-underline-offset: 2px;
-    cursor: pointer;
+.editor-canvas :deep(a),
+.editor-canvas a {
+    color: #1a56db !important;
+    text-decoration: underline !important;
+    text-underline-offset: 2px !important;
+    cursor: pointer !important;
     font-weight: 500;
     transition: color 0.15s;
 }
-.editor-canvas :deep(a:hover) {
-    color: #1e4fc2;
+.editor-canvas :deep(a:hover),
+.editor-canvas a:hover {
+    color: #1e4fc2 !important;
 }
 
 /* ===== FLOATING LINK POPOVER ===== */
