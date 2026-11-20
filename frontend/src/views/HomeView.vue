@@ -744,14 +744,20 @@ onMounted(() => {
 .brand-title {
     font-size: 1.5rem;
     font-weight: 800;
-    color: #1e5f51;
+    color: #FF5722;
     letter-spacing: -0.02em;
     line-height: 1.15;
+    transition: opacity 0.2s ease;
+}
+
+.brand-link:hover .brand-title {
+    opacity: 0.9;
 }
 
 .brand-tagline {
     font-size: 0.725rem;
-    color: #64748b;
+    color: #999999;
+    font-style: italic;
     font-weight: 500;
     margin-top: 2px;
 }
