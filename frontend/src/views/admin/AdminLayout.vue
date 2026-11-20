@@ -24,6 +24,7 @@
             <div class="sidebar-brand">
                 <router-link to="/" v-if="!isSidebarCollapsed" class="brand-info brand-link-home" title="Kembali ke Beranda">
                     <h2 class="brand-title">Harian Cakrawala</h2>
+                    <span class="brand-tagline">Berita Peristiwa Indonesia Terkini</span>
                     <span class="brand-sub">Admin</span>
                 </router-link>
 
@@ -277,8 +278,8 @@ async function handleLogout() {
    SIDEBAR
 ============================== */
 .admin-sidebar {
-    width: 260px;
-    flex: 0 0 260px;
+    width: 280px;
+    flex: 0 0 280px;
     height: 100vh;
     position: sticky;
     top: 0;
@@ -299,25 +300,28 @@ async function handleLogout() {
 
 /* SIDEBAR BRAND */
 .sidebar-brand {
-    min-height: 112px;
-    padding: 25px 20px;
+    min-height: 125px;
+    padding: 20px 15px;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 10px;
+    gap: 8px;
     box-sizing: border-box;
 }
 
 .brand-info {
+    flex: 1;
     min-width: 0;
     white-space: nowrap;
 }
 
 .brand-link-home {
+    display: block;
+    flex: 1;
+    min-width: 0;
     text-decoration: none;
     cursor: pointer;
     transition: opacity 0.2s ease, transform 0.2s ease;
-    display: block;
 }
 
 .brand-link-home:hover {
@@ -327,9 +331,18 @@ async function handleLogout() {
 
 .brand-title {
     margin: 0;
-    color: #fff;
+    color: #FF5722;
     font-size: 19px;
     font-weight: 700;
+}
+
+.brand-tagline {
+    display: block;
+    color: #999999;
+    font-size: 13px;
+    font-style: italic;
+    margin-top: -3px;
+    margin-bottom: 5px;
 }
 
 .brand-sub {
