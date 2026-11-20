@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Naskah;
 use Illuminate\Http\Request;
+use App\Models\RiwayatStatus;
 
 class AdminReviewController extends Controller
 {

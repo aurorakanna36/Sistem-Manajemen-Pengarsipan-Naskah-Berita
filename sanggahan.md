@@ -7,7 +7,7 @@ IDENTITAS (( sistem uplouad file gambar) : ktp, kk. tidak hanya gambar berkas pe
 sediakan template dari sistem untuk daftar kerjasama.
 
 perubahan homepage: 
-
+[]()
 2 opsi:
 informasi kontributor 
 media harian cakrawala
