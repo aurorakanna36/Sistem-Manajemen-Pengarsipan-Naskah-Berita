@@ -214,7 +214,6 @@ class AdminUserController extends Controller
         $naskahList = $naskahs->map(fn($n) => [
             'id'            => $n->id,
             'judul'         => $n->judul,
-            'kata_kunci'    => $n->kata_kunci,
             'isi'           => $n->isi,
             'gambar_sampul' => Naskah::resolveGambarSampulUrl($n->gambar_sampul, $n->isi),
             'gambar_sampul_url' => Naskah::resolveGambarSampulUrl($n->gambar_sampul, $n->isi),

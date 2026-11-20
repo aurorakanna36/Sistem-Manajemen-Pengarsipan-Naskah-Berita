@@ -500,7 +500,6 @@ const selectedKategoriIds = ref([])
 
 const form = reactive({
     judul: '',
-    kata_kunci: '',
     isi: '',
 })
 
@@ -1136,7 +1135,6 @@ async function submitNaskah() {
         const fd = new FormData()
 
         fd.append('judul', form.judul)
-        fd.append('kata_kunci', form.kata_kunci || '')
         fd.append('isi', form.isi || '')
 
         selectedKategoriIds.value.forEach((id) => {

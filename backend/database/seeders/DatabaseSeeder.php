@@ -100,7 +100,6 @@ class DatabaseSeeder extends Seeder
             'id_kontributor' => $kontributor->id,
             'nama_kontributor' => $kontributor->nama_lengkap,
             'judul' => 'Inovasi Teknologi Terkini di Era Digital 2026',
-            'kata_kunci' => 'teknologi, digital, inovasi, AI',
 
             'isi' => '<h1>Inovasi Teknologi Terkini di Era Digital 2026</h1><p>Transformasi digital di Indonesia terus mengalami akselerasi pesat. Berbagai sektor mulai dari pendidikan hingga layanan publik kini mengadopsi sistem berbasis kecerdasan buatan.</p><h2>Dampak bagi Industri Kreatif</h2><p>Pelaku industri kreatif memanfaatkan perangkat analitik dan otomatisasi untuk meningkatkan produktivitas serta jangkauan audiens secara nasional.</p>',
             'kategori' => 'Teknologi, Nasional',
@@ -140,7 +139,6 @@ class DatabaseSeeder extends Seeder
             'id_kontributor' => $kontributor->id,
             'nama_kontributor' => $kontributor->nama_lengkap,
             'judul' => 'Strategi Pertumbuhan Ekonomi Kreatif Jawa Timur',
-            'kata_kunci' => 'ekonomi kreatif, UMKM, Jawa Timur',
 
             'isi' => '<h2>Pertumbuhan Ekonomi Kreatif</h2><p>Sektor ekonomi kreatif menjadi tulang punggung baru bagi perekonomian daerah di Jawa Timur dengan melibatkan ribuan pelaku UMKM.</p>',
             'kategori' => 'Ekonomi, Daerah',
@@ -165,7 +163,6 @@ class DatabaseSeeder extends Seeder
             'id_kontributor' => $kontributor->id,
             'nama_kontributor' => $kontributor->nama_lengkap,
             'judul' => 'Kajian Kebudayaan Tradisional Nusantara',
-            'kata_kunci' => 'budaya, pendidikan, nusantara',
 
             'isi' => '<p>Upaya pelestarian kebudayaan lokal memerlukan sinergi antara sekolah, keluarga, dan komunitas seni daerah.</p>',
             'kategori' => 'Pendidikan, Opini',
@@ -198,7 +195,6 @@ class DatabaseSeeder extends Seeder
             'id_kontributor' => $kontributor->id,
             'nama_kontributor' => $kontributor->nama_lengkap,
             'judul' => 'Transformasi Pendidikan Vokasi di Era Industri 5.0',
-            'kata_kunci' => 'pendidikan vokasi, industri, teknologi',
 
             'isi' => '<h2>Kurikulum Berbasis Industri</h2><p>Sekolah vokasi dan politeknik mulai memperbarui laboratorium serta program magang terpadu bersama mitra industri.</p>',
             'kategori' => 'Pendidikan, Teknologi',
@@ -231,7 +227,6 @@ class DatabaseSeeder extends Seeder
             'id_guest' => $guest->id,
             'nama_guest' => $guest->nama,
             'judul' => 'Suara Warga: Pentingnya Penghijauan Jalur Pedestrian',
-            'kata_kunci' => 'pedestrian, lingkungan, opini warga',
 
             'isi' => '<p>Jalur pedestrian yang teduh akan mendorong masyarakat lebih gemar berjalan kaki dan menggunakan transportasi umum.</p>',
             'kategori' => 'Opini',

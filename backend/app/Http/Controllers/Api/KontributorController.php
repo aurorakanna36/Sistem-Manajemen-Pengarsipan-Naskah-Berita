@@ -68,7 +68,6 @@ class KontributorController extends Controller
         return [
             'id' => $n->id,
             'judul' => $n->judul,
-            'kata_kunci' => $n->kata_kunci,
             'isi' => $n->isi,
             'kategori' => $kategoriDisplay,
             'kategoris' => $kategoriList,
@@ -204,7 +203,6 @@ class KontributorController extends Controller
             'kategori_ids' => ['nullable', 'array'],
             'kategori_ids.*' => ['integer', 'exists:kategori,id'],
             'kategori' => ['nullable', 'string'],
-            'kata_kunci' => ['nullable', 'string', 'max:255'],
             'isi' => ['nullable', 'string'],
             'gambar_sampul' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp,gif', 'max:4096'],
             'file' => ['nullable', 'file', 'mimes:pdf,doc,docx', 'max:10240'],
@@ -251,7 +249,6 @@ class KontributorController extends Controller
             'id_kontributor' => $user->id,
             'nama_kontributor' => $user->nama_lengkap,
             'judul' => $validated['judul'],
-            'kata_kunci' => $validated['kata_kunci'] ?? null,
             'isi' => $validated['isi'] ?? null,
             'gambar_sampul' => $gambarSampulPath,
             'kategori' => $kategoriString,
